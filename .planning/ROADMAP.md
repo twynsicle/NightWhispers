@@ -23,8 +23,8 @@ Night Whispers delivers asymmetric real-time messaging for social deduction game
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md - Initialize React 19 + Vite 7 + TypeScript project with Mantine and dependencies
-- [ ] 01-02-PLAN.md - Create Supabase schema, RLS policies, and verify client connectivity
+- [x] 01-01-PLAN.md - Initialize React 19 + Vite 7 + TypeScript project with Mantine and dependencies
+- [x] 01-02-PLAN.md - Create Supabase schema, RLS policies, and verify client connectivity
 
 **Success Criteria:**
 1. Developer can run `npm run dev` and see the app at localhost
@@ -168,7 +168,7 @@ Plans:
 
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
-| 1 - Foundation | Planned | 0 | 0% |
+| 1 - Foundation | Complete | 0 | 100% |
 | 2 - Session & Room Entry | Pending | 10 | 0% |
 | 3 - Lobby & Room Management | Pending | 8 | 0% |
 | 4 - Core Messaging | Pending | 7 | 0% |
@@ -193,4 +193,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19*
+*Last updated: 2026-01-19 (Phase 1 complete)*
