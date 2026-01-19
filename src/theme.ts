@@ -1,4 +1,5 @@
-import { createTheme, MantineColorsTuple } from '@mantine/core'
+import { createTheme } from '@mantine/core'
+import type { MantineColorsTuple } from '@mantine/core'
 
 // Crimson red color palette for gothic theme
 const crimson: MantineColorsTuple = [
