@@ -20,6 +20,12 @@ Night Whispers delivers asymmetric real-time messaging for social deduction game
 
 **Requirements:** None (infrastructure phase)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md - Initialize React 19 + Vite 7 + TypeScript project with Mantine and dependencies
+- [ ] 01-02-PLAN.md - Create Supabase schema, RLS policies, and verify client connectivity
+
 **Success Criteria:**
 1. Developer can run `npm run dev` and see the app at localhost
 2. Supabase project exists with database schema for rooms, participants, messages
@@ -162,7 +168,7 @@ Night Whispers delivers asymmetric real-time messaging for social deduction game
 
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
-| 1 - Foundation | Pending | 0 | 0% |
+| 1 - Foundation | Planned | 0 | 0% |
 | 2 - Session & Room Entry | Pending | 10 | 0% |
 | 3 - Lobby & Room Management | Pending | 8 | 0% |
 | 4 - Core Messaging | Pending | 7 | 0% |
