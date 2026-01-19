@@ -1,9 +1,22 @@
+import { Container, Title, Text, Button, Stack } from '@mantine/core'
+
 function App() {
+  const handleClick = () => {
+    console.log('App loaded')
+  }
+
   return (
-    <div>
-      <h1>Night Whispers</h1>
-      <p>React + TypeScript + Vite</p>
-    </div>
+    <Container size="xs" py="xl">
+      <Stack align="center" gap="md">
+        <Title order={1}>Night Whispers</Title>
+        <Text c="dimmed" size="lg">
+          Social deduction companion
+        </Text>
+        <Button onClick={handleClick} size="lg" mt="md">
+          Get Started
+        </Button>
+      </Stack>
+    </Container>
   )
 }
 
