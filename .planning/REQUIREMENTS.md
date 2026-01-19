@@ -111,57 +111,57 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ROOM-01 | TBD | Pending |
-| ROOM-02 | TBD | Pending |
-| ROOM-03 | TBD | Pending |
-| ROOM-04 | TBD | Pending |
-| ROOM-05 | TBD | Pending |
-| ROOM-06 | TBD | Pending |
-| SESS-01 | TBD | Pending |
-| SESS-02 | TBD | Pending |
-| SESS-03 | TBD | Pending |
-| SESS-04 | TBD | Pending |
-| SESS-05 | TBD | Pending |
-| MSG-01 | TBD | Pending |
-| MSG-02 | TBD | Pending |
-| MSG-03 | TBD | Pending |
-| MSG-04 | TBD | Pending |
-| MSG-05 | TBD | Pending |
-| MSG-06 | TBD | Pending |
-| MSG-07 | TBD | Pending |
-| PUSH-01 | TBD | Pending |
-| PUSH-02 | TBD | Pending |
-| PUSH-03 | TBD | Pending |
-| GAME-01 | TBD | Pending |
-| GAME-02 | TBD | Pending |
-| GAME-03 | TBD | Pending |
-| GAME-04 | TBD | Pending |
-| GAME-05 | TBD | Pending |
-| GAME-06 | TBD | Pending |
-| DASH-01 | TBD | Pending |
-| DASH-02 | TBD | Pending |
-| DASH-03 | TBD | Pending |
-| DASH-04 | TBD | Pending |
-| DASH-05 | TBD | Pending |
-| PLAY-01 | TBD | Pending |
-| PLAY-02 | TBD | Pending |
-| PLAY-03 | TBD | Pending |
-| PLAY-04 | TBD | Pending |
-| UX-01 | TBD | Pending |
-| UX-02 | TBD | Pending |
-| UX-03 | TBD | Pending |
-| UX-04 | TBD | Pending |
-| UX-05 | TBD | Pending |
-| LOBBY-01 | TBD | Pending |
-| LOBBY-02 | TBD | Pending |
-| LOBBY-03 | TBD | Pending |
-| LOBBY-04 | TBD | Pending |
+| ROOM-01 | Phase 2 | Pending |
+| ROOM-02 | Phase 2 | Pending |
+| ROOM-03 | Phase 3 | Pending |
+| ROOM-04 | Phase 3 | Pending |
+| ROOM-05 | Phase 3 | Pending |
+| ROOM-06 | Phase 2 | Pending |
+| SESS-01 | Phase 2 | Pending |
+| SESS-02 | Phase 2 | Pending |
+| SESS-03 | Phase 2 | Pending |
+| SESS-04 | Phase 2 | Pending |
+| SESS-05 | Phase 2 | Pending |
+| MSG-01 | Phase 4 | Pending |
+| MSG-02 | Phase 4 | Pending |
+| MSG-03 | Phase 4 | Pending |
+| MSG-04 | Phase 4 | Pending |
+| MSG-05 | Phase 4 | Pending |
+| MSG-06 | Phase 4 | Pending |
+| MSG-07 | Phase 4 | Pending |
+| PUSH-01 | Phase 6 | Pending |
+| PUSH-02 | Phase 6 | Pending |
+| PUSH-03 | Phase 6 | Pending |
+| GAME-01 | Phase 3 | Pending |
+| GAME-02 | Phase 5 | Pending |
+| GAME-03 | Phase 5 | Pending |
+| GAME-04 | Phase 5 | Pending |
+| GAME-05 | Phase 5 | Pending |
+| GAME-06 | Phase 5 | Pending |
+| DASH-01 | Phase 5 | Pending |
+| DASH-02 | Phase 5 | Pending |
+| DASH-03 | Phase 5 | Pending |
+| DASH-04 | Phase 6 | Pending |
+| DASH-05 | Phase 6 | Pending |
+| PLAY-01 | Phase 5 | Pending |
+| PLAY-02 | Phase 5 | Pending |
+| PLAY-03 | Phase 5 | Pending |
+| PLAY-04 | Phase 5 | Pending |
+| UX-01 | Phase 2 | Pending |
+| UX-02 | Phase 2 | Pending |
+| UX-03 | Phase 6 | Pending |
+| UX-04 | Phase 6 | Pending |
+| UX-05 | Phase 6 | Pending |
+| LOBBY-01 | Phase 3 | Pending |
+| LOBBY-02 | Phase 3 | Pending |
+| LOBBY-03 | Phase 3 | Pending |
+| LOBBY-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 43 total
-- Mapped to phases: 0
-- Unmapped: 43 ⚠️
+- Mapped to phases: 43
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after initial definition*
+*Last updated: 2026-01-19 after roadmap creation*
