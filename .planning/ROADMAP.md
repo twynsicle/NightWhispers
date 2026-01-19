@@ -52,6 +52,13 @@ Plans:
 - UX-01: Gothic visual theme (dark background, crimson/gold accents)
 - UX-02: Mobile-first responsive design
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md - Session management infrastructure (auth hook, room utilities)
+- [ ] 02-02-PLAN.md - User interface and routing (pages, components, React Router)
+- [ ] 02-03-PLAN.md - Room integration and verification (auto-rejoin, error handling)
+
 **Success Criteria:**
 1. Storyteller can create room, see 4-letter code, and share it verbally
 2. Player can enter code, set name/avatar, and appear in room
