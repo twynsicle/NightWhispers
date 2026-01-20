@@ -155,10 +155,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md - Phase management (display and advance phase)
-- [ ] 05-02-PLAN.md - Player status management (death toggle and custom status)
-- [ ] 05-03-PLAN.md - Game reset functionality
-- [ ] 05-04-PLAN.md - Player settings menu (leave game and room code access)
+- [x] 05-01-PLAN.md - Phase management (display and advance phase)
+- [x] 05-02-PLAN.md - Player status management (death toggle and custom status)
+- [x] 05-03-PLAN.md - Game reset functionality
+- [x] 05-04-PLAN.md - Player settings menu (leave game and room code access)
 
 **Success Criteria:**
 1. Storyteller advances to "Night 2"; all players see phase update in header
@@ -185,6 +185,15 @@ Plans:
 - PUSH-02: User receives push notification when new message arrives (app backgrounded)
 - PUSH-03: Notification tap opens app to relevant chat
 
+**Plans:** 5 plans
+
+Plans:
+- [ ] 06-01-PLAN.md - PWA configuration (manifest, icons, service worker)
+- [ ] 06-02-PLAN.md - Desktop split-panel layout for Storyteller
+- [ ] 06-03-PLAN.md - Drag-and-drop player card reordering
+- [ ] 06-04-PLAN.md - Push notifications infrastructure and UI
+- [ ] 06-05-PLAN.md - Smooth animations (messages, phase, cards)
+
 **Success Criteria:**
 1. User on mobile can install app to home screen via browser prompt
 2. User with app backgrounded receives push notification for new message
@@ -202,10 +211,10 @@ Plans:
 | 2 - Session & Room Entry | Complete | 10 | 100% |
 | 3 - Lobby & Room Management | Complete | 8 | 100% |
 | 4 - Core Messaging | Complete | 7 | 100% |
-| 5 - Game State & Views | Pending | 12 | 0% |
-| 6 - Polish & PWA | Pending | 8 | 0% |
+| 5 - Game State & Views | Complete | 12 | 100% |
+| 6 - Polish & PWA | Planned | 8 | 0% |
 
-**Overall:** 25/43 requirements complete (58%)
+**Overall:** 37/43 requirements complete (86%)
 
 ---
 
@@ -218,9 +227,9 @@ Plans:
 | Phase 3 | SKIP | Standard CRUD patterns |
 | Phase 4 | YES | Race conditions, message ordering, broadcast patterns |
 | Phase 5 | SKIP | RLS patterns from Phase 1 apply |
-| Phase 6 | YES | iOS PWA push notifications, caching strategies |
+| Phase 6 | YES (complete) | iOS PWA push notifications, caching strategies |
 
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 4 complete)*
+*Last updated: 2026-01-20 (Phase 6 planned)*
