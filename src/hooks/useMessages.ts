@@ -95,11 +95,11 @@ export function useMessages(
         // Must match database query logic to prevent race conditions
         const isRelevant = recipientId
           ? // 1-to-1: message between current participant and recipient, OR broadcast
-            ((newMessage.sender_id === participantId &&
+            (newMessage.sender_id === participantId &&
               newMessage.recipient_id === recipientId) ||
-              (newMessage.sender_id === recipientId &&
-                newMessage.recipient_id === participantId) ||
-              newMessage.is_broadcast)
+            (newMessage.sender_id === recipientId &&
+              newMessage.recipient_id === participantId) ||
+            newMessage.is_broadcast
           : // Broadcast view: only broadcast messages
             newMessage.is_broadcast
 
