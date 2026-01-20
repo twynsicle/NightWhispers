@@ -1,4 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
+import { Center, Loader } from '@mantine/core'
+import { useAuth } from './hooks/useAuth'
 import { HomePage } from './pages/HomePage'
 import { SessionSetupPage } from './pages/SessionSetupPage'
 import { CreateRoomPage } from './pages/CreateRoomPage'
@@ -42,7 +44,29 @@ const router = createBrowserRouter([
   },
 ])
 
+/**
+ * Root App component with session recovery.
+ *
+ * Implements Pattern 1 (Session Recovery) from RESEARCH.md.
+ * Session recovery happens before routing to enable auto-rejoin functionality.
+ *
+ * Flow:
+ * 1. useAuth hook checks localStorage for existing session
+ * 2. Shows loading screen while session is being recovered
+ * 3. Once loading completes, renders router
+ * 4. Protected routes (RoomPage) can now access valid session
+ */
 function App() {
+  const { loading } = useAuth()
+
+  if (loading) {
+    return (
+      <Center h="100vh">
+        <Loader size="lg" />
+      </Center>
+    )
+  }
+
   return <RouterProvider router={router} />
 }
 

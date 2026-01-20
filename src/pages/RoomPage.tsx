@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, useLoaderData, redirect } from 'react-router'
-import { Container, Stack, Title, Text, Badge } from '@mantine/core'
+import { Container, Stack, Title, Text, Badge, Code } from '@mantine/core'
 import { supabase, Database } from '../lib/supabase'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -71,6 +71,18 @@ export function RoomPage() {
         <Title order={2} c="crimson">
           Room: {participant.rooms.code}
         </Title>
+
+        <Stack gap="xs">
+          <Text size="sm" c="dimmed">
+            Room Code:
+          </Text>
+          <Code block fz="xl" ta="center">
+            {participant.rooms.code}
+          </Code>
+          <Text size="xs" c="dimmed" ta="center">
+            Share this code for others to join
+          </Text>
+        </Stack>
 
         <Stack gap="xs">
           <Text>
