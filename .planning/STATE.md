@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 2 of 6 (Session & Room Entry)
-**Plan:** 1 of 2 in phase
-**Status:** In progress
-**Last activity:** 2026-01-20 - Completed 02-01-PLAN.md
+**Plan:** 2 of 2 in phase
+**Status:** Phase complete
+**Last activity:** 2026-01-20 - Completed 02-02-PLAN.md
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
-Phase 2: Session & Room     [█████.....] 50%
+Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [..........] 0%
 Phase 4: Core Messaging     [..........] 0%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 3/5 plans complete (60%)
+Overall: 4/5 plans complete (80%)
 ```
 
 ---
@@ -40,9 +40,9 @@ Overall: 3/5 plans complete (60%)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 3 |
+| Plans Completed | 4 |
 | Requirements Delivered | 0/43 |
-| Phases Completed | 1/6 |
+| Phases Completed | 2/6 |
 | Session Count | 3 |
 
 ---
@@ -65,6 +65,9 @@ Overall: 3/5 plans complete (60%)
 | Anonymous auth with localStorage | Zero-friction UX, sessions persist across refreshes without accounts | 02-01 |
 | 4-letter room codes via nanoid | 1M combinations, excludes confusing chars, collision-resistant | 02-01 |
 | Upsert for participant joining | Prevents duplicates on reconnection, race-condition safe | 02-01 |
+| Gothic emoji avatars | Zero assets, accessible, mobile-friendly, instant rendering | 02-02 |
+| Loader-based route protection | Prevents FOUC, SEO-safe, blocks child loaders before rendering | 02-02 |
+| localStorage for displayName/avatar | Decouples session setup from room flow, allows profile reuse | 02-02 |
 
 ### Architecture Notes
 
@@ -79,6 +82,9 @@ Overall: 3/5 plans complete (60%)
 - **Theme:** MantineProvider with dark colorScheme default
 - **Database:** Supabase with rooms, participants, messages tables; RLS policies for room isolation
 - **Client:** Single Supabase client instance from src/lib/supabase.ts
+- **Routing:** React Router 7 with createBrowserRouter + loaders for protected routes
+- **Pages:** Home, SessionSetup, CreateRoom, JoinRoom, Room (protected with loader)
+- **Avatars:** 12 gothic emoji options (🧙‍♂️🧛‍♀️🧟‍♂️👻🎭🕵️🦇🌙⚰️🔮🗡️🛡️)
 
 ### Open TODOs
 
@@ -87,7 +93,8 @@ Overall: 3/5 plans complete (60%)
 - [x] Execute 01-02-PLAN.md (Supabase Database Setup)
 - [x] Create Phase 2 plan via `/gsd:plan-phase 2`
 - [x] Execute 02-01-PLAN.md (Auth & Room Management Infrastructure)
-- [ ] Execute 02-02-PLAN.md (Session Setup UI)
+- [x] Execute 02-02-PLAN.md (Session Setup UI)
+- [ ] Create Phase 3 plan via `/gsd:plan-phase 3`
 
 ### Blockers
 
@@ -105,11 +112,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 02-01: Auth & Room Management Infrastructure. Created useAuth hook with session recovery (getSession/onAuthStateChange), signInAnonymously helper with duplicate prevention, room code generator using nanoid (4-letter codes), and room management functions (createRoom with collision retry, joinRoom with upsert, getRoomByCode). All functions use proper Database types. Phase 2 (Session & Room Entry) now 50% complete.
+Executed plan 02-02: Session Setup UI. Created AvatarSelector component with 12 gothic emoji options in responsive grid. Built 5 pages: HomePage (create/join choice), SessionSetupPage (Mantine form validation for displayName/avatar), CreateRoomPage (auto-creates room, displays code), JoinRoomPage (4-letter code validation), and RoomPage (protected route with loader). Configured React Router 7 with createBrowserRouter and loader-based protection. Added Notifications provider to main.tsx. Phase 2 (Session & Room Entry) now 100% complete.
 
 ### Next Session Entry Point
 
-Execute plan 02-02: Session Setup UI (Display Name & Avatar selection).
+Create plan for Phase 3: Lobby & Room Management via `/gsd:plan-phase 3`.
 
 ### Context to Preserve
 
@@ -122,9 +129,13 @@ Execute plan 02-02: Session Setup UI (Display Name & Avatar selection).
 - iOS WebKit 7-day localStorage cap requires session validation on every mount
 - Room codes have 1M combinations, 50% collision at ~1K rooms (monitor for scaling)
 - Upsert pattern prevents duplicate participants on reconnection
+- Router loader pattern prevents FOUC on protected routes
+- displayName and avatar stored in localStorage for CreateRoom/JoinRoom flows
+- All pages follow gothic theme: dark background, crimson accents, mobile-first
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 02-01-PLAN.md completed 2026-01-20*
+*Last execution: 02-02-PLAN.md completed 2026-01-20*
 *Phase 1 complete: 2026-01-19*
+*Phase 2 complete: 2026-01-20*
