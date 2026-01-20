@@ -66,10 +66,7 @@ export function PlayerStatusControls({
 
     const saveCustomStatus = async () => {
       try {
-        await setCustomStatus(
-          participant.id,
-          debouncedCustomStatus || null
-        )
+        await setCustomStatus(participant.id, debouncedCustomStatus || null)
         notifications.show({
           title: 'Status updated',
           message: debouncedCustomStatus
@@ -90,7 +87,12 @@ export function PlayerStatusControls({
     }
 
     saveCustomStatus()
-  }, [debouncedCustomStatus, hasInitialized, participant.id, participant.custom_status])
+  }, [
+    debouncedCustomStatus,
+    hasInitialized,
+    participant.id,
+    participant.custom_status,
+  ])
 
   const handleToggleDead = async () => {
     setIsUpdating(true)

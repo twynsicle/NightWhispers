@@ -30,7 +30,9 @@ export function getNextPhase(currentPhase: string): string {
 
   if (!match) {
     // Invalid phase format, default to Night 1
-    console.warn(`Invalid phase format: "${currentPhase}", defaulting to Night 1`)
+    console.warn(
+      `Invalid phase format: "${currentPhase}", defaulting to Night 1`
+    )
     return 'Night 1'
   }
 

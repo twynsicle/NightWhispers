@@ -48,6 +48,8 @@ export async function resetGame(roomId: string): Promise<void> {
     .eq('room_id', roomId)
 
   if (participantsError) {
-    throw new Error(`Failed to reset participant status: ${participantsError.message}`)
+    throw new Error(
+      `Failed to reset participant status: ${participantsError.message}`
+    )
   }
 }

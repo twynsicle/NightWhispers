@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react'
-import { SimpleGrid, Card, Text, Group, Badge, Stack, Button, Divider } from '@mantine/core'
+import {
+  SimpleGrid,
+  Card,
+  Text,
+  Group,
+  Badge,
+  Stack,
+  Button,
+  Divider,
+} from '@mantine/core'
 import { IconRefresh } from '@tabler/icons-react'
 import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'

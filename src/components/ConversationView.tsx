@@ -127,7 +127,13 @@ export function ConversationView({
 
       {/* Player Status Controls (1-to-1 chats only, for Storyteller) */}
       {recipient && (
-        <Stack p="md" style={{ backgroundColor: 'var(--mantine-color-dark-8)', flexShrink: 0 }}>
+        <Stack
+          p="md"
+          style={{
+            backgroundColor: 'var(--mantine-color-dark-8)',
+            flexShrink: 0,
+          }}
+        >
           <PlayerStatusControls participant={recipient} />
         </Stack>
       )}

@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { Modal, Button, Group, Text, List, Stack, ThemeIcon } from '@mantine/core'
+import {
+  Modal,
+  Button,
+  Group,
+  Text,
+  List,
+  Stack,
+  ThemeIcon,
+} from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { resetGame } from '../lib/game-reset'
@@ -21,7 +29,11 @@ interface GameResetModalProps {
  *
  * Requires explicit confirmation to prevent accidental resets.
  */
-export function GameResetModal({ roomId, opened, onClose }: GameResetModalProps) {
+export function GameResetModal({
+  roomId,
+  opened,
+  onClose,
+}: GameResetModalProps) {
   const [loading, setLoading] = useState(false)
 
   const handleConfirm = async () => {
@@ -37,7 +49,8 @@ export function GameResetModal({ roomId, opened, onClose }: GameResetModalProps)
     } catch (error) {
       notifications.show({
         title: 'Reset Failed',
-        message: error instanceof Error ? error.message : 'Failed to reset game',
+        message:
+          error instanceof Error ? error.message : 'Failed to reset game',
         color: 'red',
       })
     } finally {
