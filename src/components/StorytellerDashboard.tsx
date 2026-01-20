@@ -14,6 +14,10 @@ import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
 import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
 import { GameResetModal } from './GameResetModal'
+import { useDesktopLayout } from '../hooks/useDesktopLayout'
+import { SplitPanelLayout } from './desktop/SplitPanelLayout'
+import { PlayerSidebar } from './desktop/PlayerSidebar'
+import { DesktopConversationPanel } from './desktop/DesktopConversationPanel'
 import styles from './StorytellerDashboard.module.css'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -33,7 +37,9 @@ interface StorytellerDashboardProps {
  * Implements:
  * - DASH-01: Storyteller sees all players as cards on mobile
  * - DASH-03: Storyteller can open full chat view with player
+ * - DASH-04: Desktop shows split-panel (player list + chat)
  * - MSG-04: Storyteller can broadcast message to all players
+ * - UX-03: Desktop breakpoint (>1024px) shows optimized layout
  *
  * @param roomId - Room ID
  * @param participantId - Storyteller's participant ID
@@ -44,6 +50,7 @@ export function StorytellerDashboard({
   participantId,
   participants,
 }: StorytellerDashboardProps) {
+  const { isDesktop } = useDesktopLayout()
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
@@ -56,7 +63,91 @@ export function StorytellerDashboard({
     }
   }, [selectedParticipant, participantId])
 
-  // If conversation is open, render ConversationView
+  // Desktop: Split-panel layout with sidebar and inline conversation
+  if (isDesktop) {
+    const handleSelectPlayer = (player: Participant | null) => {
+      setSelectedParticipant(player)
+      setIsBroadcastMode(false)
+    }
+
+    const handleSelectBroadcast = () => {
+      setSelectedParticipant(null)
+      setIsBroadcastMode(true)
+    }
+
+    // Determine conversation panel content
+    const renderConversationPanel = () => {
+      if (selectedParticipant) {
+        return (
+          <DesktopConversationPanel
+            key={selectedParticipant.id}
+            roomId={roomId}
+            participantId={participantId}
+            recipientId={selectedParticipant.id}
+            recipientName={selectedParticipant.display_name}
+            participants={participants}
+          />
+        )
+      }
+
+      if (isBroadcastMode) {
+        return (
+          <DesktopConversationPanel
+            key="broadcast"
+            roomId={roomId}
+            participantId={participantId}
+            recipientId={null}
+            recipientName="All Players"
+            participants={participants}
+          />
+        )
+      }
+
+      // Default: show placeholder
+      return (
+        <Stack h="100%" justify="center" align="center" gap="md">
+          <Text size="xl" c="dimmed">
+            {'\u{1F4AC}'}
+          </Text>
+          <Text size="lg" c="dimmed" ta="center">
+            Select a player to start chatting
+          </Text>
+          <Text size="sm" c="dimmed" ta="center">
+            Or send a broadcast to all players
+          </Text>
+        </Stack>
+      )
+    }
+
+    return (
+      <>
+        <SplitPanelLayout
+          sidebar={
+            <PlayerSidebar
+              roomId={roomId}
+              participantId={participantId}
+              participants={participants}
+              selectedPlayerId={selectedParticipant?.id || null}
+              onSelectPlayer={handleSelectPlayer}
+              onSelectBroadcast={handleSelectBroadcast}
+              isBroadcastSelected={isBroadcastMode}
+              onResetGame={() => setResetModalOpened(true)}
+            />
+          }
+          main={renderConversationPanel()}
+        />
+
+        {/* Reset Confirmation Modal (rendered outside split-panel for proper z-index) */}
+        <GameResetModal
+          roomId={roomId}
+          opened={resetModalOpened}
+          onClose={() => setResetModalOpened(false)}
+        />
+      </>
+    )
+  }
+
+  // Mobile: Full-screen conversation overlay when selected
   if (selectedParticipant) {
     return (
       <ConversationView
@@ -70,7 +161,7 @@ export function StorytellerDashboard({
     )
   }
 
-  // If broadcast mode is active, render ConversationView for broadcast
+  // Mobile: Full-screen broadcast when active
   if (isBroadcastMode) {
     return (
       <ConversationView
@@ -84,7 +175,7 @@ export function StorytellerDashboard({
     )
   }
 
-  // Filter out Storyteller from player list
+  // Mobile: Card-based dashboard
   const players = participants.filter(p => p.role !== 'storyteller')
 
   return (
