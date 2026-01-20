@@ -90,10 +90,12 @@ export function RoomPage() {
   return (
     <Container size="md" py="xl">
       <Stack gap="md">
+        {/* Title with role-specific messaging */}
         <Title order={2} c="crimson">
-          Room: {participant.rooms.code}
+          {isStoryteller ? `Lobby - Room ${participant.rooms.code}` : 'Waiting for Storyteller...'}
         </Title>
 
+        {/* Room Code Display */}
         <Stack gap="xs">
           <Text size="sm" c="dimmed">
             Room Code:
@@ -106,6 +108,7 @@ export function RoomPage() {
           </Text>
         </Stack>
 
+        {/* QR Code Button */}
         <Button
           variant="light"
           leftSection={<IconQrcode size={20} />}
@@ -115,6 +118,7 @@ export function RoomPage() {
           Show QR Code
         </Button>
 
+        {/* QR Code Modal */}
         <Modal
           opened={qrModalOpen}
           onClose={() => setQrModalOpen(false)}
@@ -124,22 +128,40 @@ export function RoomPage() {
           <QRCodeGenerator url={joinUrl} />
         </Modal>
 
-        <Stack gap="xs">
-          <Text>
-            {participant.avatar_id} {participant.display_name}
+        {/* Participant List Section */}
+        <Stack gap="xs" mt="md">
+          <Text size="sm" c="dimmed" fw={500}>
+            Participants
           </Text>
 
-          <Badge
-            color={participant.role === 'storyteller' ? 'crimson' : 'gray'}
-            variant="filled"
-          >
-            {participant.role === 'storyteller' ? 'Storyteller' : 'Player'}
-          </Badge>
+          {loading ? (
+            <Stack gap="sm">
+              <Skeleton height={48} />
+              <Skeleton height={48} />
+              <Skeleton height={48} />
+            </Stack>
+          ) : (
+            <ParticipantList
+              participants={participants}
+              currentUserId={userId}
+              showRole={true}
+            />
+          )}
         </Stack>
 
-        <Text c="dimmed" size="sm" mt="xl">
-          Room interface coming in Phase 3: Lobby & Management
-        </Text>
+        {/* Role-specific hints */}
+        {isStoryteller ? (
+          <Text size="sm" c="dimmed" ta="center" mt="md">
+            Manage players and start the game
+          </Text>
+        ) : (
+          <Stack gap="xs" align="center" mt="md">
+            <Loader type="dots" size="sm" />
+            <Text size="sm" c="dimmed">
+              The game will start soon
+            </Text>
+          </Stack>
+        )}
       </Stack>
     </Container>
   )
