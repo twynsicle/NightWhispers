@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLoaderData, redirect, useNavigate } from 'react-router'
-import { Container, Stack, Title, Text, Badge, Code, Modal, Button, Skeleton, Loader, Select, TextInput } from '@mantine/core'
+import { Container, Stack, Title, Text, Code, Modal, Button, Skeleton, Loader, Select, TextInput } from '@mantine/core'
 import { IconQrcode } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { supabase } from '../lib/supabase'
@@ -8,6 +8,8 @@ import type { Database } from '../lib/supabase'
 import { QRCodeGenerator } from '../components/QRCodeGenerator'
 import { useParticipants } from '../hooks/useParticipants'
 import { ParticipantList } from '../components/ParticipantList'
+import { PlayerChatView } from '../components/PlayerChatView'
+import { StorytellerDashboard } from '../components/StorytellerDashboard'
 import { kickParticipant, updateParticipantName, startGame } from '../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -317,13 +319,35 @@ export function RoomPage() {
           </>
         ) : roomStatus === 'active' ? (
           <>
-            {/* ACTIVE GAME VIEW - Placeholder for Phase 4 */}
-            <Text size="lg" ta="center" c="dimmed" py="xl">
-              Game is active - messaging coming in Phase 4
-            </Text>
-            <Text size="sm" ta="center" c="dimmed">
-              {participants.length} participants in room
-            </Text>
+            {/* ACTIVE GAME VIEW - Messaging Interface */}
+            {isStoryteller ? (
+              // Storyteller view: Player cards dashboard
+              <StorytellerDashboard
+                roomId={roomId}
+                participantId={participantId}
+                participants={participants}
+              />
+            ) : (
+              // Player view: Full-screen chat with Storyteller
+              (() => {
+                const storyteller = participants.find((p) => p.role === 'storyteller')
+                if (!storyteller) {
+                  return (
+                    <Text size="sm" ta="center" c="dimmed" py="xl">
+                      Waiting for Storyteller...
+                    </Text>
+                  )
+                }
+                return (
+                  <PlayerChatView
+                    roomId={roomId}
+                    participantId={participantId}
+                    storytellerId={storyteller.id}
+                    storytellerName={storyteller.display_name}
+                  />
+                )
+              })()
+            )}
           </>
         ) : (
           <>
