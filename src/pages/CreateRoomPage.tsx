@@ -28,6 +28,7 @@ export function CreateRoomPage() {
   const [roomCode, setRoomCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [roomId, setRoomId] = useState<string | null>(null)
 
   useEffect(() => {
     async function initialize() {
@@ -43,8 +44,17 @@ export function CreateRoomPage() {
       }
 
       // Check for display name and avatar in localStorage
-      const displayName = localStorage.getItem('displayName')
-      const avatar = localStorage.getItem('avatar')
+      let displayName: string | null = null
+      let avatar: string | null = null
+
+      try {
+        displayName = localStorage.getItem('displayName')
+        avatar = localStorage.getItem('avatar')
+      } catch (err) {
+        console.error('localStorage access failed:', err)
+        navigate('/setup?next=create')
+        return
+      }
 
       if (!displayName || !avatar) {
         navigate('/setup?next=create')
@@ -55,11 +65,7 @@ export function CreateRoomPage() {
       try {
         const { room } = await createRoom(session.user.id, true, displayName, avatar)
         setRoomCode(room.code)
-
-        // Auto-navigate to room after 2 seconds
-        setTimeout(() => {
-          navigate(`/room/${room.id}`)
-        }, 2000)
+        setRoomId(room.id)
       } catch (err) {
         console.error('Room creation failed:', err)
         setError(err instanceof Error ? err.message : 'Failed to create room')
@@ -75,6 +81,17 @@ export function CreateRoomPage() {
 
     initialize()
   }, [session, authLoading, navigate])
+
+  // Auto-navigate after 2 seconds with cleanup
+  useEffect(() => {
+    if (!roomId) return
+
+    const timeoutId = setTimeout(() => {
+      navigate(`/room/${roomId}`)
+    }, 2000)
+
+    return () => clearTimeout(timeoutId)
+  }, [roomId, navigate])
 
   if (isLoading) {
     return (
@@ -129,9 +146,18 @@ export function CreateRoomPage() {
           Players can enter this code to join
         </Text>
 
-        <Text size="xs" c="dimmed" mt="md">
-          Redirecting to room...
-        </Text>
+        <Stack gap="xs" mt="md">
+          <Text size="xs" c="dimmed" ta="center">
+            Redirecting to room...
+          </Text>
+          <Button
+            variant="subtle"
+            color="crimson"
+            onClick={() => navigate(`/room/${roomId}`)}
+          >
+            Continue Now
+          </Button>
+        </Stack>
       </Stack>
     </Container>
   )

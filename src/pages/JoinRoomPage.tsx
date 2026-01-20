@@ -53,8 +53,17 @@ export function JoinRoomPage() {
     }
 
     // Check for display name and avatar
-    const displayName = localStorage.getItem('displayName')
-    const avatar = localStorage.getItem('avatar')
+    let displayName: string | null = null
+    let avatar: string | null = null
+
+    try {
+      displayName = localStorage.getItem('displayName')
+      avatar = localStorage.getItem('avatar')
+    } catch (err) {
+      console.error('localStorage access failed:', err)
+      navigate('/setup?next=join')
+      return
+    }
 
     if (!displayName || !avatar) {
       navigate('/setup?next=join')
@@ -65,7 +74,7 @@ export function JoinRoomPage() {
     try {
       // Join room (upsert participant)
       const participant = await joinRoom(
-        values.roomCode.toUpperCase(),
+        values.roomCode.trim().toUpperCase(),
         session.user.id,
         displayName,
         avatar

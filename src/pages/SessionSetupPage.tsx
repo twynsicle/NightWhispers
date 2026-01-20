@@ -53,19 +53,17 @@ export function SessionSetupPage() {
   async function handleSubmit(values: { displayName: string; avatar: string }) {
     setIsLoading(true)
     try {
-      // Create anonymous session if needed
+      // Create anonymous session if needed (throws on failure)
       await signInAnonymously()
 
-      // Verify session is ready in Supabase client (not just useAuth state)
-      // This prevents race condition where the client hasn't loaded the session yet
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      if (sessionError || !session) {
-        throw new Error('Failed to initialize authenticated session')
-      }
-
       // Store preferences in localStorage for next step
-      localStorage.setItem('displayName', values.displayName)
-      localStorage.setItem('avatar', values.avatar)
+      try {
+        localStorage.setItem('displayName', values.displayName)
+        localStorage.setItem('avatar', values.avatar)
+      } catch (err) {
+        console.error('localStorage write failed:', err)
+        throw new Error('Failed to save preferences. Please check browser settings.')
+      }
 
       // Navigate based on ?next param (default to create)
       const next = searchParams.get('next') || 'create'

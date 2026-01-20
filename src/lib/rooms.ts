@@ -15,14 +15,16 @@ type Participant = Database['public']['Tables']['participants']['Row']
  * @param {boolean} isStoryteller - Whether user is storyteller (true) or player (false)
  * @param {string} displayName - User's chosen display name (2-20 chars)
  * @param {string} avatar - Avatar identifier/emoji
+ * @param {number} maxRetries - Maximum number of collision retry attempts (default: 5)
  * @returns {Promise<{room: Room, participant: Participant}>} Created room and participant
- * @throws {Error} If room creation fails (non-collision error)
+ * @throws {Error} If room creation fails (non-collision error) or max retries exceeded
  */
 export async function createRoom(
   userId: string,
   isStoryteller: boolean,
   displayName: string,
-  avatar: string
+  avatar: string,
+  maxRetries: number = 5
 ): Promise<{ room: Room; participant: Participant }> {
   const code = generateRoomCode()
 
@@ -38,8 +40,11 @@ export async function createRoom(
 
   // Handle collision: unique constraint violation (PostgreSQL error 23505)
   if (roomError?.code === '23505') {
+    if (maxRetries <= 0) {
+      throw new Error('Failed to generate unique room code after multiple attempts')
+    }
     // Retry with new code (recursive)
-    return createRoom(userId, isStoryteller, displayName, avatar)
+    return createRoom(userId, isStoryteller, displayName, avatar, maxRetries - 1)
   }
 
   if (roomError) throw roomError

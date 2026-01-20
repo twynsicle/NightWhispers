@@ -6,8 +6,10 @@ import type { Database } from '../lib/supabase'
 type Participant = Database['public']['Tables']['participants']['Row']
 type Room = Database['public']['Tables']['rooms']['Row']
 
+type ParticipantWithRoom = Participant & { rooms: Room }
+
 interface RoomLoaderData {
-  participant: Participant & { rooms: Room }
+  participant: ParticipantWithRoom
 }
 
 /**
@@ -52,7 +54,7 @@ export async function roomLoader({
   }
 
   // Type assertion: single() with select('*, rooms(*)') returns joined data
-  return { participant: participant as Participant & { rooms: Room } }
+  return { participant: participant as ParticipantWithRoom }
 }
 
 /**
@@ -93,10 +95,10 @@ export function RoomPage() {
           </Text>
 
           <Badge
-            color={participant.is_storyteller ? 'crimson' : 'gray'}
+            color={participant.role === 'storyteller' ? 'crimson' : 'gray'}
             variant="filled"
           >
-            {participant.is_storyteller ? 'Storyteller' : 'Player'}
+            {participant.role === 'storyteller' ? 'Storyteller' : 'Player'}
           </Badge>
         </Stack>
 
