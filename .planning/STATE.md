@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 10
+**Session:** 11
 
 ---
 
@@ -18,9 +18,9 @@
 ## Current Position
 
 **Phase:** 6 of 6 (Polish & PWA)
-**Plan:** 1 of 5 in phase (06-05 complete)
+**Plan:** 2 of 5 in phase (06-02, 06-05 complete)
 **Status:** In progress
-**Last activity:** 2026-01-20 - Completed 06-05-PLAN.md (UI Animations)
+**Last activity:** 2026-01-20 - Completed 06-02-PLAN.md (Desktop Split-Panel Layout)
 
 **Progress:**
 ```
@@ -29,9 +29,9 @@ Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [██████████] 100% (4/4 plans)
-Phase 6: Polish & PWA       [██........] 20% (1/5 plans)
+Phase 6: Polish & PWA       [████......] 40% (2/5 plans)
 
-Overall: 17/21 plans complete (81% of planned work)
+Overall: 18/21 plans complete (86% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 17/21 plans complete (81% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 17 |
-| Requirements Delivered | 30/43 |
+| Plans Completed | 18 |
+| Requirements Delivered | 32/43 |
 | Phases Completed | 5/6 |
-| Session Count | 10 |
+| Session Count | 11 |
 
 ---
 
@@ -111,6 +111,9 @@ Overall: 17/21 plans complete (81% of planned work)
 | Track initialCount to detect new messages | Simple approach, messages at index >= initialCount animate | 06-05 |
 | CSS modules for card hover effects | Pseudo-classes require CSS, not inline styles | 06-05 |
 | All animations respect prefers-reduced-motion | Accessibility standard for users with vestibular disorders | 06-05 |
+| 1024px desktop breakpoint | Per UX-03, matches common laptop width | 06-02 |
+| DesktopConversationPanel for inline rendering | Mobile ConversationView uses fixed positioning, desktop needs inline | 06-02 |
+| Placeholder when no selection on desktop | Better UX than empty panel, guides user to action | 06-02 |
 
 ### Architecture Notes
 
@@ -168,6 +171,7 @@ Overall: 17/21 plans complete (81% of planned work)
 - [x] Execute 05-03-PLAN.md (Game Reset)
 - [x] Execute 05-04-PLAN.md (Player Settings Menu)
 - [x] Execute 06-05-PLAN.md (UI Animations)
+- [x] Execute 06-02-PLAN.md (Desktop Split-Panel Layout)
 
 ### Blockers
 
@@ -185,11 +189,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 06-05: UI Animations. Created AnimatedMessage component with Mantine Transition for slide-up message entry animations with stagger effect. Integrated into MessageList with initialCount tracking to only animate new messages. Added phase change transition to PhaseHeader with fade out/in effect. Created CSS module for card hover effects (translateY lift on hover, press on active). All animations respect prefers-reduced-motion for accessibility. All 3 tasks committed individually. UX-05 requirement delivered.
+Executed plan 06-02: Desktop Split-Panel Layout. Created useDesktopLayout hook with 1024px breakpoint using Mantine useMediaQuery (SSR-safe). Built SplitPanelLayout (container), PlayerSidebar (player list with unread badges), and DesktopConversationPanel (inline chat without fixed positioning). Updated StorytellerDashboard to conditionally render desktop split-panel or mobile card grid based on viewport width. Desktop shows sidebar + conversation side-by-side; mobile preserves existing full-screen overlay navigation. All 3 tasks committed individually. UX-03 and DASH-04 requirements delivered.
 
 ### Next Session Entry Point
 
-Phase 6 in progress. Continue with remaining plans (06-01, 06-02, 06-03, 06-04).
+Phase 6 in progress. Continue with remaining plans (06-01, 06-03, 06-04).
 
 ### Context to Preserve
 
@@ -257,14 +261,19 @@ Phase 6 in progress. Continue with remaining plans (06-01, 06-02, 06-03, 06-04).
 - Phase transition: fade out/in animation with animationKey increment on phase change
 - Card hover: CSS module with translateY(-2px) on hover, press effect on active
 - Accessibility: All animations check prefers-reduced-motion media query
+- **Desktop layout:** useDesktopLayout hook with 1024px breakpoint for responsive Storyteller view
+- Desktop components: SplitPanelLayout, PlayerSidebar, DesktopConversationPanel in src/components/desktop/
+- StorytellerDashboard renders SplitPanelLayout on desktop, existing card grid on mobile
+- DesktopConversationPanel renders inline (no fixed positioning), uses same MessageList/MessageInput
+- PlayerSidebar shows broadcast option, player list with unread badges, reset game button
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 06-05 complete 2026-01-20*
+*Last execution: 06-02 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
 *Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
-*Phase 6 in progress: 06-05 complete 2026-01-20*
+*Phase 6 in progress: 06-02, 06-05 complete 2026-01-20*
