@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 9
+**Session:** 10
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 5 - Game State & Views (complete)
+**Current Focus:** Phase 6 - Polish & PWA (in progress)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,10 +17,10 @@
 
 ## Current Position
 
-**Phase:** 5 of 6 (Game State & Views)
-**Plan:** 4 of 4 in phase
-**Status:** Phase complete
-**Last activity:** 2026-01-20 - Completed 05-04-PLAN.md (Player Settings Menu)
+**Phase:** 6 of 6 (Polish & PWA)
+**Plan:** 1 of 5 in phase (06-05 complete)
+**Status:** In progress
+**Last activity:** 2026-01-20 - Completed 06-05-PLAN.md (UI Animations)
 
 **Progress:**
 ```
@@ -29,9 +29,9 @@ Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [██████████] 100% (4/4 plans)
-Phase 6: Polish & PWA       [..........] 0%
+Phase 6: Polish & PWA       [██........] 20% (1/5 plans)
 
-Overall: 16/18 plans complete (89% of planned work)
+Overall: 17/21 plans complete (81% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 16/18 plans complete (89% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 16 |
-| Requirements Delivered | 29/43 |
+| Plans Completed | 17 |
+| Requirements Delivered | 30/43 |
 | Phases Completed | 5/6 |
-| Session Count | 9 |
+| Session Count | 10 |
 
 ---
 
@@ -107,6 +107,10 @@ Overall: 16/18 plans complete (89% of planned work)
 | Soft delete for player leave (is_active = false) | Matches kick pattern, preserves audit trail, enables reconnection | 05-04 |
 | Navigate immediately on leave | Better UX than waiting for postgres_changes event | 05-04 |
 | Fetch room code via participants.rooms relation | Consistent with existing patterns, uses single query | 05-04 |
+| Mantine Transition for enter animations | Built-in component, consistent with Mantine ecosystem | 06-05 |
+| Track initialCount to detect new messages | Simple approach, messages at index >= initialCount animate | 06-05 |
+| CSS modules for card hover effects | Pseudo-classes require CSS, not inline styles | 06-05 |
+| All animations respect prefers-reduced-motion | Accessibility standard for users with vestibular disorders | 06-05 |
 
 ### Architecture Notes
 
@@ -163,6 +167,7 @@ Overall: 16/18 plans complete (89% of planned work)
 - [x] Execute 05-02-PLAN.md (Player Status Management)
 - [x] Execute 05-03-PLAN.md (Game Reset)
 - [x] Execute 05-04-PLAN.md (Player Settings Menu)
+- [x] Execute 06-05-PLAN.md (UI Animations)
 
 ### Blockers
 
@@ -180,11 +185,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 05-04: Player Settings Menu. Created leave room logic with soft delete pattern (leaveRoom sets is_active = false). Built PlayerSettingsMenu component with room code display, copy button, and leave game with confirmation modal. Integrated settings button into PlayerChatView header with IconSettings. Room code fetched via participants.rooms relation. Leave action navigates immediately for responsive UX, with postgres_changes subscription as backup redirect. All 3 tasks committed individually. PLAY-04 requirement delivered. Phase 5 complete (4/4 plans).
+Executed plan 06-05: UI Animations. Created AnimatedMessage component with Mantine Transition for slide-up message entry animations with stagger effect. Integrated into MessageList with initialCount tracking to only animate new messages. Added phase change transition to PhaseHeader with fade out/in effect. Created CSS module for card hover effects (translateY lift on hover, press on active). All animations respect prefers-reduced-motion for accessibility. All 3 tasks committed individually. UX-05 requirement delivered.
 
 ### Next Session Entry Point
 
-Phase 5 complete. Ready for Phase 6 (Polish & PWA) - create plans and execute.
+Phase 6 in progress. Continue with remaining plans (06-01, 06-02, 06-03, 06-04).
 
 ### Context to Preserve
 
@@ -247,13 +252,19 @@ Phase 5 complete. Ready for Phase 6 (Polish & PWA) - create plans and execute.
 - Player settings: PlayerSettingsMenu component with room code copy and leave game confirmation
 - Leave room: leaveRoom() sets is_active = false, navigate immediately, postgres_changes backup
 - Room code in player view: fetched via participants.rooms(code) relation on mount
+- **Animations:** Mantine Transition for enter animations, CSS modules for hover states
+- Message animations: AnimatedMessage wrapper with slide-up, initialCount tracking for new message detection
+- Phase transition: fade out/in animation with animationKey increment on phase change
+- Card hover: CSS module with translateY(-2px) on hover, press effect on active
+- Accessibility: All animations check prefers-reduced-motion media query
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 05-04 complete 2026-01-20*
+*Last execution: 06-05 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
 *Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
+*Phase 6 in progress: 06-05 complete 2026-01-20*
