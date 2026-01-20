@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 5
+**Session:** 6
 
 ---
 
@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 4 of 6 (Core Messaging)
-**Plan:** 3 of 3 in phase
-**Status:** Phase complete
-**Last activity:** 2026-01-20 - Completed 04-03-PLAN.md (Unread Counts & Typing Indicators)
+**Plan:** 4 of 4 in phase (gap closure)
+**Status:** Phase complete with verification
+**Last activity:** 2026-01-20 - Completed 04-04-PLAN.md (Broadcast Filtering Bug Fix)
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
-Phase 4: Core Messaging     [██████████] 100%
+Phase 4: Core Messaging     [██████████] 100% (verified)
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 11/14 plans complete (79% of planned work)
+Overall: 12/14 plans complete (86% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 11/14 plans complete (79% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 11 |
+| Plans Completed | 12 |
 | Requirements Delivered | 28/43 |
 | Phases Completed | 4/6 |
-| Session Count | 5 |
+| Session Count | 6 |
 
 ---
 
@@ -97,6 +97,7 @@ Overall: 11/14 plans complete (79% of planned work)
 | Filter stale typing indicators (>10s) | Presence cleanup takes 30s, client-side filter prevents stale displays | 04-03 |
 | Mark conversation read on open | Not on every message - prevents constant writes | 04-03 |
 | Only show badges when count > 0 | Clean UI, red color for visibility | 04-03 |
+| OR pattern for broadcast filtering | Players need both 1-to-1 AND broadcast messages in conversation view | 04-04 |
 
 ### Architecture Notes
 
@@ -159,11 +160,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 04-03: Unread Counts & Typing Indicators. Added last_read_at column to participants table for unread tracking. Created useTypingIndicator hook with Presence-based state management (1s debounce, 3s auto-clear). Created useUnreadCount hook with last_read_at timestamp comparison (5s polling). Integrated typing indicators into MessageInput (emit on change, clear on send/unmount) and MessageList (display with participant names). Added unread badges to StorytellerDashboard player cards (BroadcastCard/PlayerCard components with useUnreadCount). Updated ConversationView to mark conversations as read on mount. Typing indicators show within 1 second, clear after 3 seconds of inactivity. Unread badges only display when count > 0 (red color for visibility). All Phase 4 messaging requirements complete: MSG-01 through MSG-07 delivered. No deviations from plan. 3/3 tasks complete in 8 minutes. Phase 4 complete.
+Executed plan 04-04: Broadcast Filtering Bug Fix. Fixed critical bug in useMessages hook where broadcast messages were excluded from player conversations due to XOR (exclusive OR) filtering logic. Changed database query to include `is_broadcast.eq.true` in OR clause when recipientId is set (lines 51-61). Updated Broadcast subscription filter to accept `newMessage.is_broadcast` in addition to sender/recipient match (lines 92-96). Players now receive both 1-to-1 messages with Storyteller AND broadcast announcements in their chat view. MSG-04 requirement now verified. TypeScript compiles without errors. 1-to-1 message isolation still preserved. Gap closure plan executed in 3 minutes. Phase 4 complete with full verification (7/7 requirements met).
 
 ### Next Session Entry Point
 
-Phase 4 complete. Ready for Phase 5 (Game State & Views) - plan and execute next phase.
+Phase 4 complete and verified. Ready for Phase 5 (Game State & Views) - plan and execute next phase.
 
 ### Context to Preserve
 
@@ -213,12 +214,15 @@ Phase 4 complete. Ready for Phase 5 (Game State & Views) - plan and execute next
 - Database migration 004: last_read_at column requires manual application via Supabase dashboard
 - Presence CRDT: Auto-merges state, handles concurrent updates, cleanup takes 30s on disconnect
 - Typing users filtered: PlayerChatView shows only storyteller, ConversationView shows only recipient
+- Broadcast filtering uses OR pattern: Players receive both 1-to-1 messages AND broadcasts in conversation
+- useMessages query includes is_broadcast.eq.true when recipientId is set (lines 51-61)
+- useMessages subscription filter checks newMessage.is_broadcast in isRelevant logic (lines 92-96)
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 04-03 complete 2026-01-20*
+*Last execution: 04-04 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
-*Phase 4 complete: 2026-01-20 (all 3 plans: 04-01, 04-02, 04-03)*
+*Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
