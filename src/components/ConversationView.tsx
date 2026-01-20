@@ -1,11 +1,15 @@
 import { useEffect } from 'react'
 import { Stack, Title, Text, ActionIcon, Group } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
+import type { Database } from '../lib/supabase'
 import { useMessages } from '../hooks/useMessages'
 import { useTypingIndicator } from '../hooks/useTypingIndicator'
 import { markConversationRead } from '../hooks/useUnreadCount'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
+import { PlayerStatusControls } from './PlayerStatusControls'
+
+type Participant = Database['public']['Tables']['participants']['Row']
 
 interface ConversationViewProps {
   roomId: string
@@ -13,7 +17,7 @@ interface ConversationViewProps {
   recipientId: string | null
   recipientName: string
   onBack?: () => void
-  participants?: Array<{ id: string; display_name: string }>
+  participants?: Participant[]
 }
 
 /**
@@ -58,6 +62,11 @@ export function ConversationView({
     ? 'Broadcast to All Players'
     : `Chat with ${recipientName}`
 
+  // Find recipient participant for status controls (1-to-1 chats only)
+  const recipient = recipientId
+    ? participants.find(p => p.id === recipientId)
+    : null
+
   // Mark conversation as read when opened
   useEffect(() => {
     markConversationRead(participantId)
@@ -100,6 +109,13 @@ export function ConversationView({
           </Stack>
         </Group>
       </Stack>
+
+      {/* Player Status Controls (1-to-1 chats only, for Storyteller) */}
+      {recipient && (
+        <Stack p="md" style={{ backgroundColor: 'var(--mantine-color-dark-8)' }}>
+          <PlayerStatusControls participant={recipient} />
+        </Stack>
+      )}
 
       {/* Message List */}
       <MessageList
