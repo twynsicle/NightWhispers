@@ -14,6 +14,7 @@ import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
 import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
 import { GameResetModal } from './GameResetModal'
+import styles from './StorytellerDashboard.module.css'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -169,7 +170,7 @@ function BroadcastCard({
       padding="lg"
       radius="md"
       withBorder
-      style={{ cursor: 'pointer' }}
+      className={styles.hoverCard}
       onClick={onClick}
     >
       <Group justify="space-between" mb="xs">
@@ -215,8 +216,8 @@ function PlayerCard({
       padding="lg"
       radius="md"
       withBorder
+      className={styles.hoverCard}
       style={{
-        cursor: 'pointer',
         opacity: isDead ? 0.7 : 1,
       }}
       onClick={onClick}
