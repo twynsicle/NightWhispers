@@ -24,13 +24,13 @@
 
 ### Messaging
 
-- [ ] **MSG-01**: Storyteller can send message to individual player
-- [ ] **MSG-02**: Player can send message to Storyteller
-- [ ] **MSG-03**: Messages display in real-time without page refresh
-- [ ] **MSG-04**: Storyteller can broadcast message to all players
-- [ ] **MSG-05**: Unread message count displays on player cards
-- [ ] **MSG-06**: Messages persist across reconnection (not lost on refresh)
-- [ ] **MSG-07**: Typing indicator shows when other party is typing
+- [x] **MSG-01**: Storyteller can send message to individual player
+- [x] **MSG-02**: Player can send message to Storyteller
+- [x] **MSG-03**: Messages display in real-time without page refresh
+- [x] **MSG-04**: Storyteller can broadcast message to all players
+- [x] **MSG-05**: Unread message count displays on player cards
+- [x] **MSG-06**: Messages persist across reconnection (not lost on refresh)
+- [x] **MSG-07**: Typing indicator shows when other party is typing
 
 ### Push Notifications
 
@@ -122,13 +122,13 @@
 | SESS-03 | Phase 2 | Pending |
 | SESS-04 | Phase 2 | Pending |
 | SESS-05 | Phase 2 | Pending |
-| MSG-01 | Phase 4 | Pending |
-| MSG-02 | Phase 4 | Pending |
-| MSG-03 | Phase 4 | Pending |
-| MSG-04 | Phase 4 | Pending |
-| MSG-05 | Phase 4 | Pending |
-| MSG-06 | Phase 4 | Pending |
-| MSG-07 | Phase 4 | Pending |
+| MSG-01 | Phase 4 | Complete |
+| MSG-02 | Phase 4 | Complete |
+| MSG-03 | Phase 4 | Complete |
+| MSG-04 | Phase 4 | Complete |
+| MSG-05 | Phase 4 | Complete |
+| MSG-06 | Phase 4 | Complete |
+| MSG-07 | Phase 4 | Complete |
 | PUSH-01 | Phase 6 | Pending |
 | PUSH-02 | Phase 6 | Pending |
 | PUSH-03 | Phase 6 | Pending |

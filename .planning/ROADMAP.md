@@ -121,7 +121,7 @@ Plans:
 - [x] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
 - [x] 04-02-PLAN.md - Player and Storyteller messaging views
 - [x] 04-03-PLAN.md - Typing indicators and unread tracking
-- [ ] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
+- [x] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
 
 **Success Criteria:**
 1. Storyteller sends message to player; player sees it within 1 second
@@ -193,11 +193,11 @@ Plans:
 | 1 - Foundation | Complete | 0 | 100% |
 | 2 - Session & Room Entry | Complete | 10 | 100% |
 | 3 - Lobby & Room Management | Complete | 8 | 100% |
-| 4 - Core Messaging | In Progress | 7 | 86% (6/7 verified) |
+| 4 - Core Messaging | Complete | 7 | 100% |
 | 5 - Game State & Views | Pending | 12 | 0% |
 | 6 - Polish & PWA | Pending | 8 | 0% |
 
-**Overall:** 24/43 requirements complete (56%)
+**Overall:** 25/43 requirements complete (58%)
 
 ---
 
@@ -215,4 +215,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 4 gap closure plan added)*
+*Last updated: 2026-01-20 (Phase 4 complete)*
