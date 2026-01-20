@@ -49,10 +49,11 @@ export function useMessages(
 
       // Filter by conversation type (Pattern 5: Conversation Filters)
       if (recipientId) {
-        // 1-to-1 conversation: messages between participantId and recipientId
+        // 1-to-1 conversation: messages between participantId and recipientId OR broadcasts
         query = query.or(
           `and(sender_id.eq.${participantId},recipient_id.eq.${recipientId}),` +
-            `and(sender_id.eq.${recipientId},recipient_id.eq.${participantId})`
+            `and(sender_id.eq.${recipientId},recipient_id.eq.${participantId}),` +
+            `is_broadcast.eq.true`
         )
       } else {
         // Broadcast messages only (is_broadcast = true)
@@ -90,7 +91,8 @@ export function useMessages(
         // Filter: only add if relevant to this conversation
         const isRelevant = recipientId
           ? newMessage.recipient_id === recipientId ||
-            newMessage.sender_id === recipientId
+            newMessage.sender_id === recipientId ||
+            newMessage.is_broadcast
           : newMessage.is_broadcast
 
         if (isRelevant) {
