@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 5 - Game State & Views (in progress)
+**Current Focus:** Phase 5 - Game State & Views (complete)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 5 of 6 (Game State & Views)
-**Plan:** 3 of 4 in phase
-**Status:** In progress
-**Last activity:** 2026-01-20 - Completed 05-03-PLAN.md (Game Reset)
+**Plan:** 4 of 4 in phase
+**Status:** Phase complete
+**Last activity:** 2026-01-20 - Completed 05-04-PLAN.md (Player Settings Menu)
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
-Phase 4: Core Messaging     [██████████] 100% (verified)
-Phase 5: Game State & Views [███████...] 75% (3/4 plans)
+Phase 4: Core Messaging     [██████████] 100%
+Phase 5: Game State & Views [██████████] 100% (4/4 plans)
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 15/18 plans complete (83% of planned work)
+Overall: 16/18 plans complete (89% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 15/18 plans complete (83% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 15 |
-| Requirements Delivered | 28/43 |
-| Phases Completed | 4/6 |
-| Session Count | 7 |
+| Plans Completed | 16 |
+| Requirements Delivered | 29/43 |
+| Phases Completed | 5/6 |
+| Session Count | 9 |
 
 ---
 
@@ -104,6 +104,9 @@ Overall: 15/18 plans complete (83% of planned work)
 | Separate usePhase hook from useParticipants | Phase updates are independent; single-responsibility pattern | 05-01 |
 | Phase icon based on Night/Day | Moon for Night, Sun for Day provides immediate visual context | 05-01 |
 | Show next phase preview in controls | Storyteller can verify transition before clicking | 05-01 |
+| Soft delete for player leave (is_active = false) | Matches kick pattern, preserves audit trail, enables reconnection | 05-04 |
+| Navigate immediately on leave | Better UX than waiting for postgres_changes event | 05-04 |
+| Fetch room code via participants.rooms relation | Consistent with existing patterns, uses single query | 05-04 |
 
 ### Architecture Notes
 
@@ -132,14 +135,16 @@ Overall: 15/18 plans complete (83% of planned work)
 - **Status transitions:** Room status (lobby/active/ended) drives UI via postgres_changes on rooms table
 - **Game start:** Start Game button disabled until 2+ participants, transitions all users to active view
 - **Messaging UI:** MessageList (auto-scroll) + MessageInput (Enter to send) shared across Player and Storyteller views
-- **Player view:** Full-screen chat with Storyteller, receives 1-to-1 and broadcast messages
-- **Storyteller view:** Player cards dashboard with broadcast option, tap card to open conversation
+- **Player view:** Full-screen chat with Storyteller, receives 1-to-1 and broadcast messages, settings button in header
+- **Storyteller view:** Player cards dashboard with broadcast option, tap card to open conversation, reset button at bottom
 - **Message bubbles:** Crimson for sent, dark.6 for received, broadcast badge for announcements
 - **Game reset:** resetGame function clears messages, resets phase to Night 1, sets all participants to alive
 - **Confirmation modal:** GameResetModal with warning text, cancel/confirm buttons, loading state
 - **Phase management:** usePhase hook with postgres_changes on rooms.phase, getNextPhase helper for cycle logic
 - **Phase display:** PhaseHeader shows current phase (Night 1, Day 2, etc.) with moon/sun icons for all participants
 - **Phase controls:** PhaseControls component for Storyteller-only phase advancement
+- **Player settings:** PlayerSettingsMenu component with room code copy and leave game confirmation
+- **Leave game:** Soft delete pattern (is_active = false), immediate navigation, postgres_changes backup
 
 ### Open TODOs
 
@@ -154,6 +159,10 @@ Overall: 15/18 plans complete (83% of planned work)
 - [x] Execute 03-01-PLAN.md (Real-time Lobby Foundation)
 - [x] Execute 03-02-PLAN.md (Room Controls)
 - [x] Execute 03-03-PLAN.md (QR Code Sharing & Room Cleanup)
+- [x] Execute 05-01-PLAN.md (Phase Display & Controls)
+- [x] Execute 05-02-PLAN.md (Player Status Management)
+- [x] Execute 05-03-PLAN.md (Game Reset)
+- [x] Execute 05-04-PLAN.md (Player Settings Menu)
 
 ### Blockers
 
@@ -171,11 +180,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 05-01: Phase Management. Created usePhase hook with postgres_changes subscription on rooms.phase for real-time phase synchronization. Created getNextPhase helper for phase cycle logic (Night X -> Day X -> Night X+1). Created PhaseHeader component displaying current phase with moon/sun icons. Created PhaseControls component for Storyteller phase advancement with loading state and notifications. Integrated both components into RoomPage active game view - PhaseHeader visible to all participants, PhaseControls for Storyteller only. GAME-02, GAME-03, PLAY-03 requirements delivered. TypeScript compiles without errors. 3 commits, 11 minutes.
+Executed plan 05-04: Player Settings Menu. Created leave room logic with soft delete pattern (leaveRoom sets is_active = false). Built PlayerSettingsMenu component with room code display, copy button, and leave game with confirmation modal. Integrated settings button into PlayerChatView header with IconSettings. Room code fetched via participants.rooms relation. Leave action navigates immediately for responsive UX, with postgres_changes subscription as backup redirect. All 3 tasks committed individually. PLAY-04 requirement delivered. Phase 5 complete (4/4 plans).
 
 ### Next Session Entry Point
 
-Phase 5 plan 1 of 4 complete. Continue with remaining Phase 5 plans (05-02 Player Status if not complete, or 05-04 End Game).
+Phase 5 complete. Ready for Phase 6 (Polish & PWA) - create plans and execute.
 
 ### Context to Preserve
 
@@ -212,8 +221,8 @@ Phase 5 plan 1 of 4 complete. Continue with remaining Phase 5 plans (05-02 Playe
 - MessageList auto-scroll: useEffect with messages.length dependency, scrollIntoView on bottomRef
 - MessageInput keyboard: Enter sends, Shift+Enter newlines, onKeyDown prevents default on Enter
 - Component composition: MessageList/MessageInput shared across PlayerChatView and ConversationView
-- PlayerChatView: full-screen chat, uses useMessages with recipientId=storytellerId
-- StorytellerDashboard: player cards grid, useState for selectedParticipant, broadcast card first
+- PlayerChatView: full-screen chat, uses useMessages with recipientId=storytellerId, settings button in header
+- StorytellerDashboard: player cards grid, useState for selectedParticipant, broadcast card first, reset button at bottom
 - ConversationView: reusable chat with onBack prop, supports recipientId=null for broadcast
 - Active game views: RoomPage renders PlayerChatView (player) or StorytellerDashboard (Storyteller)
 - Storyteller lookup: participants.find(p => p.role === 'storyteller') for PlayerChatView props
@@ -235,13 +244,16 @@ Phase 5 plan 1 of 4 complete. Continue with remaining Phase 5 plans (05-02 Playe
 - getNextPhase helper: Night X -> Day X -> Night X+1 pattern via regex parsing
 - PhaseHeader placement: above active game content, visible to all participants
 - PhaseControls placement: below PhaseHeader, inside isStoryteller branch (Storyteller only)
+- Player settings: PlayerSettingsMenu component with room code copy and leave game confirmation
+- Leave room: leaveRoom() sets is_active = false, navigate immediately, postgres_changes backup
+- Room code in player view: fetched via participants.rooms(code) relation on mount
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 05-01 complete 2026-01-20*
+*Last execution: 05-04 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
-*Phase 5 in progress: 2026-01-20 (05-01 complete)*
+*Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
