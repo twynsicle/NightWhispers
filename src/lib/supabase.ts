@@ -23,11 +23,12 @@ export type Database = {
         Row: {
           id: string
           code: string
-          storyteller_id: string
+          storyteller_id: string | null
           status: 'lobby' | 'active' | 'ended'
-          phase: string
+          phase: string | null
+          last_activity: string
           created_at: string
-          expires_at: string
+          expires_at: string | null
         }
       }
       participants: {
@@ -37,11 +38,13 @@ export type Database = {
           user_id: string
           display_name: string
           avatar_id: string | null
+          is_storyteller: boolean
           role: 'storyteller' | 'player'
           status: 'alive' | 'dead'
           custom_status: string | null
           is_active: boolean
           sort_order: number
+          joined_at: string
           created_at: string
           updated_at: string
         }

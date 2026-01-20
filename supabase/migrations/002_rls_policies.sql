@@ -56,7 +56,12 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Anyone authenticated can create a room (they become storyteller)
 CREATE POLICY "users_can_create_rooms" ON rooms
   FOR INSERT TO authenticated
-  WITH CHECK (true);
+  WITH CHECK (storyteller_id = auth.uid());
+
+-- Storytellers can view their own rooms (needed for .insert().select())
+CREATE POLICY "storyteller_can_view_own_room" ON rooms
+  FOR SELECT TO authenticated
+  USING (storyteller_id = auth.uid());
 
 -- Users can view rooms they participate in
 CREATE POLICY "participants_can_view_room" ON rooms
@@ -72,6 +77,11 @@ CREATE POLICY "storyteller_can_update_room" ON rooms
 -- ============================================================================
 -- PARTICIPANTS POLICIES
 -- ============================================================================
+
+-- Users can view their own participant records (needed for .insert().select())
+CREATE POLICY "users_can_view_own_participant_record" ON participants
+  FOR SELECT TO authenticated
+  USING (user_id = auth.uid());
 
 -- Participants can view other participants in their room
 CREATE POLICY "participants_can_view_room_members" ON participants

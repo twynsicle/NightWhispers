@@ -52,6 +52,13 @@ Plans:
 - UX-01: Gothic visual theme (dark background, crimson/gold accents)
 - UX-02: Mobile-first responsive design
 
+**Plans:** 3 plans
+
+Plans:
+- [x] 02-01-PLAN.md - Session management infrastructure (auth hook, room utilities)
+- [x] 02-02-PLAN.md - User interface and routing (pages, components, React Router)
+- [x] 02-03-PLAN.md - Room integration and verification (auto-rejoin, error handling)
+
 **Success Criteria:**
 1. Storyteller can create room, see 4-letter code, and share it verbally
 2. Player can enter code, set name/avatar, and appear in room
@@ -76,6 +83,13 @@ Plans:
 - ROOM-04: Rooms auto-delete after 1 hour of inactivity
 - ROOM-05: Storyteller can kick a player from the room
 - GAME-01: Storyteller can start game from lobby
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md - Real-time lobby foundation (participant list with Postgres Changes)
+- [ ] 03-02-PLAN.md - Storyteller controls (kick, edit, start game)
+- [ ] 03-03-PLAN.md - QR code & room cleanup (sharing and auto-deletion)
 
 **Success Criteria:**
 1. Player in lobby sees other players who have joined (real-time updates)
@@ -169,13 +183,13 @@ Plans:
 | Phase | Status | Requirements | Completion |
 |-------|--------|--------------|------------|
 | 1 - Foundation | Complete | 0 | 100% |
-| 2 - Session & Room Entry | Pending | 10 | 0% |
-| 3 - Lobby & Room Management | Pending | 8 | 0% |
+| 2 - Session & Room Entry | Complete | 10 | 100% |
+| 3 - Lobby & Room Management | Planned | 8 | 0% |
 | 4 - Core Messaging | Pending | 7 | 0% |
 | 5 - Game State & Views | Pending | 12 | 0% |
 | 6 - Polish & PWA | Pending | 8 | 0% |
 
-**Overall:** 0/43 requirements complete (0%)
+**Overall:** 10/43 requirements complete (23%)
 
 ---
 
@@ -193,4 +207,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-19 (Phase 1 complete)*
+*Last updated: 2026-01-20 (Phase 3 planned)*
