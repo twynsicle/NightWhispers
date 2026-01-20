@@ -184,7 +184,7 @@ function BroadcastCard({
 }
 
 /**
- * Player card with unread count badge.
+ * Player card with unread count badge, dead status styling, and custom status.
  */
 function PlayerCard({
   roomId,
@@ -198,6 +198,7 @@ function PlayerCard({
   onClick: () => void
 }) {
   const unreadCount = useUnreadCount(roomId, participantId, player.id)
+  const isDead = player.status === 'dead'
 
   return (
     <Card
@@ -205,20 +206,41 @@ function PlayerCard({
       padding="lg"
       radius="md"
       withBorder
-      style={{ cursor: 'pointer' }}
+      style={{
+        cursor: 'pointer',
+        opacity: isDead ? 0.7 : 1,
+      }}
       onClick={onClick}
     >
       <Group justify="space-between" mb="xs">
         <Group gap="sm">
-          {/* Avatar */}
-          {player.avatar_id && <Text size="xl">{player.avatar_id}</Text>}
+          {/* Avatar with greyscale for dead players */}
+          {player.avatar_id && (
+            <Text
+              size="xl"
+              style={{
+                filter: isDead ? 'grayscale(100%)' : 'none',
+              }}
+            >
+              {player.avatar_id}
+            </Text>
+          )}
 
-          {/* Name and Role */}
+          {/* Name, Role, and Custom Status */}
           <Stack gap={4}>
-            <Text fw={500}>{player.display_name}</Text>
+            <Group gap="xs">
+              <Text fw={500}>{player.display_name}</Text>
+              {isDead && <Text c="dimmed">&#128128;</Text>}
+            </Group>
             <Text size="xs" c="dimmed">
               Player
             </Text>
+            {/* Custom status badge */}
+            {player.custom_status && (
+              <Badge size="xs" variant="light" color="gray">
+                {player.custom_status}
+              </Badge>
+            )}
           </Stack>
         </Group>
 
