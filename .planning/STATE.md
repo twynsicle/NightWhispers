@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 7
+**Session:** 9
 
 ---
 
@@ -101,6 +101,9 @@ Overall: 15/18 plans complete (83% of planned work)
 | Reset button uses subtle red styling | Destructive action should be visible but not prominent | 05-03 |
 | Sequential database operations for reset | Delete messages, update room phase, update participants - each can fail independently | 05-03 |
 | Reset placed at bottom of dashboard | Less prominent placement for rarely-used destructive action | 05-03 |
+| Separate usePhase hook from useParticipants | Phase updates are independent; single-responsibility pattern | 05-01 |
+| Phase icon based on Night/Day | Moon for Night, Sun for Day provides immediate visual context | 05-01 |
+| Show next phase preview in controls | Storyteller can verify transition before clicking | 05-01 |
 
 ### Architecture Notes
 
@@ -134,6 +137,9 @@ Overall: 15/18 plans complete (83% of planned work)
 - **Message bubbles:** Crimson for sent, dark.6 for received, broadcast badge for announcements
 - **Game reset:** resetGame function clears messages, resets phase to Night 1, sets all participants to alive
 - **Confirmation modal:** GameResetModal with warning text, cancel/confirm buttons, loading state
+- **Phase management:** usePhase hook with postgres_changes on rooms.phase, getNextPhase helper for cycle logic
+- **Phase display:** PhaseHeader shows current phase (Night 1, Day 2, etc.) with moon/sun icons for all participants
+- **Phase controls:** PhaseControls component for Storyteller-only phase advancement
 
 ### Open TODOs
 
@@ -165,11 +171,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 05-03: Game Reset. Created resetGame function in src/lib/game-reset.ts that performs three sequential database operations: (1) delete all messages in room, (2) reset room phase to "Night 1", (3) reset all participants to alive status with cleared custom_status. Created GameResetModal component with warning text listing reset effects, cancel/confirm buttons, loading state during reset, and success/error notifications. Integrated reset button into StorytellerDashboard with subtle red styling, placed at bottom below player cards with divider separator. Real-time propagation works via existing postgres_changes subscriptions. GAME-06 requirement delivered. TypeScript compiles without errors. 3 commits, 4 minutes.
+Executed plan 05-01: Phase Management. Created usePhase hook with postgres_changes subscription on rooms.phase for real-time phase synchronization. Created getNextPhase helper for phase cycle logic (Night X -> Day X -> Night X+1). Created PhaseHeader component displaying current phase with moon/sun icons. Created PhaseControls component for Storyteller phase advancement with loading state and notifications. Integrated both components into RoomPage active game view - PhaseHeader visible to all participants, PhaseControls for Storyteller only. GAME-02, GAME-03, PLAY-03 requirements delivered. TypeScript compiles without errors. 3 commits, 11 minutes.
 
 ### Next Session Entry Point
 
-Phase 5 plan 3 of 4 complete. Continue with 05-04-PLAN.md (End Game) or check if phase is complete.
+Phase 5 plan 1 of 4 complete. Continue with remaining Phase 5 plans (05-02 Player Status if not complete, or 05-04 End Game).
 
 ### Context to Preserve
 
@@ -225,13 +231,17 @@ Phase 5 plan 3 of 4 complete. Continue with 05-04-PLAN.md (End Game) or check if
 - Game reset: resetGame(roomId) deletes messages, resets phase to Night 1, sets participants to alive
 - Confirmation modal: GameResetModal prevents accidental resets with warning text
 - Reset button placement: subtle red button at bottom of StorytellerDashboard, below player cards
+- usePhase hook: returns { phase, loading, advancePhase }, subscribes to postgres_changes on rooms table
+- getNextPhase helper: Night X -> Day X -> Night X+1 pattern via regex parsing
+- PhaseHeader placement: above active game content, visible to all participants
+- PhaseControls placement: below PhaseHeader, inside isStoryteller branch (Storyteller only)
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 05-03 complete 2026-01-20*
+*Last execution: 05-01 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
-*Phase 5 in progress: 2026-01-20 (3/4 plans: 05-01, 05-02, 05-03)*
+*Phase 5 in progress: 2026-01-20 (05-01 complete)*
