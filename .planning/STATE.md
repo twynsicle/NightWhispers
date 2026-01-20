@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 2 - Session & Room Entry (in progress)
+**Current Focus:** Phase 3 - Lobby & Room Management (in progress)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,21 +17,21 @@
 
 ## Current Position
 
-**Phase:** 2 of 6 (Session & Room Entry)
-**Plan:** 3 of 3 in phase
-**Status:** Phase complete
-**Last activity:** 2026-01-20 - Completed 02-03-PLAN.md (all Phase 2 plans complete)
+**Phase:** 3 of 6 (Lobby & Room Management)
+**Plan:** 1 of 3 in phase
+**Status:** In progress
+**Last activity:** 2026-01-20 - Completed 03-01-PLAN.md
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
-Phase 3: Lobby & Management [..........] 0%
+Phase 3: Lobby & Management [███.......] 33%
 Phase 4: Core Messaging     [..........] 0%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 5/5 plans complete (100% of planned work)
+Overall: 6/8 plans complete (75% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 5/5 plans complete (100% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 5 |
-| Requirements Delivered | 10/43 |
+| Plans Completed | 6 |
+| Requirements Delivered | 13/43 |
 | Phases Completed | 2/6 |
-| Session Count | 3 |
+| Session Count | 4 |
 
 ---
 
@@ -68,6 +68,9 @@ Overall: 5/5 plans complete (100% of planned work)
 | Gothic emoji avatars | Zero assets, accessible, mobile-friendly, instant rendering | 02-02 |
 | Loader-based route protection | Prevents FOUC, SEO-safe, blocks child loaders before rendering | 02-02 |
 | localStorage for displayName/avatar | Decouples session setup from room flow, allows profile reuse | 02-02 |
+| Postgres Changes for participant list | Guarantees database consistency for state synchronization | 03-01 |
+| Filter to is_active=true participants | Excludes kicked users from participant list | 03-01 |
+| Auto-sort by sort_order on updates | Maintains consistent ordering on real-time participant updates | 03-01 |
 
 ### Architecture Notes
 
@@ -85,6 +88,9 @@ Overall: 5/5 plans complete (100% of planned work)
 - **Routing:** React Router 7 with createBrowserRouter + loaders for protected routes
 - **Pages:** Home, SessionSetup, CreateRoom, JoinRoom, Room (protected with loader)
 - **Avatars:** 12 gothic emoji options (🧙‍♂️🧛‍♀️🧟‍♂️👻🎭🕵️🦇🌙⚰️🔮🗡️🛡️)
+- **Real-time:** useParticipants hook with Postgres Changes subscription (INSERT/UPDATE/DELETE)
+- **Participant list:** ParticipantList component with avatars, names, role badges, current user highlighting
+- **Lobby views:** Role-specific UI (Storyteller: management hints, Player: waiting state)
 
 ### Open TODOs
 
@@ -95,7 +101,10 @@ Overall: 5/5 plans complete (100% of planned work)
 - [x] Execute 02-01-PLAN.md (Auth & Room Management Infrastructure)
 - [x] Execute 02-02-PLAN.md (Session Setup UI)
 - [x] Execute 02-03-PLAN.md (Room Integration & Verification)
-- [ ] Create Phase 3 plan via `/gsd:plan-phase 3`
+- [x] Create Phase 3 plan via `/gsd:plan-phase 3`
+- [x] Execute 03-01-PLAN.md (Real-time Lobby Foundation)
+- [ ] Execute 03-02-PLAN.md (Room Controls)
+- [ ] Execute 03-03-PLAN.md (TBD)
 
 ### Blockers
 
@@ -113,11 +122,11 @@ None currently.
 
 ### Last Session Summary
 
-Completed plan 02-03: Room Integration & Verification. Implemented root-level session recovery in App.tsx with loading state before routing. Added room code display in RoomPage using Code component. Created error handling system in HomePage that reads error codes from URL params and displays user-friendly Alert messages. Updated RoomPage loader to redirect with specific error codes (session-invalid, not-participant). All Phase 2 requirements now delivered (SESS-01 through SESS-05, ROOM-01, ROOM-02, ROOM-06, UX-01, UX-02). Phase 2 complete with 10/10 requirements delivered across 3 plans.
+Completed plan 03-01: Real-time Lobby Foundation. Created useParticipants hook with Postgres Changes subscription for real-time participant updates (INSERT/UPDATE/DELETE events). Built ParticipantList component with avatars, names, role badges, and current user highlighting. Integrated participant list into RoomPage with role-specific views (Storyteller sees management hints, Player sees waiting state with loader). All components follow gothic theme with mobile-first design. Real-time updates appear within 1 second of participant joins/changes.
 
 ### Next Session Entry Point
 
-Create plan for Phase 3: Lobby & Room Management via `/gsd:plan-phase 3`.
+Execute plan 03-02: Room Controls (Storyteller kick/start game functionality).
 
 ### Context to Preserve
 
@@ -133,10 +142,15 @@ Create plan for Phase 3: Lobby & Room Management via `/gsd:plan-phase 3`.
 - Router loader pattern prevents FOUC on protected routes
 - displayName and avatar stored in localStorage for CreateRoom/JoinRoom flows
 - All pages follow gothic theme: dark background, crimson accents, mobile-first
+- Postgres Changes used for participant list (state sync), Broadcast for messaging (ephemeral)
+- useParticipants hook pattern: useState for data + loading, useEffect for subscription + cleanup
+- ParticipantList filters to is_active=true to exclude kicked participants
+- Real-time updates use INSERT/UPDATE/DELETE event handlers with local state synchronization
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 02-03-PLAN.md completed 2026-01-20*
+*Last execution: 03-01-PLAN.md completed 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-20 (all 3 plans: 02-01, 02-02, 02-03)*
+*Phase 3 in progress: 1/3 plans complete (03-01)*
