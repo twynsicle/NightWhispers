@@ -46,11 +46,15 @@ const AVATAR_OPTIONS = [
  * />
  * ```
  */
-export function AvatarSelector({ value, onChange, error }: AvatarSelectorProps) {
+export function AvatarSelector({
+  value,
+  onChange,
+  error,
+}: AvatarSelectorProps) {
   return (
     <div>
       <Grid gutter="sm">
-        {AVATAR_OPTIONS.map((emoji) => {
+        {AVATAR_OPTIONS.map(emoji => {
           const isSelected = value === emoji
           return (
             <Grid.Col key={emoji} span={{ base: 3, sm: 2 }}>
@@ -68,7 +72,8 @@ export function AvatarSelector({ value, onChange, error }: AvatarSelectorProps) 
                     height: '80px',
                   },
                   label: {
-                    fontFamily: '"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Apple Color Emoji", sans-serif',
+                    fontFamily:
+                      '"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Apple Color Emoji", sans-serif',
                   },
                 }}
               >

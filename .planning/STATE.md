@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 3
+**Session:** 6
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 2 - Session & Room Entry (in progress)
+**Current Focus:** Phase 4 - Core Messaging (in progress)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,21 +17,21 @@
 
 ## Current Position
 
-**Phase:** 2 of 6 (Session & Room Entry)
-**Plan:** 3 of 3 in phase
+**Phase:** 4 of 6 (Core Messaging)
+**Plan:** 4 of 4 in phase
 **Status:** Phase complete
-**Last activity:** 2026-01-20 - Completed 02-03-PLAN.md (all Phase 2 plans complete)
+**Last activity:** 2026-01-20 - Completed Phase 4 (Core Messaging) with gap closure and verification
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
-Phase 3: Lobby & Management [..........] 0%
-Phase 4: Core Messaging     [..........] 0%
+Phase 3: Lobby & Management [██████████] 100%
+Phase 4: Core Messaging     [██████████] 100% (verified)
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 5/5 plans complete (100% of planned work)
+Overall: 12/14 plans complete (86% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 5/5 plans complete (100% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 5 |
-| Requirements Delivered | 10/43 |
-| Phases Completed | 2/6 |
-| Session Count | 3 |
+| Plans Completed | 12 |
+| Requirements Delivered | 25/43 |
+| Phases Completed | 4/6 |
+| Session Count | 6 |
 
 ---
 
@@ -68,10 +68,41 @@ Overall: 5/5 plans complete (100% of planned work)
 | Gothic emoji avatars | Zero assets, accessible, mobile-friendly, instant rendering | 02-02 |
 | Loader-based route protection | Prevents FOUC, SEO-safe, blocks child loaders before rendering | 02-02 |
 | localStorage for displayName/avatar | Decouples session setup from room flow, allows profile reuse | 02-02 |
+| Postgres Changes for participant list | Guarantees database consistency for state synchronization | 03-01 |
+| Filter to is_active=true participants | Excludes kicked users from participant list | 03-01 |
+| Auto-sort by sort_order on updates | Maintains consistent ordering on real-time participant updates | 03-01 |
+| QR code colors match gothic theme | Crimson for dark pixels, dark.9 for background maintains visual consistency | 03-03 |
+| Join URL includes pre-filled room code | Better UX - users proceed directly to session setup after scanning | 03-03 |
+| QR code modal available to all participants | Enables flexible sharing scenarios (players showing code to latecomers) | 03-03 |
+| Edge Function uses service role key | Bypasses RLS for admin-level deletion operations | 03-03 |
+| Soft delete for kicked participants | is_active=false preserves audit trail and enables reconnection detection | 03-02 |
+| Real-time kick detection via postgres_changes | Kicked players need immediate notification, not just on next page load | 03-02 |
+| Room status in useParticipants hook | Efficient single hook for participants + status (rare status changes) | 03-02 |
+| Script selector disabled for v1 | Only "None" option, ready for v2 Trouble Brewing expansion | 03-02 |
+| Broadcast over Postgres Changes for messaging | 22x faster (224K vs 10K msgs/sec), no RLS bottleneck, 6ms latency | 04-01 |
+| Dual-write pattern for messages | DB ensures persistence (MSG-06), Broadcast provides speed (MSG-03) | 04-01 |
+| self: false in Broadcast config | Prevents duplicate messages (sender sees optimistic UI, not own Broadcast) | 04-01 |
+| Initial load 50 messages | Per RESEARCH.md for mobile-first use case with short message bursts | 04-01 |
+| Channel stored in hook state | sendMessage needs channel reference for Broadcast delivery | 04-01 |
+| Auto-scroll to bottom on new messages | Standard chat UX pattern (Discord, Slack, iMessage) - users expect latest messages visible | 04-02 |
+| Textarea with Enter to send | Mobile-friendly keyboard UX, supports multiline messages with Shift+Enter | 04-02 |
+| Broadcast card first in Storyteller dashboard | Most common action for Storyteller (night phase announcements) | 04-02 |
+| Player view renders full-screen chat | Players only interact with Storyteller - no need for dashboard complexity | 04-02 |
+| Storyteller dashboard uses card grid | Mobile-first SimpleGrid (1 col mobile, 2 cols desktop) for player selection | 04-02 |
+| Presence with 1s debounce for typing | Prevents spam (1 update/sec vs 10+/sec), balances UX and network efficiency | 04-03 |
+| 3s auto-clear for typing state | Standard chat UX, prevents stale indicators | 04-03 |
+| last_read_at timestamp pattern | Race-condition safe vs separate unread_count column | 04-03 |
+| Server timestamp (NOW()) for read state | Prevents clock skew between client and server | 04-03 |
+| 5s polling interval for unread counts | Balances real-time UX with query performance | 04-03 |
+| Filter stale typing indicators (>10s) | Presence cleanup takes 30s, client-side filter prevents stale displays | 04-03 |
+| Mark conversation read on open | Not on every message - prevents constant writes | 04-03 |
+| Only show badges when count > 0 | Clean UI, red color for visibility | 04-03 |
+| OR pattern for broadcast filtering | Players need both 1-to-1 AND broadcast messages in conversation view | 04-04 |
 
 ### Architecture Notes
 
-- **Messaging:** Broadcast for real-time delivery, Postgres for persistence
+- **Messaging:** Broadcast for real-time delivery (224K msgs/sec), Postgres for persistence, dual-write pattern
+- **Message delivery:** Broadcast with ack: true, self: false for optimistic UI without duplicates
 - **State sync:** Postgres Changes for room/participant state (not messages)
 - **Presence:** Supabase Presence for typing indicators
 - **Session:** localStorage token + Supabase anonymous auth (useAuth hook with getSession/onAuthStateChange)
@@ -85,6 +116,19 @@ Overall: 5/5 plans complete (100% of planned work)
 - **Routing:** React Router 7 with createBrowserRouter + loaders for protected routes
 - **Pages:** Home, SessionSetup, CreateRoom, JoinRoom, Room (protected with loader)
 - **Avatars:** 12 gothic emoji options (🧙‍♂️🧛‍♀️🧟‍♂️👻🎭🕵️🦇🌙⚰️🔮🗡️🛡️)
+- **Real-time:** useParticipants hook with Postgres Changes subscription (INSERT/UPDATE/DELETE)
+- **Participant list:** ParticipantList component with avatars, names, role badges, current user highlighting
+- **Lobby views:** Role-specific UI (Storyteller: management hints, Player: waiting state)
+- **QR code sharing:** QRCodeGenerator component with gothic theme colors, clipboard copy, Modal-based UI
+- **Room cleanup:** Supabase Edge Function for automated deletion of expired rooms (requires external scheduler)
+- **Room controls:** Storyteller can kick players, edit names, select script (None only), and start game
+- **Kicked detection:** Real-time postgres_changes subscription on participant.is_active for immediate redirect
+- **Status transitions:** Room status (lobby/active/ended) drives UI via postgres_changes on rooms table
+- **Game start:** Start Game button disabled until 2+ participants, transitions all users to active view
+- **Messaging UI:** MessageList (auto-scroll) + MessageInput (Enter to send) shared across Player and Storyteller views
+- **Player view:** Full-screen chat with Storyteller, receives 1-to-1 and broadcast messages
+- **Storyteller view:** Player cards dashboard with broadcast option, tap card to open conversation
+- **Message bubbles:** Crimson for sent, dark.6 for received, broadcast badge for announcements
 
 ### Open TODOs
 
@@ -95,7 +139,10 @@ Overall: 5/5 plans complete (100% of planned work)
 - [x] Execute 02-01-PLAN.md (Auth & Room Management Infrastructure)
 - [x] Execute 02-02-PLAN.md (Session Setup UI)
 - [x] Execute 02-03-PLAN.md (Room Integration & Verification)
-- [ ] Create Phase 3 plan via `/gsd:plan-phase 3`
+- [x] Create Phase 3 plan via `/gsd:plan-phase 3`
+- [x] Execute 03-01-PLAN.md (Real-time Lobby Foundation)
+- [x] Execute 03-02-PLAN.md (Room Controls)
+- [x] Execute 03-03-PLAN.md (QR Code Sharing & Room Cleanup)
 
 ### Blockers
 
@@ -113,11 +160,11 @@ None currently.
 
 ### Last Session Summary
 
-Completed plan 02-03: Room Integration & Verification. Implemented root-level session recovery in App.tsx with loading state before routing. Added room code display in RoomPage using Code component. Created error handling system in HomePage that reads error codes from URL params and displays user-friendly Alert messages. Updated RoomPage loader to redirect with specific error codes (session-invalid, not-participant). All Phase 2 requirements now delivered (SESS-01 through SESS-05, ROOM-01, ROOM-02, ROOM-06, UX-01, UX-02). Phase 2 complete with 10/10 requirements delivered across 3 plans.
+Executed plan 04-04: Broadcast Filtering Bug Fix. Fixed critical bug in useMessages hook where broadcast messages were excluded from player conversations due to XOR (exclusive OR) filtering logic. Changed database query to include `is_broadcast.eq.true` in OR clause when recipientId is set (lines 51-61). Updated Broadcast subscription filter to accept `newMessage.is_broadcast` in addition to sender/recipient match (lines 92-96). Players now receive both 1-to-1 messages with Storyteller AND broadcast announcements in their chat view. MSG-04 requirement now verified. TypeScript compiles without errors. 1-to-1 message isolation still preserved. Gap closure plan executed in 3 minutes. Phase 4 complete with full verification (7/7 requirements met).
 
 ### Next Session Entry Point
 
-Create plan for Phase 3: Lobby & Room Management via `/gsd:plan-phase 3`.
+Phase 4 complete and verified. Ready for Phase 5 (Game State & Views) - plan and execute next phase.
 
 ### Context to Preserve
 
@@ -133,10 +180,49 @@ Create plan for Phase 3: Lobby & Room Management via `/gsd:plan-phase 3`.
 - Router loader pattern prevents FOUC on protected routes
 - displayName and avatar stored in localStorage for CreateRoom/JoinRoom flows
 - All pages follow gothic theme: dark background, crimson accents, mobile-first
+- Postgres Changes used for participant list (state sync), Broadcast for messaging (ephemeral)
+- useParticipants hook pattern: useState for data + loading, useEffect for subscription + cleanup
+- ParticipantList filters to is_active=true to exclude kicked participants
+- Real-time updates use INSERT/UPDATE/DELETE event handlers with local state synchronization
+- QR code generation uses qrcode library with gothic theme colors (crimson/dark.9)
+- Join URL format: ${origin}/join?code=XXXX for pre-filled room code
+- Edge Function cleanup requires external scheduler (not auto-scheduled)
+- Kicked participants: soft delete (is_active=false), real-time detection via postgres_changes
+- Room status tracking: useParticipants hook subscribes to rooms table for status updates
+- Status-driven UI: RoomPage conditionally renders lobby/active/ended views based on roomStatus
+- Start Game validation: button disabled until 2+ participants (Storyteller + at least 1 player)
+- Edit modal pattern: local state → validation (2-20 chars) → update → notification → close
+- useMessages hook pattern: Broadcast subscription + database history loading + optimistic UI
+- Dual-write messaging: insert to DB first (get ID), then broadcast with message object
+- Broadcast config: ack: true (server confirmation), self: false (sender uses optimistic UI)
+- Message filtering: 1-to-1 uses .or() with bidirectional sender/recipient, broadcast uses is_broadcast=true
+- Channel lifecycle: create on mount, store in state for sendMessage access, cleanup on unmount
+- Message type export: convenience type from Database definition for hook/helper type safety
+- MessageList auto-scroll: useEffect with messages.length dependency, scrollIntoView on bottomRef
+- MessageInput keyboard: Enter sends, Shift+Enter newlines, onKeyDown prevents default on Enter
+- Component composition: MessageList/MessageInput shared across PlayerChatView and ConversationView
+- PlayerChatView: full-screen chat, uses useMessages with recipientId=storytellerId
+- StorytellerDashboard: player cards grid, useState for selectedParticipant, broadcast card first
+- ConversationView: reusable chat with onBack prop, supports recipientId=null for broadcast
+- Active game views: RoomPage renders PlayerChatView (player) or StorytellerDashboard (Storyteller)
+- Storyteller lookup: participants.find(p => p.role === 'storyteller') for PlayerChatView props
+- useTypingIndicator pattern: Presence with 1s debounce, 3s auto-clear, filter stale >10s entries
+- useUnreadCount pattern: last_read_at timestamp comparison, 5s polling interval
+- Typing indicators: MessageInput emits on onChange, clears on send/unmount
+- Unread badges: BroadcastCard/PlayerCard components with useUnreadCount, only show when > 0
+- Mark as read: ConversationView calls markConversationRead on mount
+- Database migration 004: last_read_at column requires manual application via Supabase dashboard
+- Presence CRDT: Auto-merges state, handles concurrent updates, cleanup takes 30s on disconnect
+- Typing users filtered: PlayerChatView shows only storyteller, ConversationView shows only recipient
+- Broadcast filtering uses OR pattern: Players receive both 1-to-1 messages AND broadcasts in conversation
+- useMessages query includes is_broadcast.eq.true when recipientId is set (lines 51-61)
+- useMessages subscription filter checks newMessage.is_broadcast in isRelevant logic (lines 92-96)
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 02-03-PLAN.md completed 2026-01-20*
+*Last execution: 04-04 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
-*Phase 2 complete: 2026-01-20 (all 3 plans: 02-01, 02-02, 02-03)*
+*Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
+*Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
+*Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*

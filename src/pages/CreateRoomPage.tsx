@@ -63,7 +63,12 @@ export function CreateRoomPage() {
 
       // Create room
       try {
-        const { room } = await createRoom(session.user.id, true, displayName, avatar)
+        const { room } = await createRoom(
+          session.user.id,
+          true,
+          displayName,
+          avatar
+        )
         setRoomCode(room.code)
         setRoomId(room.id)
       } catch (err) {

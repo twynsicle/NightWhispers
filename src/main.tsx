@@ -23,5 +23,5 @@ createRoot(document.getElementById('root')!).render(
       <Notifications />
       <App />
     </MantineProvider>
-  </StrictMode>,
+  </StrictMode>
 )

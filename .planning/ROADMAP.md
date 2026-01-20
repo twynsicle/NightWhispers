@@ -87,9 +87,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md - Real-time lobby foundation (participant list with Postgres Changes)
-- [ ] 03-02-PLAN.md - Storyteller controls (kick, edit, start game)
-- [ ] 03-03-PLAN.md - QR code & room cleanup (sharing and auto-deletion)
+- [x] 03-01-PLAN.md - Real-time lobby foundation (participant list with Postgres Changes)
+- [x] 03-02-PLAN.md - Storyteller controls (kick, edit, start game)
+- [x] 03-03-PLAN.md - QR code & room cleanup (sharing and auto-deletion)
 
 **Success Criteria:**
 1. Player in lobby sees other players who have joined (real-time updates)
@@ -114,6 +114,14 @@ Plans:
 - MSG-05: Unread message count displays on player cards
 - MSG-06: Messages persist across reconnection (not lost on refresh)
 - MSG-07: Typing indicator shows when other party is typing
+
+**Plans:** 4 plans
+
+Plans:
+- [x] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
+- [x] 04-02-PLAN.md - Player and Storyteller messaging views
+- [x] 04-03-PLAN.md - Typing indicators and unread tracking
+- [x] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
 
 **Success Criteria:**
 1. Storyteller sends message to player; player sees it within 1 second
@@ -184,12 +192,12 @@ Plans:
 |-------|--------|--------------|------------|
 | 1 - Foundation | Complete | 0 | 100% |
 | 2 - Session & Room Entry | Complete | 10 | 100% |
-| 3 - Lobby & Room Management | Planned | 8 | 0% |
-| 4 - Core Messaging | Pending | 7 | 0% |
+| 3 - Lobby & Room Management | Complete | 8 | 100% |
+| 4 - Core Messaging | Complete | 7 | 100% |
 | 5 - Game State & Views | Pending | 12 | 0% |
 | 6 - Polish & PWA | Pending | 8 | 0% |
 
-**Overall:** 10/43 requirements complete (23%)
+**Overall:** 25/43 requirements complete (58%)
 
 ---
 
@@ -207,4 +215,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 3 planned)*
+*Last updated: 2026-01-20 (Phase 4 complete)*

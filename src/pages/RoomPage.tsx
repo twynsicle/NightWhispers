@@ -1,7 +1,28 @@
-import { useLoaderData, redirect } from 'react-router'
-import { Container, Stack, Title, Text, Badge, Code } from '@mantine/core'
+import { useState, useEffect } from 'react'
+import { useLoaderData, redirect, useNavigate } from 'react-router'
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  Code,
+  Modal,
+  Button,
+  Skeleton,
+  Loader,
+  Select,
+  TextInput,
+} from '@mantine/core'
+import { IconQrcode } from '@tabler/icons-react'
+import { notifications } from '@mantine/notifications'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/supabase'
+import { QRCodeGenerator } from '../components/QRCodeGenerator'
+import { useParticipants } from '../hooks/useParticipants'
+import { ParticipantList } from '../components/ParticipantList'
+import { PlayerChatView } from '../components/PlayerChatView'
+import { StorytellerDashboard } from '../components/StorytellerDashboard'
+import { kickParticipant, updateParticipantName, startGame } from '../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 type Room = Database['public']['Tables']['rooms']['Row']
@@ -27,6 +48,7 @@ interface RoomLoaderData {
  * @returns {RoomLoaderData} Participant with joined room data
  * @throws {Response} Redirect response if unauthorized
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export async function roomLoader({
   params,
 }: {
@@ -69,42 +91,321 @@ export async function roomLoader({
  */
 export function RoomPage() {
   const { participant } = useLoaderData<RoomLoaderData>()
+  const navigate = useNavigate()
+  const [qrModalOpen, setQrModalOpen] = useState(false)
+  const [script, setScript] = useState('none')
+  const [editingParticipant, setEditingParticipant] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const [editedName, setEditedName] = useState('')
+
+  // Extract room and user IDs for hooks
+  const roomId = participant.rooms.id
+  const userId = participant.user_id
+  const participantId = participant.id
+  const isStoryteller = participant.role === 'storyteller'
+
+  // Subscribe to real-time participant updates
+  const { participants, loading, roomStatus } = useParticipants(roomId)
+
+  // Construct join URL with pre-filled room code
+  const joinUrl = `${window.location.origin}/join?code=${participant.rooms.code}`
+
+  // Real-time detection of being kicked
+  useEffect(() => {
+    const channel = supabase
+      .channel(`participant:${participantId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'participants',
+          filter: `id=eq.${participantId}`,
+        },
+        payload => {
+          if (payload.new.is_active === false) {
+            // User was kicked
+            notifications.show({
+              title: 'Removed from Room',
+              message: 'You were removed from the room by the Storyteller.',
+              color: 'red',
+            })
+            navigate('/?error=kicked')
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [participantId, navigate])
+
+  // Handler: Kick participant
+  const handleKick = async (participantId: string) => {
+    try {
+      await kickParticipant(participantId)
+      notifications.show({
+        title: 'Player Removed',
+        message: 'Player has been kicked from the room.',
+        color: 'green',
+      })
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to kick player. Please try again.',
+        color: 'red',
+      })
+    }
+  }
+
+  // Handler: Edit participant name
+  const handleEditOpen = (participantId: string, currentName: string) => {
+    setEditingParticipant({ id: participantId, name: currentName })
+    setEditedName(currentName)
+  }
+
+  const handleEditSave = async () => {
+    if (!editingParticipant) return
+
+    // Validate name length
+    if (editedName.length < 2 || editedName.length > 20) {
+      notifications.show({
+        title: 'Invalid Name',
+        message: 'Display name must be 2-20 characters.',
+        color: 'red',
+      })
+      return
+    }
+
+    try {
+      await updateParticipantName(editingParticipant.id, editedName)
+      notifications.show({
+        title: 'Name Updated',
+        message: 'Player name has been updated.',
+        color: 'green',
+      })
+      setEditingParticipant(null)
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update name. Please try again.',
+        color: 'red',
+      })
+    }
+  }
+
+  // Handler: Start game
+  const handleStartGame = async () => {
+    try {
+      await startGame(roomId)
+      notifications.show({
+        title: 'Game Started!',
+        message: 'The game is now active.',
+        color: 'green',
+      })
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to start game. Please try again.',
+        color: 'red',
+      })
+    }
+  }
 
   return (
     <Container size="md" py="xl">
       <Stack gap="md">
+        {/* Title with role-specific messaging */}
         <Title order={2} c="crimson">
-          Room: {participant.rooms.code}
+          {roomStatus === 'lobby'
+            ? isStoryteller
+              ? `Lobby - Room ${participant.rooms.code}`
+              : 'Waiting for Storyteller...'
+            : `Room ${participant.rooms.code}`}
         </Title>
 
-        <Stack gap="xs">
-          <Text size="sm" c="dimmed">
-            Room Code:
-          </Text>
-          <Code block fz="xl" ta="center">
-            {participant.rooms.code}
-          </Code>
-          <Text size="xs" c="dimmed" ta="center">
-            Share this code for others to join
-          </Text>
-        </Stack>
+        {/* Game Status: Show different UI based on room status */}
+        {roomStatus === 'lobby' ? (
+          <>
+            {/* LOBBY VIEW */}
+            {/* Room Code Display */}
+            <Stack gap="xs">
+              <Text size="sm" c="dimmed">
+                Room Code:
+              </Text>
+              <Code block fz="xl" ta="center">
+                {participant.rooms.code}
+              </Code>
+              <Text size="xs" c="dimmed" ta="center">
+                Share this code for others to join
+              </Text>
+            </Stack>
 
-        <Stack gap="xs">
-          <Text>
-            {participant.avatar_id} {participant.display_name}
-          </Text>
+            {/* QR Code Button */}
+            <Button
+              variant="light"
+              leftSection={<IconQrcode size={20} />}
+              onClick={() => setQrModalOpen(true)}
+              fullWidth
+            >
+              Show QR Code
+            </Button>
 
-          <Badge
-            color={participant.role === 'storyteller' ? 'crimson' : 'gray'}
-            variant="filled"
-          >
-            {participant.role === 'storyteller' ? 'Storyteller' : 'Player'}
-          </Badge>
-        </Stack>
+            {/* QR Code Modal */}
+            <Modal
+              opened={qrModalOpen}
+              onClose={() => setQrModalOpen(false)}
+              title="Scan to Join Room"
+              centered
+            >
+              <QRCodeGenerator url={joinUrl} />
+            </Modal>
 
-        <Text c="dimmed" size="sm" mt="xl">
-          Room interface coming in Phase 3: Lobby & Management
-        </Text>
+            {/* Storyteller: Script Selector */}
+            {isStoryteller && (
+              <Select
+                label="Script"
+                description="Select game script (v1 supports None only)"
+                data={[{ value: 'none', label: 'None (No Roles)' }]}
+                value={script}
+                onChange={value => setScript(value || 'none')}
+                disabled
+              />
+            )}
+
+            {/* Participant List Section */}
+            <Stack gap="xs" mt="md">
+              <Text size="sm" c="dimmed" fw={500}>
+                Participants
+              </Text>
+
+              {loading ? (
+                <Stack gap="sm">
+                  <Skeleton height={48} />
+                  <Skeleton height={48} />
+                  <Skeleton height={48} />
+                </Stack>
+              ) : (
+                <ParticipantList
+                  participants={participants}
+                  currentUserId={userId}
+                  showRole={true}
+                  isStoryteller={isStoryteller}
+                  onKick={isStoryteller ? handleKick : undefined}
+                  onEdit={isStoryteller ? handleEditOpen : undefined}
+                />
+              )}
+            </Stack>
+
+            {/* Storyteller: Start Game Button */}
+            {isStoryteller && (
+              <Button
+                size="lg"
+                fullWidth
+                color="crimson"
+                onClick={handleStartGame}
+                disabled={participants.length < 2}
+                mt="md"
+              >
+                Start Game
+              </Button>
+            )}
+
+            {/* Role-specific hints */}
+            {isStoryteller ? (
+              <Text size="sm" c="dimmed" ta="center" mt="xs">
+                {participants.length < 2
+                  ? 'Need at least 2 participants to start'
+                  : 'Ready to start the game'}
+              </Text>
+            ) : (
+              <Stack gap="xs" align="center" mt="md">
+                <Loader type="dots" size="sm" />
+                <Text size="sm" c="dimmed">
+                  The game will start soon
+                </Text>
+              </Stack>
+            )}
+          </>
+        ) : roomStatus === 'active' ? (
+          <>
+            {/* ACTIVE GAME VIEW - Messaging Interface */}
+            {isStoryteller ? (
+              // Storyteller view: Player cards dashboard
+              <StorytellerDashboard
+                roomId={roomId}
+                participantId={participantId}
+                participants={participants}
+              />
+            ) : (
+              // Player view: Full-screen chat with Storyteller
+              (() => {
+                const storyteller = participants.find(
+                  p => p.role === 'storyteller'
+                )
+                if (!storyteller) {
+                  return (
+                    <Text size="sm" ta="center" c="dimmed" py="xl">
+                      Waiting for Storyteller...
+                    </Text>
+                  )
+                }
+                return (
+                  <PlayerChatView
+                    roomId={roomId}
+                    participantId={participantId}
+                    storytellerId={storyteller.id}
+                    storytellerName={storyteller.display_name}
+                    participants={participants}
+                  />
+                )
+              })()
+            )}
+          </>
+        ) : (
+          <>
+            {/* ENDED GAME VIEW */}
+            <Text size="lg" ta="center" c="dimmed" py="xl">
+              Game has ended
+            </Text>
+          </>
+        )}
+
+        {/* Edit Name Modal */}
+        <Modal
+          opened={editingParticipant !== null}
+          onClose={() => setEditingParticipant(null)}
+          title="Edit Player Name"
+          centered
+        >
+          <Stack gap="md">
+            <TextInput
+              label="Display Name"
+              description="2-20 characters"
+              value={editedName}
+              onChange={e => setEditedName(e.currentTarget.value)}
+              maxLength={20}
+              error={
+                editedName.length < 2 || editedName.length > 20
+                  ? 'Name must be 2-20 characters'
+                  : undefined
+              }
+            />
+            <Button fullWidth onClick={handleEditSave}>
+              Save
+            </Button>
+            <Button
+              fullWidth
+              variant="light"
+              onClick={() => setEditingParticipant(null)}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </Modal>
       </Stack>
     </Container>
   )

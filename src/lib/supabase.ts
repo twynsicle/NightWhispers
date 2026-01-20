@@ -47,6 +47,7 @@ export type Database = {
           joined_at: string
           created_at: string
           updated_at: string
+          last_read_at: string | null
         }
       }
       messages: {
@@ -63,3 +64,6 @@ export type Database = {
     }
   }
 }
+
+// Convenience type exports
+export type Message = Database['public']['Tables']['messages']['Row']
