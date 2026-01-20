@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 4
+**Session:** 5
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 3 - Lobby & Room Management (in progress)
+**Current Focus:** Phase 4 - Core Messaging (in progress)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,21 +17,21 @@
 
 ## Current Position
 
-**Phase:** 3 of 6 (Lobby & Room Management)
-**Plan:** 3 of 3 in phase
-**Status:** Phase complete, verified
-**Last activity:** 2026-01-19 - Phase 3 execution complete, all 8 requirements delivered
+**Phase:** 4 of 6 (Core Messaging)
+**Plan:** 1 of 3 in phase
+**Status:** In progress
+**Last activity:** 2026-01-20 - Completed 04-01-PLAN.md (Message Infrastructure)
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
-Phase 4: Core Messaging     [..........] 0%
+Phase 4: Core Messaging     [███.......] 33%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 8/8 plans complete (100% of planned work)
+Overall: 9/14 plans complete (64% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 8/8 plans complete (100% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 8 |
+| Plans Completed | 9 |
 | Requirements Delivered | 18/43 |
 | Phases Completed | 3/6 |
-| Session Count | 4 |
+| Session Count | 5 |
 
 ---
 
@@ -79,10 +79,16 @@ Overall: 8/8 plans complete (100% of planned work)
 | Real-time kick detection via postgres_changes | Kicked players need immediate notification, not just on next page load | 03-02 |
 | Room status in useParticipants hook | Efficient single hook for participants + status (rare status changes) | 03-02 |
 | Script selector disabled for v1 | Only "None" option, ready for v2 Trouble Brewing expansion | 03-02 |
+| Broadcast over Postgres Changes for messaging | 22x faster (224K vs 10K msgs/sec), no RLS bottleneck, 6ms latency | 04-01 |
+| Dual-write pattern for messages | DB ensures persistence (MSG-06), Broadcast provides speed (MSG-03) | 04-01 |
+| self: false in Broadcast config | Prevents duplicate messages (sender sees optimistic UI, not own Broadcast) | 04-01 |
+| Initial load 50 messages | Per RESEARCH.md for mobile-first use case with short message bursts | 04-01 |
+| Channel stored in hook state | sendMessage needs channel reference for Broadcast delivery | 04-01 |
 
 ### Architecture Notes
 
-- **Messaging:** Broadcast for real-time delivery, Postgres for persistence
+- **Messaging:** Broadcast for real-time delivery (224K msgs/sec), Postgres for persistence, dual-write pattern
+- **Message delivery:** Broadcast with ack: true, self: false for optimistic UI without duplicates
 - **State sync:** Postgres Changes for room/participant state (not messages)
 - **Presence:** Supabase Presence for typing indicators
 - **Session:** localStorage token + Supabase anonymous auth (useAuth hook with getSession/onAuthStateChange)
@@ -136,11 +142,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed Phase 3: Lobby & Room Management via /gsd:execute-phase 3. Wave 1 (parallel): 03-01 created useParticipants hook with Postgres Changes subscription and ParticipantList component; 03-03 added QR code generator with gothic theming and Edge Function for room cleanup (requires external scheduler). Wave 2: 03-02 added Storyteller lobby controls (kick, edit names, select script, start game) with real-time kicked player detection. All 8 requirements delivered (LOBBY-01 through LOBBY-04, ROOM-03 through ROOM-05, GAME-01). Phase goal verified: Storyteller can manage the lobby and start the game when ready. 9/9 must-haves verified, 8 human verification scenarios documented. 18/43 total requirements delivered (42% overall progress).
+Executed plan 04-01: Message Infrastructure. Created dual-write messaging foundation with Broadcast channels for real-time delivery and Postgres persistence. Implemented useMessages hook with Broadcast subscription (ack: true, self: false), sendMessage/sendBroadcastMessage helpers, and Message type exports. All verifications passed: Broadcast subscription pattern verified, dual-write pattern confirmed (DB insert + channel.send), channel cleanup present, conversation filters working (1-to-1 via .or(), broadcast via is_broadcast). No deviations from plan. 2/2 tasks complete in 5 minutes.
 
 ### Next Session Entry Point
 
-Create plan for Phase 4: Core Messaging via `/gsd:discuss-phase 4` (recommended for research-flagged phase) or `/gsd:plan-phase 4`.
+Continue Phase 4: Execute plan 04-02 (Message UI Components) or 04-03 (Player Chat View).
 
 ### Context to Preserve
 
@@ -168,11 +174,17 @@ Create plan for Phase 4: Core Messaging via `/gsd:discuss-phase 4` (recommended 
 - Status-driven UI: RoomPage conditionally renders lobby/active/ended views based on roomStatus
 - Start Game validation: button disabled until 2+ participants (Storyteller + at least 1 player)
 - Edit modal pattern: local state → validation (2-20 chars) → update → notification → close
+- useMessages hook pattern: Broadcast subscription + database history loading + optimistic UI
+- Dual-write messaging: insert to DB first (get ID), then broadcast with message object
+- Broadcast config: ack: true (server confirmation), self: false (sender uses optimistic UI)
+- Message filtering: 1-to-1 uses .or() with bidirectional sender/recipient, broadcast uses is_broadcast=true
+- Channel lifecycle: create on mount, store in state for sendMessage access, cleanup on unmount
+- Message type export: convenience type from Database definition for hook/helper type safety
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: Phase 3 complete 2026-01-19*
+*Last execution: 04-01 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
