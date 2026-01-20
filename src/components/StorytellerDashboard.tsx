@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { SimpleGrid, Card, Text, Group, Badge, Stack } from '@mantine/core'
+import { SimpleGrid, Card, Text, Group, Badge, Stack, Button, Divider } from '@mantine/core'
+import { IconRefresh } from '@tabler/icons-react'
 import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
 import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
+import { GameResetModal } from './GameResetModal'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -35,6 +37,7 @@ export function StorytellerDashboard({
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
+  const [resetModalOpened, setResetModalOpened] = useState(false)
 
   // Mark conversation as read when opening
   useEffect(() => {
@@ -113,6 +116,26 @@ export function StorytellerDashboard({
           No players in the room yet. Share the room code to invite players.
         </Text>
       )}
+
+      {/* Reset Game Section */}
+      <Divider my="lg" />
+      <Group justify="center">
+        <Button
+          variant="subtle"
+          color="red"
+          leftSection={<IconRefresh size={16} />}
+          onClick={() => setResetModalOpened(true)}
+        >
+          Reset Game
+        </Button>
+      </Group>
+
+      {/* Reset Confirmation Modal */}
+      <GameResetModal
+        roomId={roomId}
+        opened={resetModalOpened}
+        onClose={() => setResetModalOpened(false)}
+      />
     </Stack>
   )
 }
