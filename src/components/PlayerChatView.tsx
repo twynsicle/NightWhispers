@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Stack, Title, Text, Group, ActionIcon } from '@mantine/core'
+import { Stack, Title, Text, Group, ActionIcon, Box } from '@mantine/core'
 import { IconSettings } from '@tabler/icons-react'
 import { useMessages } from '../hooks/useMessages'
 import { useTypingIndicator } from '../hooks/useTypingIndicator'
@@ -87,7 +87,21 @@ export function PlayerChatView({
   }
 
   return (
-    <Stack h="100vh" gap={0}>
+    <Stack
+      h="100vh"
+      gap={0}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100,
+        backgroundColor: 'var(--mantine-color-dark-8)',
+      }}
+    >
       {/* Header */}
       <Group
         justify="space-between"
@@ -95,6 +109,7 @@ export function PlayerChatView({
         style={{
           borderBottom: '1px solid var(--mantine-color-dark-4)',
           backgroundColor: 'var(--mantine-color-dark-7)',
+          flexShrink: 0,
         }}
       >
         <Stack gap="xs">
@@ -117,13 +132,15 @@ export function PlayerChatView({
       </Group>
 
       {/* Message List */}
-      <MessageList
-        messages={messages}
-        currentParticipantId={participantId}
-        loading={loading}
-        typingUsers={storytellerTyping}
-        participants={participants}
-      />
+      <Box style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <MessageList
+          messages={messages}
+          currentParticipantId={participantId}
+          loading={loading}
+          typingUsers={storytellerTyping}
+          participants={participants}
+        />
+      </Box>
 
       {/* Message Input */}
       <Stack
@@ -131,6 +148,7 @@ export function PlayerChatView({
         style={{
           borderTop: '1px solid var(--mantine-color-dark-4)',
           backgroundColor: 'var(--mantine-color-dark-7)',
+          flexShrink: 0,
         }}
       >
         <MessageInput

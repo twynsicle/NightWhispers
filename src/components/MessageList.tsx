@@ -48,7 +48,7 @@ export function MessageList({
   // Loading state: show skeleton
   if (loading) {
     return (
-      <Stack gap="sm" p="md">
+      <Stack gap="sm" p="md" style={{ height: '100%' }}>
         <Skeleton height={60} radius="md" />
         <Skeleton height={60} radius="md" />
         <Skeleton height={60} radius="md" />
@@ -59,7 +59,7 @@ export function MessageList({
   // Empty state
   if (messages.length === 0) {
     return (
-      <Stack h="100%" justify="center" align="center">
+      <Stack style={{ height: '100%' }} justify="center" align="center">
         <Text size="sm" c="dimmed" ta="center">
           No messages yet. Start the conversation!
         </Text>
@@ -86,7 +86,7 @@ export function MessageList({
   }
 
   return (
-    <ScrollArea viewportRef={viewportRef} h="100%" style={{ flexGrow: 1 }}>
+    <ScrollArea viewportRef={viewportRef} style={{ height: '100%' }}>
       <Stack gap="sm" p="md">
         {messages.map(message => {
           const isSent = message.sender_id === currentParticipantId
