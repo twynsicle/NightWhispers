@@ -115,12 +115,13 @@ Plans:
 - MSG-06: Messages persist across reconnection (not lost on refresh)
 - MSG-07: Typing indicator shows when other party is typing
 
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
-- [ ] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
-- [ ] 04-02-PLAN.md - Player and Storyteller messaging views
-- [ ] 04-03-PLAN.md - Typing indicators and unread tracking
+- [x] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
+- [x] 04-02-PLAN.md - Player and Storyteller messaging views
+- [x] 04-03-PLAN.md - Typing indicators and unread tracking
+- [ ] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
 
 **Success Criteria:**
 1. Storyteller sends message to player; player sees it within 1 second
@@ -192,11 +193,11 @@ Plans:
 | 1 - Foundation | Complete | 0 | 100% |
 | 2 - Session & Room Entry | Complete | 10 | 100% |
 | 3 - Lobby & Room Management | Complete | 8 | 100% |
-| 4 - Core Messaging | Planned | 7 | 0% |
+| 4 - Core Messaging | In Progress | 7 | 86% (6/7 verified) |
 | 5 - Game State & Views | Pending | 12 | 0% |
 | 6 - Polish & PWA | Pending | 8 | 0% |
 
-**Overall:** 18/43 requirements complete (42%)
+**Overall:** 24/43 requirements complete (56%)
 
 ---
 
@@ -214,4 +215,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 4 planned)*
+*Last updated: 2026-01-20 (Phase 4 gap closure plan added)*
