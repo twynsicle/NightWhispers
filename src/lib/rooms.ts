@@ -140,3 +140,62 @@ export async function getRoomByCode(code: string): Promise<Room | null> {
   if (error) return null
   return data
 }
+
+/**
+ * Kicks a participant from the room (soft delete).
+ *
+ * Sets is_active to false instead of hard deleting to preserve data
+ * for reconnection detection and audit trail.
+ *
+ * @param {string} participantId - ID of participant to kick
+ * @throws {Error} If update fails
+ */
+export async function kickParticipant(participantId: string): Promise<void> {
+  const { error } = await supabase
+    .from('participants')
+    .update({ is_active: false })
+    .eq('id', participantId)
+
+  if (error) throw error
+}
+
+/**
+ * Updates a participant's display name.
+ *
+ * Includes updated_at timestamp for audit trail.
+ *
+ * @param {string} participantId - ID of participant to update
+ * @param {string} displayName - New display name (2-20 chars)
+ * @throws {Error} If update fails
+ */
+export async function updateParticipantName(
+  participantId: string,
+  displayName: string
+): Promise<void> {
+  const { error } = await supabase
+    .from('participants')
+    .update({
+      display_name: displayName,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', participantId)
+
+  if (error) throw error
+}
+
+/**
+ * Starts the game by changing room status to active.
+ *
+ * Simple status transition - no phase change yet (Phase 5 will handle phase advancement).
+ *
+ * @param {string} roomId - ID of room to start
+ * @throws {Error} If update fails
+ */
+export async function startGame(roomId: string): Promise<void> {
+  const { error } = await supabase
+    .from('rooms')
+    .update({ status: 'active' })
+    .eq('id', roomId)
+
+  if (error) throw error
+}
