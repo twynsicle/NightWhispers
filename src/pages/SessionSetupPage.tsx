@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { Container, Stack, Title, Text, TextInput, Button } from '@mantine/core'
 import { useForm, hasLength, isNotEmpty } from '@mantine/form'
 import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../lib/supabase'
 import { AvatarSelector } from '../components/AvatarSelector'
 
 /**
@@ -29,6 +30,10 @@ export function SessionSetupPage() {
   const { signInAnonymously } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
+  // Get next action to determine page title
+  const nextAction = searchParams.get('next') || 'create'
+  const pageTitle = nextAction === 'create' ? 'Create a Room' : 'Join the Night'
+
   // Form setup with validators
   const form = useForm({
     mode: 'uncontrolled',
@@ -50,6 +55,13 @@ export function SessionSetupPage() {
     try {
       // Create anonymous session if needed
       await signInAnonymously()
+
+      // Verify session is ready in Supabase client (not just useAuth state)
+      // This prevents race condition where the client hasn't loaded the session yet
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      if (sessionError || !session) {
+        throw new Error('Failed to initialize authenticated session')
+      }
 
       // Store preferences in localStorage for next step
       localStorage.setItem('displayName', values.displayName)
@@ -73,7 +85,7 @@ export function SessionSetupPage() {
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="lg">
           <Title order={2} c="crimson" ta="center">
-            Join the Night
+            {pageTitle}
           </Title>
 
           <TextInput

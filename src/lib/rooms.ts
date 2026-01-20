@@ -1,4 +1,5 @@
-import { supabase, Database } from './supabase'
+import { supabase } from './supabase'
+import type { Database } from './supabase'
 import { generateRoomCode } from './room-codes'
 
 type Room = Database['public']['Tables']['rooms']['Row']
@@ -12,12 +13,16 @@ type Participant = Database['public']['Tables']['participants']['Row']
  *
  * @param {string} userId - Authenticated user ID (from session.user.id)
  * @param {boolean} isStoryteller - Whether user is storyteller (true) or player (false)
+ * @param {string} displayName - User's chosen display name (2-20 chars)
+ * @param {string} avatar - Avatar identifier/emoji
  * @returns {Promise<{room: Room, participant: Participant}>} Created room and participant
  * @throws {Error} If room creation fails (non-collision error)
  */
 export async function createRoom(
   userId: string,
-  isStoryteller: boolean
+  isStoryteller: boolean,
+  displayName: string,
+  avatar: string
 ): Promise<{ room: Room; participant: Participant }> {
   const code = generateRoomCode()
 
@@ -26,7 +31,7 @@ export async function createRoom(
     .from('rooms')
     .insert({
       code,
-      last_activity: new Date().toISOString(),
+      storyteller_id: userId,
     })
     .select()
     .single()
@@ -34,7 +39,7 @@ export async function createRoom(
   // Handle collision: unique constraint violation (PostgreSQL error 23505)
   if (roomError?.code === '23505') {
     // Retry with new code (recursive)
-    return createRoom(userId, isStoryteller)
+    return createRoom(userId, isStoryteller, displayName, avatar)
   }
 
   if (roomError) throw roomError
@@ -46,7 +51,8 @@ export async function createRoom(
     .insert({
       room_id: room.id,
       user_id: userId,
-      is_storyteller: isStoryteller,
+      display_name: displayName,
+      avatar_id: avatar,
       role: isStoryteller ? 'storyteller' : 'player',
     })
     .select()
@@ -97,9 +103,7 @@ export async function joinRoom(
         user_id: userId,
         display_name: displayName,
         avatar_id: avatar,
-        is_storyteller: false,
         role: 'player',
-        joined_at: new Date().toISOString(),
       },
       {
         onConflict: 'room_id,user_id',

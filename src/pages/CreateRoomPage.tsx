@@ -24,13 +24,18 @@ import { createRoom } from '../lib/rooms'
  */
 export function CreateRoomPage() {
   const navigate = useNavigate()
-  const { session } = useAuth()
+  const { session, loading: authLoading } = useAuth()
   const [roomCode, setRoomCode] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function initialize() {
+      // Wait for auth to finish loading
+      if (authLoading) {
+        return
+      }
+
       // Check for session
       if (!session) {
         navigate('/setup?next=create')
@@ -48,7 +53,7 @@ export function CreateRoomPage() {
 
       // Create room
       try {
-        const { room } = await createRoom(session.user.id, true)
+        const { room } = await createRoom(session.user.id, true, displayName, avatar)
         setRoomCode(room.code)
 
         // Auto-navigate to room after 2 seconds
@@ -69,7 +74,7 @@ export function CreateRoomPage() {
     }
 
     initialize()
-  }, [session, navigate])
+  }, [session, authLoading, navigate])
 
   if (isLoading) {
     return (

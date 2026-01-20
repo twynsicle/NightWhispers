@@ -1,6 +1,7 @@
-import { LoaderFunctionArgs, useLoaderData, redirect } from 'react-router'
+import { useLoaderData, redirect } from 'react-router'
 import { Container, Stack, Title, Text, Badge, Code } from '@mantine/core'
-import { supabase, Database } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+import type { Database } from '../lib/supabase'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 type Room = Database['public']['Tables']['rooms']['Row']
@@ -26,7 +27,9 @@ interface RoomLoaderData {
  */
 export async function roomLoader({
   params,
-}: LoaderFunctionArgs): Promise<RoomLoaderData> {
+}: {
+  params: { roomId?: string }
+}): Promise<RoomLoaderData> {
   // Check for session
   const {
     data: { session },

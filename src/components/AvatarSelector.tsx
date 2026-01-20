@@ -64,8 +64,11 @@ export function AvatarSelector({ value, onChange, error }: AvatarSelectorProps) 
                 aria-pressed={isSelected}
                 styles={{
                   root: {
-                    fontSize: '2rem',
+                    fontSize: '2.5rem',
                     height: '80px',
+                  },
+                  label: {
+                    fontFamily: '"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "Apple Color Emoji", sans-serif',
                   },
                 }}
               >

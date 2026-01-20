@@ -23,7 +23,7 @@ import { joinRoom } from '../lib/rooms'
  */
 export function JoinRoomPage() {
   const navigate = useNavigate()
-  const { session } = useAuth()
+  const { session, loading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   // Form setup with room code validator
@@ -41,6 +41,11 @@ export function JoinRoomPage() {
   })
 
   async function handleSubmit(values: { roomCode: string }) {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return
+    }
+
     // Check for session
     if (!session) {
       navigate('/setup?next=join')

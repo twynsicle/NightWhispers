@@ -12,6 +12,10 @@ import '@mantine/notifications/styles.css'
 
 import { theme } from './theme'
 import App from './App'
+import { validateEnv } from './lib/env'
+
+// Validate environment variables before rendering
+validateEnv()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
