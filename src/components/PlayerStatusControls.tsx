@@ -13,6 +13,7 @@ import { notifications } from '@mantine/notifications'
 import { IconX } from '@tabler/icons-react'
 import type { Database } from '../lib/supabase'
 import { toggleDead, setCustomStatus } from '../hooks/usePlayerStatus'
+import { MAX_CUSTOM_STATUS_LENGTH } from '../lib/constants'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -64,29 +65,39 @@ export function PlayerStatusControls({
       return
     }
 
+    let isMounted = true
+
     const saveCustomStatus = async () => {
       try {
         await setCustomStatus(participant.id, debouncedCustomStatus || null)
-        notifications.show({
-          title: 'Status updated',
-          message: debouncedCustomStatus
-            ? `Custom status set to "${debouncedCustomStatus}"`
-            : 'Custom status cleared',
-          color: 'green',
-        })
+        if (isMounted) {
+          notifications.show({
+            title: 'Status updated',
+            message: debouncedCustomStatus
+              ? `Custom status set to "${debouncedCustomStatus}"`
+              : 'Custom status cleared',
+            color: 'green',
+          })
+        }
       } catch (error) {
-        notifications.show({
-          title: 'Update failed',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Failed to update custom status',
-          color: 'red',
-        })
+        if (isMounted) {
+          notifications.show({
+            title: 'Update failed',
+            message:
+              error instanceof Error
+                ? error.message
+                : 'Failed to update custom status',
+            color: 'red',
+          })
+        }
       }
     }
 
     saveCustomStatus()
+
+    return () => {
+      isMounted = false
+    }
   }, [
     debouncedCustomStatus,
     hasInitialized,
@@ -157,29 +168,31 @@ export function PlayerStatusControls({
         />
 
         {/* Custom status input */}
-        <Group gap="xs" align="flex-end">
-          <TextInput
-            flex={1}
-            size="sm"
-            label="Custom Status"
-            placeholder="e.g., Poisoned, Protected, Mayor"
-            value={customStatusValue}
-            onChange={e => setCustomStatusValue(e.currentTarget.value)}
-            maxLength={50}
-            description={`${customStatusValue.length}/50 characters`}
-          />
-          {customStatusValue && (
-            <ActionIcon
-              variant="subtle"
-              color="gray"
-              onClick={handleClearCustomStatus}
-              aria-label="Clear custom status"
-              mb={24}
-            >
-              <IconX size={16} />
-            </ActionIcon>
-          )}
-        </Group>
+        <Stack gap={0}>
+          <Group gap="xs" align="flex-start" wrap="nowrap">
+            <TextInput
+              flex={1}
+              size="sm"
+              label="Custom Status"
+              placeholder="e.g., Poisoned, Protected, Mayor"
+              value={customStatusValue}
+              onChange={e => setCustomStatusValue(e.currentTarget.value)}
+              maxLength={MAX_CUSTOM_STATUS_LENGTH}
+              description={`${customStatusValue.length}/${MAX_CUSTOM_STATUS_LENGTH} characters`}
+            />
+            {customStatusValue && (
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={handleClearCustomStatus}
+                aria-label="Clear custom status"
+                style={{ marginTop: '26px' }}
+              >
+                <IconX size={16} />
+              </ActionIcon>
+            )}
+          </Group>
+        </Stack>
       </Stack>
     </Paper>
   )

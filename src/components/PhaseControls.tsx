@@ -24,22 +24,19 @@ export function PhaseControls({ roomId }: PhaseControlsProps) {
   const handleAdvancePhase = async () => {
     setIsAdvancing(true)
 
-    try {
-      // Compute next phase for success notification
-      const nextPhase = getNextPhase(phase)
+    // Compute next phase for success notification
+    const nextPhase = getNextPhase(phase)
 
-      await advancePhase()
+    await advancePhase()
 
-      notifications.show({
-        title: 'Phase Advanced',
-        message: `Phase advanced to ${nextPhase}`,
-        color: 'green',
-      })
-    } catch {
-      // Error notification already handled in usePhase hook
-    } finally {
-      setIsAdvancing(false)
-    }
+    // Success notification
+    notifications.show({
+      title: 'Phase Advanced',
+      message: `Phase advanced to ${nextPhase}`,
+      color: 'green',
+    })
+
+    setIsAdvancing(false)
   }
 
   return (

@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { INITIAL_PHASE } from './constants'
 
 /**
  * Resets the game state while preserving all participants.
@@ -17,6 +18,13 @@ import { supabase } from './supabase'
  * Use case: Storyteller wants to restart the game (practice run, false start,
  * rule changes) without making everyone rejoin the room.
  *
+ * **Consistency Note:**
+ * This function does not use database transactions. If a step fails partway through,
+ * the room may be left in an inconsistent state (e.g., messages deleted but phase not reset).
+ * Supabase PostgreSQL doesn't support multi-table transactions in a simple way from the client.
+ * We accept eventual consistency: if an error occurs, the error is thrown and the UI can
+ * retry the operation. The function is idempotent - re-running it will complete any missing steps.
+ *
  * @param roomId - The UUID of the room to reset
  * @throws Error if any database operation fails
  */
@@ -31,10 +39,10 @@ export async function resetGame(roomId: string): Promise<void> {
     throw new Error(`Failed to delete messages: ${messagesError.message}`)
   }
 
-  // Step 2: Reset room phase to "Night 1"
+  // Step 2: Reset room phase to initial phase
   const { error: roomError } = await supabase
     .from('rooms')
-    .update({ phase: 'Night 1' })
+    .update({ phase: INITIAL_PHASE })
     .eq('id', roomId)
 
   if (roomError) {

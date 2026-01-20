@@ -118,6 +118,44 @@ Always use context7 when you need code generation, setup or configuration steps,
 - **Mantine 8 split CSS imports:** v8 architecture requires 4 CSS files for optimal tree-shaking
 - **4-letter room codes:** Easy to share verbally, low collision risk
 
+## Code Quality Guidelines
+
+### React Hooks & Effects
+- **useEffect Dependencies:** Only include values that should trigger re-runs. Avoid including state variables that are updated inside the effect callback (causes race conditions).
+- **Memory Leak Prevention:** For async operations in useEffect, always use a cleanup flag (`isMounted`) to prevent state updates after unmount.
+- **Subscription Management:** When creating Supabase channels/subscriptions in useEffect, ensure cleanup runs `supabase.removeChannel(channel)`.
+
+### Type Safety
+- **Avoid Type Assertions:** Prefer runtime type checks (`typeof`, `in` operator) over `as` type assertions.
+- **Regenerate Supabase Types:** If relations/joins return unexpected types, regenerate types instead of forcing casts.
+
+### Constants & Magic Values
+- **Extract Constants:** Never hardcode the same value in multiple places. Create constants in `src/lib/constants.ts` for:
+  - Validation limits (max lengths, min lengths)
+  - Initial/default values (initial phase, default status)
+  - Regex patterns used in multiple places
+- **Use Constants Consistently:** Import and use constants everywhere they apply.
+
+### Error Handling
+- **Single Source of Truth:** Error notifications should be shown in ONE place (either hook or component, not both).
+- **Consistent Error Messages:** Include helpful context in error messages.
+- **Document Consistency Trade-offs:** If eventual consistency is acceptable (e.g., multi-step operations without transactions), document this in JSDoc comments.
+
+### Accessibility
+- **ARIA Labels:** All interactive elements without text content need `aria-label` attributes.
+- **Proper Layout:** Use semantic layout components instead of margin/padding hacks for positioning.
+- **Keyboard Navigation:** Ensure all interactive elements are keyboard-accessible.
+
+### Performance & Efficiency
+- **Avoid Re-fetching:** Pass data as props instead of re-fetching in child components.
+- **Debounce User Input:** Use `useDebouncedValue` for text inputs that trigger database updates.
+- **Stricter Validation:** Use strict regex patterns and validation to prevent malformed data from entering the system.
+
+### Code Organization
+- **Single Responsibility:** Hooks should handle one concern (data fetching, subscriptions, mutations).
+- **Prop Drilling vs Re-fetching:** Prefer passing data through props over re-fetching in child components.
+- **Notification Logic:** Keep success/error notifications close to the operation (prefer hooks over components for data operations).
+
 ## Out of Scope (v1)
 
 - OAuth/social login

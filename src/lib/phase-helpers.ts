@@ -8,6 +8,8 @@
  * Day phases are for public discussion and voting.
  */
 
+import { INITIAL_PHASE } from './constants'
+
 /**
  * Get the next phase in the game cycle.
  *
@@ -25,15 +27,15 @@
  */
 export function getNextPhase(currentPhase: string): string {
   // Parse phase type and number using regex
-  // Matches "Night X" or "Day X" where X is a number
-  const match = currentPhase.match(/^(Night|Day)\s+(\d+)$/i)
+  // Matches "Night X" or "Day X" where X is a number (single space only)
+  const match = currentPhase.match(/^(Night|Day) (\d+)$/i)
 
   if (!match) {
-    // Invalid phase format, default to Night 1
+    // Invalid phase format, default to initial phase
     console.warn(
-      `Invalid phase format: "${currentPhase}", defaulting to Night 1`
+      `Invalid phase format: "${currentPhase}", defaulting to ${INITIAL_PHASE}`
     )
-    return 'Night 1'
+    return INITIAL_PHASE
   }
 
   const [, phaseType, phaseNumberStr] = match

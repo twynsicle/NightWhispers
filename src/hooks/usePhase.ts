@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { getNextPhase } from '../lib/phase-helpers'
+import { INITIAL_PHASE } from '../lib/constants'
 import { notifications } from '@mantine/notifications'
 
 interface UsePhaseReturn {
@@ -24,7 +25,7 @@ interface UsePhaseReturn {
  * @returns {UsePhaseReturn} Phase state, loading state, and advance function
  */
 export function usePhase(roomId: string): UsePhaseReturn {
-  const [phase, setPhase] = useState<string>('Night 1')
+  const [phase, setPhase] = useState<string>(INITIAL_PHASE)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export function usePhase(roomId: string): UsePhaseReturn {
         },
         payload => {
           // Update local state when phase column changes
-          if (payload.new.phase && payload.new.phase !== phase) {
+          if (payload.new.phase) {
             setPhase(payload.new.phase as string)
           }
         }
@@ -74,7 +75,7 @@ export function usePhase(roomId: string): UsePhaseReturn {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [roomId, phase])
+  }, [roomId])
 
   /**
    * Advance the game to the next phase.

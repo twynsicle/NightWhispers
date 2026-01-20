@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Stack, Title, Text, Group, ActionIcon, Box } from '@mantine/core'
 import { IconSettings } from '@tabler/icons-react'
 import { useMessages } from '../hooks/useMessages'
 import { useTypingIndicator } from '../hooks/useTypingIndicator'
-import { supabase } from '../lib/supabase'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { PlayerSettingsMenu } from './PlayerSettingsMenu'
@@ -14,6 +13,7 @@ interface PlayerChatViewProps {
   storytellerId: string
   storytellerName: string
   participants: Array<{ id: string; display_name: string }>
+  roomCode: string
 }
 
 /**
@@ -36,6 +36,7 @@ interface PlayerChatViewProps {
  * @param participantId - Current player's participant ID
  * @param storytellerId - Storyteller's participant ID (recipient for all messages)
  * @param storytellerName - Storyteller's display name
+ * @param roomCode - Room code for settings menu (passed from parent to avoid re-fetching)
  */
 export function PlayerChatView({
   roomId,
@@ -43,26 +44,9 @@ export function PlayerChatView({
   storytellerId,
   storytellerName,
   participants,
+  roomCode,
 }: PlayerChatViewProps) {
-  // Room code state for settings menu
-  const [roomCode, setRoomCode] = useState<string | null>(null)
   const [settingsOpened, setSettingsOpened] = useState(false)
-
-  // Fetch room code on mount
-  useEffect(() => {
-    const fetchRoomCode = async () => {
-      const { data } = await supabase
-        .from('participants')
-        .select('rooms(code)')
-        .eq('id', participantId)
-        .single()
-      if (data?.rooms) {
-        // Type assertion: rooms relation returns { code: string }
-        setRoomCode((data.rooms as { code: string }).code)
-      }
-    }
-    fetchRoomCode()
-  }, [participantId])
 
   // Load conversation with Storyteller
   // recipientId = storytellerId ensures 1-to-1 messages are filtered correctly
@@ -157,15 +141,13 @@ export function PlayerChatView({
         />
       </Stack>
 
-      {/* Settings Menu - only render when roomCode is loaded */}
-      {roomCode !== null && (
-        <PlayerSettingsMenu
-          roomCode={roomCode}
-          participantId={participantId}
-          opened={settingsOpened}
-          onClose={() => setSettingsOpened(false)}
-        />
-      )}
+      {/* Settings Menu */}
+      <PlayerSettingsMenu
+        roomCode={roomCode}
+        participantId={participantId}
+        opened={settingsOpened}
+        onClose={() => setSettingsOpened(false)}
+      />
     </Stack>
   )
 }

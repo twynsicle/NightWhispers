@@ -371,6 +371,7 @@ export function RoomPage() {
                     storytellerId={storyteller.id}
                     storytellerName={storyteller.display_name}
                     participants={participants}
+                    roomCode={participant.rooms.code}
                   />
                 )
               })()

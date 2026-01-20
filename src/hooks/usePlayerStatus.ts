@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { MAX_CUSTOM_STATUS_LENGTH } from '../lib/constants'
 
 /**
  * Toggle a participant's alive/dead status.
@@ -63,8 +64,10 @@ export async function setCustomStatus(
   customStatus: string | null
 ): Promise<void> {
   // Validate custom status length
-  if (customStatus && customStatus.length > 50) {
-    throw new Error('Custom status must be 50 characters or less')
+  if (customStatus && customStatus.length > MAX_CUSTOM_STATUS_LENGTH) {
+    throw new Error(
+      `Custom status must be ${MAX_CUSTOM_STATUS_LENGTH} characters or less`
+    )
   }
 
   const { error } = await supabase
