@@ -1,49 +1,49 @@
-import { useEffect } from 'react'
-import { Container, Title, Text, Button, Stack } from '@mantine/core'
-import { supabase } from './lib/supabase'
-import { env } from './lib/env'
+import { createBrowserRouter, RouterProvider } from 'react-router'
+import { HomePage } from './pages/HomePage'
+import { SessionSetupPage } from './pages/SessionSetupPage'
+import { CreateRoomPage } from './pages/CreateRoomPage'
+import { JoinRoomPage } from './pages/JoinRoomPage'
+import { RoomPage, roomLoader } from './pages/RoomPage'
+
+/**
+ * React Router 7 configuration for Night Whispers.
+ *
+ * Uses createBrowserRouter + RouterProvider for loader support (Pattern 3).
+ * Loaders enable protected routes without FOUC (flash of unauthenticated content).
+ *
+ * Routes:
+ * - / : Landing page (create/join choice)
+ * - /setup : Session setup (display name + avatar)
+ * - /create : Room creation (Storyteller)
+ * - /join : Room joining (Player)
+ * - /room/:roomId : Protected game interface (requires session + participant)
+ */
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <HomePage />,
+  },
+  {
+    path: '/setup',
+    element: <SessionSetupPage />,
+  },
+  {
+    path: '/create',
+    element: <CreateRoomPage />,
+  },
+  {
+    path: '/join',
+    element: <JoinRoomPage />,
+  },
+  {
+    path: '/room/:roomId',
+    element: <RoomPage />,
+    loader: roomLoader,
+  },
+])
 
 function App() {
-  const handleClick = () => {
-    console.log('App loaded')
-  }
-
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        // Simple query to verify connection (will fail with RLS, but connection works)
-        const { error } = await supabase.from('rooms').select('count').limit(0)
-
-        if (error && !error.message.includes('permission denied')) {
-          console.error('Supabase connection error:', error.message)
-        } else {
-          console.log('Supabase connected successfully')
-        }
-      } catch (err) {
-        console.error('Supabase connection failed:', err)
-      }
-    }
-
-    if (env.supabase.url && env.supabase.anonKey) {
-      checkConnection()
-    } else {
-      console.warn('Supabase credentials not configured - see .env.example')
-    }
-  }, [])
-
-  return (
-    <Container size="xs" py="xl">
-      <Stack align="center" gap="md">
-        <Title order={1}>Night Whispers</Title>
-        <Text c="dimmed" size="lg">
-          Social deduction companion
-        </Text>
-        <Button onClick={handleClick} size="lg" mt="md">
-          Get Started
-        </Button>
-      </Stack>
-    </Container>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App
