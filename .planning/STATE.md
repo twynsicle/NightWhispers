@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 4 of 6 (Core Messaging)
-**Plan:** 2 of 3 in phase
-**Status:** In progress
-**Last activity:** 2026-01-20 - Completed 04-02-PLAN.md (Message UI Components)
+**Plan:** 3 of 3 in phase
+**Status:** Phase complete
+**Last activity:** 2026-01-20 - Completed 04-03-PLAN.md (Unread Counts & Typing Indicators)
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
-Phase 4: Core Messaging     [██████....] 67%
+Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 10/14 plans complete (71% of planned work)
+Overall: 11/14 plans complete (79% of planned work)
 ```
 
 ---
@@ -40,9 +40,9 @@ Overall: 10/14 plans complete (71% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 10 |
-| Requirements Delivered | 26/43 |
-| Phases Completed | 3/6 |
+| Plans Completed | 11 |
+| Requirements Delivered | 28/43 |
+| Phases Completed | 4/6 |
 | Session Count | 5 |
 
 ---
@@ -89,6 +89,14 @@ Overall: 10/14 plans complete (71% of planned work)
 | Broadcast card first in Storyteller dashboard | Most common action for Storyteller (night phase announcements) | 04-02 |
 | Player view renders full-screen chat | Players only interact with Storyteller - no need for dashboard complexity | 04-02 |
 | Storyteller dashboard uses card grid | Mobile-first SimpleGrid (1 col mobile, 2 cols desktop) for player selection | 04-02 |
+| Presence with 1s debounce for typing | Prevents spam (1 update/sec vs 10+/sec), balances UX and network efficiency | 04-03 |
+| 3s auto-clear for typing state | Standard chat UX, prevents stale indicators | 04-03 |
+| last_read_at timestamp pattern | Race-condition safe vs separate unread_count column | 04-03 |
+| Server timestamp (NOW()) for read state | Prevents clock skew between client and server | 04-03 |
+| 5s polling interval for unread counts | Balances real-time UX with query performance | 04-03 |
+| Filter stale typing indicators (>10s) | Presence cleanup takes 30s, client-side filter prevents stale displays | 04-03 |
+| Mark conversation read on open | Not on every message - prevents constant writes | 04-03 |
+| Only show badges when count > 0 | Clean UI, red color for visibility | 04-03 |
 
 ### Architecture Notes
 
@@ -151,11 +159,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 04-02: Message UI Components. Created Player and Storyteller messaging views with real-time chat interface. Built 5 shared components: MessageList (auto-scroll, sent/received styling), MessageInput (Enter to send, Shift+Enter newline), PlayerChatView (full-screen chat with Storyteller), StorytellerDashboard (player cards grid with broadcast), ConversationView (reusable chat with back button). Integrated into RoomPage with status-driven rendering for active games. All verifications passed: components export correctly, useMessages hook integrated, state management working, RoomPage renders role-specific views. Delivered 8 requirements: MSG-01 (Storyteller to player), MSG-02 (player to Storyteller), MSG-03 (real-time), MSG-04 (broadcast), MSG-06 (persistence), PLAY-01 (player private chat), DASH-01 (player cards), DASH-03 (full chat view). No deviations from plan. 2/2 tasks complete in 4 minutes.
+Executed plan 04-03: Unread Counts & Typing Indicators. Added last_read_at column to participants table for unread tracking. Created useTypingIndicator hook with Presence-based state management (1s debounce, 3s auto-clear). Created useUnreadCount hook with last_read_at timestamp comparison (5s polling). Integrated typing indicators into MessageInput (emit on change, clear on send/unmount) and MessageList (display with participant names). Added unread badges to StorytellerDashboard player cards (BroadcastCard/PlayerCard components with useUnreadCount). Updated ConversationView to mark conversations as read on mount. Typing indicators show within 1 second, clear after 3 seconds of inactivity. Unread badges only display when count > 0 (red color for visibility). All Phase 4 messaging requirements complete: MSG-01 through MSG-07 delivered. No deviations from plan. 3/3 tasks complete in 8 minutes. Phase 4 complete.
 
 ### Next Session Entry Point
 
-Continue Phase 4: Execute plan 04-03 (Unread Counts & Typing Indicators) to complete messaging phase.
+Phase 4 complete. Ready for Phase 5 (Game State & Views) - plan and execute next phase.
 
 ### Context to Preserve
 
@@ -197,11 +205,20 @@ Continue Phase 4: Execute plan 04-03 (Unread Counts & Typing Indicators) to comp
 - ConversationView: reusable chat with onBack prop, supports recipientId=null for broadcast
 - Active game views: RoomPage renders PlayerChatView (player) or StorytellerDashboard (Storyteller)
 - Storyteller lookup: participants.find(p => p.role === 'storyteller') for PlayerChatView props
+- useTypingIndicator pattern: Presence with 1s debounce, 3s auto-clear, filter stale >10s entries
+- useUnreadCount pattern: last_read_at timestamp comparison, 5s polling interval
+- Typing indicators: MessageInput emits on onChange, clears on send/unmount
+- Unread badges: BroadcastCard/PlayerCard components with useUnreadCount, only show when > 0
+- Mark as read: ConversationView calls markConversationRead on mount
+- Database migration 004: last_read_at column requires manual application via Supabase dashboard
+- Presence CRDT: Auto-merges state, handles concurrent updates, cleanup takes 30s on disconnect
+- Typing users filtered: PlayerChatView shows only storyteller, ConversationView shows only recipient
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 04-02 complete 2026-01-20*
+*Last execution: 04-03 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
+*Phase 4 complete: 2026-01-20 (all 3 plans: 04-01, 04-02, 04-03)*
