@@ -33,7 +33,7 @@ export async function roomLoader({
   } = await supabase.auth.getSession()
 
   if (!session) {
-    return redirect('/?error=no-session') as never
+    return redirect('/?error=session-invalid') as never
   }
 
   // Verify user is participant in this room
