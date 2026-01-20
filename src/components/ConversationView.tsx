@@ -1,11 +1,15 @@
 import { useEffect } from 'react'
-import { Stack, Title, Text, ActionIcon, Group } from '@mantine/core'
+import { Stack, Title, Text, ActionIcon, Group, Box } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
+import type { Database } from '../lib/supabase'
 import { useMessages } from '../hooks/useMessages'
 import { useTypingIndicator } from '../hooks/useTypingIndicator'
 import { markConversationRead } from '../hooks/useUnreadCount'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
+import { PlayerStatusControls } from './PlayerStatusControls'
+
+type Participant = Database['public']['Tables']['participants']['Row']
 
 interface ConversationViewProps {
   roomId: string
@@ -13,7 +17,7 @@ interface ConversationViewProps {
   recipientId: string | null
   recipientName: string
   onBack?: () => void
-  participants?: Array<{ id: string; display_name: string }>
+  participants?: Participant[]
 }
 
 /**
@@ -58,6 +62,11 @@ export function ConversationView({
     ? 'Broadcast to All Players'
     : `Chat with ${recipientName}`
 
+  // Find recipient participant for status controls (1-to-1 chats only)
+  const recipient = recipientId
+    ? participants.find(p => p.id === recipientId)
+    : null
+
   // Mark conversation as read when opened
   useEffect(() => {
     markConversationRead(participantId)
@@ -68,7 +77,21 @@ export function ConversationView({
   }
 
   return (
-    <Stack h="100vh" gap={0}>
+    <Stack
+      h="100vh"
+      gap={0}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100,
+        backgroundColor: 'var(--mantine-color-dark-8)',
+      }}
+    >
       {/* Header with back button */}
       <Stack
         gap="xs"
@@ -76,6 +99,7 @@ export function ConversationView({
         style={{
           borderBottom: '1px solid var(--mantine-color-dark-4)',
           backgroundColor: 'var(--mantine-color-dark-7)',
+          flexShrink: 0,
         }}
       >
         <Group gap="sm">
@@ -101,14 +125,29 @@ export function ConversationView({
         </Group>
       </Stack>
 
+      {/* Player Status Controls (1-to-1 chats only, for Storyteller) */}
+      {recipient && (
+        <Stack
+          p="md"
+          style={{
+            backgroundColor: 'var(--mantine-color-dark-8)',
+            flexShrink: 0,
+          }}
+        >
+          <PlayerStatusControls participant={recipient} />
+        </Stack>
+      )}
+
       {/* Message List */}
-      <MessageList
-        messages={messages}
-        currentParticipantId={participantId}
-        loading={loading}
-        typingUsers={recipientTyping}
-        participants={participants}
-      />
+      <Box style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <MessageList
+          messages={messages}
+          currentParticipantId={participantId}
+          loading={loading}
+          typingUsers={recipientTyping}
+          participants={participants}
+        />
+      </Box>
 
       {/* Message Input */}
       <Stack
@@ -116,6 +155,7 @@ export function ConversationView({
         style={{
           borderTop: '1px solid var(--mantine-color-dark-4)',
           backgroundColor: 'var(--mantine-color-dark-7)',
+          flexShrink: 0,
         }}
       >
         <MessageInput

@@ -1,8 +1,19 @@
 import { useState, useEffect } from 'react'
-import { SimpleGrid, Card, Text, Group, Badge, Stack } from '@mantine/core'
+import {
+  SimpleGrid,
+  Card,
+  Text,
+  Group,
+  Badge,
+  Stack,
+  Button,
+  Divider,
+} from '@mantine/core'
+import { IconRefresh } from '@tabler/icons-react'
 import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
 import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
+import { GameResetModal } from './GameResetModal'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -35,6 +46,7 @@ export function StorytellerDashboard({
   const [selectedParticipant, setSelectedParticipant] =
     useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
+  const [resetModalOpened, setResetModalOpened] = useState(false)
 
   // Mark conversation as read when opening
   useEffect(() => {
@@ -113,6 +125,26 @@ export function StorytellerDashboard({
           No players in the room yet. Share the room code to invite players.
         </Text>
       )}
+
+      {/* Reset Game Section */}
+      <Divider my="lg" />
+      <Group justify="center">
+        <Button
+          variant="subtle"
+          color="red"
+          leftSection={<IconRefresh size={16} />}
+          onClick={() => setResetModalOpened(true)}
+        >
+          Reset Game
+        </Button>
+      </Group>
+
+      {/* Reset Confirmation Modal */}
+      <GameResetModal
+        roomId={roomId}
+        opened={resetModalOpened}
+        onClose={() => setResetModalOpened(false)}
+      />
     </Stack>
   )
 }
@@ -161,7 +193,7 @@ function BroadcastCard({
 }
 
 /**
- * Player card with unread count badge.
+ * Player card with unread count badge, dead status styling, and custom status.
  */
 function PlayerCard({
   roomId,
@@ -175,6 +207,7 @@ function PlayerCard({
   onClick: () => void
 }) {
   const unreadCount = useUnreadCount(roomId, participantId, player.id)
+  const isDead = player.status === 'dead'
 
   return (
     <Card
@@ -182,20 +215,41 @@ function PlayerCard({
       padding="lg"
       radius="md"
       withBorder
-      style={{ cursor: 'pointer' }}
+      style={{
+        cursor: 'pointer',
+        opacity: isDead ? 0.7 : 1,
+      }}
       onClick={onClick}
     >
       <Group justify="space-between" mb="xs">
         <Group gap="sm">
-          {/* Avatar */}
-          {player.avatar_id && <Text size="xl">{player.avatar_id}</Text>}
+          {/* Avatar with greyscale for dead players */}
+          {player.avatar_id && (
+            <Text
+              size="xl"
+              style={{
+                filter: isDead ? 'grayscale(100%)' : 'none',
+              }}
+            >
+              {player.avatar_id}
+            </Text>
+          )}
 
-          {/* Name and Role */}
+          {/* Name, Role, and Custom Status */}
           <Stack gap={4}>
-            <Text fw={500}>{player.display_name}</Text>
+            <Group gap="xs">
+              <Text fw={500}>{player.display_name}</Text>
+              {isDead && <Text c="dimmed">&#128128;</Text>}
+            </Group>
             <Text size="xs" c="dimmed">
               Player
             </Text>
+            {/* Custom status badge */}
+            {player.custom_status && (
+              <Badge size="xs" variant="light" color="gray">
+                {player.custom_status}
+              </Badge>
+            )}
           </Stack>
         </Group>
 
