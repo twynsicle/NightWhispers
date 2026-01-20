@@ -74,7 +74,8 @@ export function MessageList({
     if (diffMins < 60) return `${diffMins} min ago`
 
     const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffHours < 24)
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
 
     const diffDays = Math.floor(diffHours / 24)
     return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
@@ -83,7 +84,7 @@ export function MessageList({
   return (
     <ScrollArea viewportRef={viewportRef} h="100%" style={{ flexGrow: 1 }}>
       <Stack gap="sm" p="md">
-        {messages.map((message) => {
+        {messages.map(message => {
           const isSent = message.sender_id === currentParticipantId
           const isBroadcast = message.is_broadcast
 
@@ -134,8 +135,8 @@ export function MessageList({
             <Text size="sm" c="dimmed" fs="italic">
               {typingUsers
                 .map(
-                  (userId) =>
-                    participants.find((p) => p.id === userId)?.display_name ||
+                  userId =>
+                    participants.find(p => p.id === userId)?.display_name ||
                     'Someone'
                 )
                 .join(', ')}{' '}

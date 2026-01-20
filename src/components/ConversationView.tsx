@@ -43,15 +43,20 @@ export function ConversationView({
   )
 
   // Typing indicator
-  const { setIsTyping, typingUsers } = useTypingIndicator(channel, participantId)
+  const { setIsTyping, typingUsers } = useTypingIndicator(
+    channel,
+    participantId
+  )
 
   // Filter typing users to only show the recipient
   const recipientTyping = recipientId
-    ? typingUsers.filter((id) => id === recipientId)
+    ? typingUsers.filter(id => id === recipientId)
     : []
 
   const isBroadcast = recipientId === null
-  const headerTitle = isBroadcast ? 'Broadcast to All Players' : `Chat with ${recipientName}`
+  const headerTitle = isBroadcast
+    ? 'Broadcast to All Players'
+    : `Chat with ${recipientName}`
 
   // Mark conversation as read when opened
   useEffect(() => {

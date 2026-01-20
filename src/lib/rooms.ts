@@ -41,10 +41,18 @@ export async function createRoom(
   // Handle collision: unique constraint violation (PostgreSQL error 23505)
   if (roomError?.code === '23505') {
     if (maxRetries <= 0) {
-      throw new Error('Failed to generate unique room code after multiple attempts')
+      throw new Error(
+        'Failed to generate unique room code after multiple attempts'
+      )
     }
     // Retry with new code (recursive)
-    return createRoom(userId, isStoryteller, displayName, avatar, maxRetries - 1)
+    return createRoom(
+      userId,
+      isStoryteller,
+      displayName,
+      avatar,
+      maxRetries - 1
+    )
   }
 
   if (roomError) throw roomError
@@ -64,7 +72,8 @@ export async function createRoom(
     .single()
 
   if (participantError) throw participantError
-  if (!participant) throw new Error('Participant creation failed: no data returned')
+  if (!participant)
+    throw new Error('Participant creation failed: no data returned')
 
   return { room, participant }
 }

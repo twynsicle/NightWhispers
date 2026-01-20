@@ -69,6 +69,15 @@ export function useTypingIndicator(
 }
 
 /**
+ * Presence state entry from Supabase Realtime
+ */
+interface PresenceEntry {
+  participantId: string
+  typing: boolean
+  timestamp: string
+}
+
+/**
  * Extract typing users from Presence state.
  *
  * Filters out:
@@ -80,7 +89,7 @@ export function useTypingIndicator(
  * @returns Array of participant IDs currently typing
  */
 export function getTypingUsers(
-  presenceState: Record<string, any[]>,
+  presenceState: Record<string, PresenceEntry[]>,
   currentParticipantId: string
 ): string[] {
   const typingUsers: string[] = []

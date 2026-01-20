@@ -25,7 +25,7 @@ export function HomePage() {
     'session-invalid': 'Your session is no longer valid. Please join again.',
     'not-participant':
       'You are not in this room. You may have been kicked or the room was deleted.',
-    'kicked': 'You were removed from the room by the Storyteller.',
+    kicked: 'You were removed from the room by the Storyteller.',
   }
 
   const errorMessage = errorCode

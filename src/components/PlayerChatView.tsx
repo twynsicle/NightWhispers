@@ -45,10 +45,13 @@ export function PlayerChatView({
   )
 
   // Typing indicator for current user
-  const { setIsTyping, typingUsers } = useTypingIndicator(channel, participantId)
+  const { setIsTyping, typingUsers } = useTypingIndicator(
+    channel,
+    participantId
+  )
 
   // Filter typing users to only show storyteller
-  const storytellerTyping = typingUsers.filter((id) => id === storytellerId)
+  const storytellerTyping = typingUsers.filter(id => id === storytellerId)
 
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)

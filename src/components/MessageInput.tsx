@@ -79,7 +79,7 @@ export function MessageInput({
         <Group gap="xs" align="flex-end">
           <Textarea
             value={content}
-            onChange={(e) => {
+            onChange={e => {
               setContent(e.currentTarget.value)
               // Emit typing indicator on change
               typingHandler?.setIsTyping(true)
@@ -107,13 +107,19 @@ export function MessageInput({
         <Group justify="space-between">
           <span />
           <Group gap={4}>
-            <span style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}>
+            <span
+              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
+            >
               Enter to send
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}>
+            <span
+              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
+            >
               •
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}>
+            <span
+              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
+            >
               Shift+Enter for newline
             </span>
           </Group>

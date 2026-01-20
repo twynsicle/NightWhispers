@@ -47,7 +47,7 @@ export function ParticipantList({
 
   return (
     <Stack gap="sm" role="list">
-      {participants.map((participant) => {
+      {participants.map(participant => {
         const isCurrentUser = participant.user_id === currentUserId
         const roleLabel =
           participant.role === 'storyteller' ? 'Storyteller' : 'Player'
@@ -86,8 +86,12 @@ export function ParticipantList({
               {/* Role badge */}
               {showRole && (
                 <Badge
-                  color={participant.role === 'storyteller' ? 'crimson' : 'gray'}
-                  variant={participant.role === 'storyteller' ? 'filled' : 'light'}
+                  color={
+                    participant.role === 'storyteller' ? 'crimson' : 'gray'
+                  }
+                  variant={
+                    participant.role === 'storyteller' ? 'filled' : 'light'
+                  }
                   size="sm"
                 >
                   {roleLabel}
@@ -102,7 +106,9 @@ export function ParticipantList({
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      onClick={() => onEdit(participant.id, participant.display_name)}
+                      onClick={() =>
+                        onEdit(participant.id, participant.display_name)
+                      }
                       aria-label={`Edit ${participant.display_name}`}
                     >
                       <IconEdit size={16} />

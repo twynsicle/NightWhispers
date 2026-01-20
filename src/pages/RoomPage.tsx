@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useLoaderData, redirect, useNavigate } from 'react-router'
-import { Container, Stack, Title, Text, Code, Modal, Button, Skeleton, Loader, Select, TextInput } from '@mantine/core'
+import {
+  Container,
+  Stack,
+  Title,
+  Text,
+  Code,
+  Modal,
+  Button,
+  Skeleton,
+  Loader,
+  Select,
+  TextInput,
+} from '@mantine/core'
 import { IconQrcode } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { supabase } from '../lib/supabase'
@@ -36,6 +48,7 @@ interface RoomLoaderData {
  * @returns {RoomLoaderData} Participant with joined room data
  * @throws {Response} Redirect response if unauthorized
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export async function roomLoader({
   params,
 }: {
@@ -111,7 +124,7 @@ export function RoomPage() {
           table: 'participants',
           filter: `id=eq.${participantId}`,
         },
-        (payload) => {
+        payload => {
           if (payload.new.is_active === false) {
             // User was kicked
             notifications.show({
@@ -139,7 +152,7 @@ export function RoomPage() {
         message: 'Player has been kicked from the room.',
         color: 'green',
       })
-    } catch (error) {
+    } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to kick player. Please try again.',
@@ -175,7 +188,7 @@ export function RoomPage() {
         color: 'green',
       })
       setEditingParticipant(null)
-    } catch (error) {
+    } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to update name. Please try again.',
@@ -193,7 +206,7 @@ export function RoomPage() {
         message: 'The game is now active.',
         color: 'green',
       })
-    } catch (error) {
+    } catch (_error) {
       notifications.show({
         title: 'Error',
         message: 'Failed to start game. Please try again.',
@@ -258,7 +271,7 @@ export function RoomPage() {
                 description="Select game script (v1 supports None only)"
                 data={[{ value: 'none', label: 'None (No Roles)' }]}
                 value={script}
-                onChange={(value) => setScript(value || 'none')}
+                onChange={value => setScript(value || 'none')}
                 disabled
               />
             )}
@@ -330,7 +343,9 @@ export function RoomPage() {
             ) : (
               // Player view: Full-screen chat with Storyteller
               (() => {
-                const storyteller = participants.find((p) => p.role === 'storyteller')
+                const storyteller = participants.find(
+                  p => p.role === 'storyteller'
+                )
                 if (!storyteller) {
                   return (
                     <Text size="sm" ta="center" c="dimmed" py="xl">
@@ -371,7 +386,7 @@ export function RoomPage() {
               label="Display Name"
               description="2-20 characters"
               value={editedName}
-              onChange={(e) => setEditedName(e.currentTarget.value)}
+              onChange={e => setEditedName(e.currentTarget.value)}
               maxLength={20}
               error={
                 editedName.length < 2 || editedName.length > 20

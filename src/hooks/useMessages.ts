@@ -85,7 +85,7 @@ export function useMessages(
     })
 
     messagesChannel
-      .on('broadcast', { event: 'message' }, (payload) => {
+      .on('broadcast', { event: 'message' }, payload => {
         const newMessage = payload.payload as Message
 
         // Filter: only add if relevant to this conversation
@@ -96,9 +96,9 @@ export function useMessages(
           : newMessage.is_broadcast
 
         if (isRelevant) {
-          setMessages((prev) => {
+          setMessages(prev => {
             // Prevent duplicates (message might already exist from database or optimistic UI)
-            if (prev.some((m) => m.id === newMessage.id)) {
+            if (prev.some(m => m.id === newMessage.id)) {
               return prev
             }
             return [...prev, newMessage]
@@ -107,7 +107,9 @@ export function useMessages(
       })
       .subscribe()
 
-    setChannel(messagesChannel)
+    // Store channel reference for cleanup
+    // Update channel state in callback to avoid sync setState in effect
+    setChannel(() => messagesChannel)
 
     // Cleanup on unmount (CRITICAL for memory leak prevention - RESEARCH.md Pitfall 2)
     return () => {
@@ -127,9 +129,9 @@ export function useMessages(
     )
 
     // Optimistically add to UI (sender won't receive via Broadcast due to self: false)
-    setMessages((prev) => {
+    setMessages(prev => {
       // Prevent duplicates
-      if (prev.some((m) => m.id === message.id)) {
+      if (prev.some(m => m.id === message.id)) {
         return prev
       }
       return [...prev, message]

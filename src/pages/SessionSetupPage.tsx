@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { Container, Stack, Title, Text, TextInput, Button } from '@mantine/core'
 import { useForm, hasLength, isNotEmpty } from '@mantine/form'
 import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../lib/supabase'
 import { AvatarSelector } from '../components/AvatarSelector'
 
 /**
@@ -62,7 +61,9 @@ export function SessionSetupPage() {
         localStorage.setItem('avatar', values.avatar)
       } catch (err) {
         console.error('localStorage write failed:', err)
-        throw new Error('Failed to save preferences. Please check browser settings.')
+        throw new Error(
+          'Failed to save preferences. Please check browser settings.'
+        )
       }
 
       // Navigate based on ?next param (default to create)
@@ -100,7 +101,7 @@ export function SessionSetupPage() {
             </Text>
             <AvatarSelector
               value={form.values.avatar}
-              onChange={(avatar) => form.setFieldValue('avatar', avatar)}
+              onChange={avatar => form.setFieldValue('avatar', avatar)}
               error={form.errors.avatar as string | undefined}
             />
           </div>

@@ -55,7 +55,9 @@ export function useAuth() {
    */
   async function signInAnonymously(): Promise<Session> {
     // Check if already signed in
-    const { data: { session: existingSession } } = await supabase.auth.getSession()
+    const {
+      data: { session: existingSession },
+    } = await supabase.auth.getSession()
     if (existingSession) {
       return existingSession
     }
@@ -63,7 +65,8 @@ export function useAuth() {
     // Create new anonymous user
     const { data, error } = await supabase.auth.signInAnonymously()
     if (error) throw error
-    if (!data.session) throw new Error('No session returned from signInAnonymously')
+    if (!data.session)
+      throw new Error('No session returned from signInAnonymously')
 
     return data.session
   }

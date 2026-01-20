@@ -32,7 +32,8 @@ export function StorytellerDashboard({
   participantId,
   participants,
 }: StorytellerDashboardProps) {
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
 
   // Mark conversation as read when opening
@@ -71,7 +72,7 @@ export function StorytellerDashboard({
   }
 
   // Filter out Storyteller from player list
-  const players = participants.filter((p) => p.role !== 'storyteller')
+  const players = participants.filter(p => p.role !== 'storyteller')
 
   return (
     <Stack gap="md" p="md">
@@ -95,7 +96,7 @@ export function StorytellerDashboard({
         />
 
         {/* Player Cards */}
-        {players.map((player) => (
+        {players.map(player => (
           <PlayerCard
             key={player.id}
             roomId={roomId}

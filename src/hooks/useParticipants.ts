@@ -24,18 +24,21 @@ interface UseParticipantsReturn {
 export function useParticipants(roomId: string): UseParticipantsReturn {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
-  const [roomStatus, setRoomStatus] = useState<'lobby' | 'active' | 'ended'>('lobby')
+  const [roomStatus, setRoomStatus] = useState<'lobby' | 'active' | 'ended'>(
+    'lobby'
+  )
 
   useEffect(() => {
     // Fetch initial participants and room status
     const fetchData = async () => {
       // Fetch participants
-      const { data: participantsData, error: participantsError } = await supabase
-        .from('participants')
-        .select('*')
-        .eq('room_id', roomId)
-        .eq('is_active', true)
-        .order('sort_order')
+      const { data: participantsData, error: participantsError } =
+        await supabase
+          .from('participants')
+          .select('*')
+          .eq('room_id', roomId)
+          .eq('is_active', true)
+          .order('sort_order')
 
       if (participantsError) {
         console.error('Error fetching participants:', participantsError)
@@ -79,9 +82,9 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
             // Add new participant if active
             const newParticipant = payload.new as Participant
             if (newParticipant.is_active) {
-              setParticipants((prev) => {
+              setParticipants(prev => {
                 // Prevent duplicates
-                if (prev.some((p) => p.id === newParticipant.id)) {
+                if (prev.some(p => p.id === newParticipant.id)) {
                   return prev
                 }
                 return [...prev, newParticipant].sort(
@@ -92,21 +95,23 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
           } else if (payload.eventType === 'UPDATE') {
             // Update existing participant or remove if inactive
             const updatedParticipant = payload.new as Participant
-            setParticipants((prev) => {
+            setParticipants(prev => {
               if (!updatedParticipant.is_active) {
                 // Remove inactive participant (kicked or left)
-                return prev.filter((p) => p.id !== updatedParticipant.id)
+                return prev.filter(p => p.id !== updatedParticipant.id)
               }
               // Update participant
               return prev
-                .map((p) => (p.id === updatedParticipant.id ? updatedParticipant : p))
+                .map(p =>
+                  p.id === updatedParticipant.id ? updatedParticipant : p
+                )
                 .sort((a, b) => a.sort_order - b.sort_order)
             })
           } else if (payload.eventType === 'DELETE') {
             // Remove deleted participant
             const deletedParticipant = payload.old as Participant
-            setParticipants((prev) =>
-              prev.filter((p) => p.id !== deletedParticipant.id)
+            setParticipants(prev =>
+              prev.filter(p => p.id !== deletedParticipant.id)
             )
           }
         }
@@ -119,7 +124,7 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
           table: 'rooms',
           filter: `id=eq.${roomId}`,
         },
-        (payload) => {
+        payload => {
           // Update room status when changed
           if (payload.new.status) {
             setRoomStatus(payload.new.status as 'lobby' | 'active' | 'ended')

@@ -18,7 +18,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
  * - deletedCount: number of rooms deleted
  * - deletedRooms: array of room codes that were deleted
  */
-serve(async (req) => {
+serve(async (_req) => {
   try {
     // Create Supabase client with service role key for admin access
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!

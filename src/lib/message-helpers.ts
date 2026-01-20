@@ -61,7 +61,9 @@ export async function sendMessage(
 
     // ackResponse = 'ok' if ack: true in channel config
     if (ackResponse !== 'ok') {
-      console.error('Broadcast acknowledgment failed, message persisted but not delivered')
+      console.error(
+        'Broadcast acknowledgment failed, message persisted but not delivered'
+      )
     }
   }
 

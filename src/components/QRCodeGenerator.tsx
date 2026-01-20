@@ -29,9 +29,8 @@ export function QRCodeGenerator({ url, size = 256 }: QRCodeGeneratorProps) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Reset state when url or size changes
-    setQrDataUrl(null)
-    setError(null)
+    // Track if component is still mounted to prevent state updates after unmount
+    let isMounted = true
 
     // Generate QR code
     QRCode.toDataURL(url, {
@@ -42,13 +41,24 @@ export function QRCodeGenerator({ url, size = 256 }: QRCodeGeneratorProps) {
         light: '#1a1b1e', // Dark.9 background
       },
     })
-      .then((dataUrl) => {
-        setQrDataUrl(dataUrl)
+      .then(dataUrl => {
+        if (isMounted) {
+          setQrDataUrl(dataUrl)
+          setError(null)
+        }
       })
-      .catch((err) => {
-        console.error('Failed to generate QR code:', err)
-        setError('Failed to generate QR code')
+      .catch(err => {
+        if (isMounted) {
+          console.error('Failed to generate QR code:', err)
+          setError('Failed to generate QR code')
+          setQrDataUrl(null)
+        }
       })
+
+    // Cleanup function
+    return () => {
+      isMounted = false
+    }
   }, [url, size])
 
   const handleCopyUrl = async () => {
