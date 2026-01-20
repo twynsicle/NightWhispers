@@ -92,7 +92,7 @@ export function RoomPage() {
   const isStoryteller = participant.role === 'storyteller'
 
   // Subscribe to real-time participant updates
-  const { participants, loading } = useParticipants(roomId)
+  const { participants, loading, roomStatus } = useParticipants(roomId)
 
   // Construct join URL with pre-filled room code
   const joinUrl = `${window.location.origin}/join?code=${participant.rooms.code}`
@@ -205,106 +205,133 @@ export function RoomPage() {
       <Stack gap="md">
         {/* Title with role-specific messaging */}
         <Title order={2} c="crimson">
-          {isStoryteller ? `Lobby - Room ${participant.rooms.code}` : 'Waiting for Storyteller...'}
+          {roomStatus === 'lobby'
+            ? isStoryteller
+              ? `Lobby - Room ${participant.rooms.code}`
+              : 'Waiting for Storyteller...'
+            : `Room ${participant.rooms.code}`}
         </Title>
 
-        {/* Room Code Display */}
-        <Stack gap="xs">
-          <Text size="sm" c="dimmed">
-            Room Code:
-          </Text>
-          <Code block fz="xl" ta="center">
-            {participant.rooms.code}
-          </Code>
-          <Text size="xs" c="dimmed" ta="center">
-            Share this code for others to join
-          </Text>
-        </Stack>
-
-        {/* QR Code Button */}
-        <Button
-          variant="light"
-          leftSection={<IconQrcode size={20} />}
-          onClick={() => setQrModalOpen(true)}
-          fullWidth
-        >
-          Show QR Code
-        </Button>
-
-        {/* QR Code Modal */}
-        <Modal
-          opened={qrModalOpen}
-          onClose={() => setQrModalOpen(false)}
-          title="Scan to Join Room"
-          centered
-        >
-          <QRCodeGenerator url={joinUrl} />
-        </Modal>
-
-        {/* Storyteller: Script Selector */}
-        {isStoryteller && (
-          <Select
-            label="Script"
-            description="Select game script (v1 supports None only)"
-            data={[{ value: 'none', label: 'None (No Roles)' }]}
-            value={script}
-            onChange={(value) => setScript(value || 'none')}
-            disabled
-          />
-        )}
-
-        {/* Participant List Section */}
-        <Stack gap="xs" mt="md">
-          <Text size="sm" c="dimmed" fw={500}>
-            Participants
-          </Text>
-
-          {loading ? (
-            <Stack gap="sm">
-              <Skeleton height={48} />
-              <Skeleton height={48} />
-              <Skeleton height={48} />
+        {/* Game Status: Show different UI based on room status */}
+        {roomStatus === 'lobby' ? (
+          <>
+            {/* LOBBY VIEW */}
+            {/* Room Code Display */}
+            <Stack gap="xs">
+              <Text size="sm" c="dimmed">
+                Room Code:
+              </Text>
+              <Code block fz="xl" ta="center">
+                {participant.rooms.code}
+              </Code>
+              <Text size="xs" c="dimmed" ta="center">
+                Share this code for others to join
+              </Text>
             </Stack>
-          ) : (
-            <ParticipantList
-              participants={participants}
-              currentUserId={userId}
-              showRole={true}
-              isStoryteller={isStoryteller}
-              onKick={isStoryteller ? handleKick : undefined}
-              onEdit={isStoryteller ? handleEditOpen : undefined}
-            />
-          )}
-        </Stack>
 
-        {/* Storyteller: Start Game Button */}
-        {isStoryteller && (
-          <Button
-            size="lg"
-            fullWidth
-            color="crimson"
-            onClick={handleStartGame}
-            disabled={participants.length < 2}
-            mt="md"
-          >
-            Start Game
-          </Button>
-        )}
+            {/* QR Code Button */}
+            <Button
+              variant="light"
+              leftSection={<IconQrcode size={20} />}
+              onClick={() => setQrModalOpen(true)}
+              fullWidth
+            >
+              Show QR Code
+            </Button>
 
-        {/* Role-specific hints */}
-        {isStoryteller ? (
-          <Text size="sm" c="dimmed" ta="center" mt="xs">
-            {participants.length < 2
-              ? 'Need at least 2 participants to start'
-              : 'Ready to start the game'}
-          </Text>
-        ) : (
-          <Stack gap="xs" align="center" mt="md">
-            <Loader type="dots" size="sm" />
-            <Text size="sm" c="dimmed">
-              The game will start soon
+            {/* QR Code Modal */}
+            <Modal
+              opened={qrModalOpen}
+              onClose={() => setQrModalOpen(false)}
+              title="Scan to Join Room"
+              centered
+            >
+              <QRCodeGenerator url={joinUrl} />
+            </Modal>
+
+            {/* Storyteller: Script Selector */}
+            {isStoryteller && (
+              <Select
+                label="Script"
+                description="Select game script (v1 supports None only)"
+                data={[{ value: 'none', label: 'None (No Roles)' }]}
+                value={script}
+                onChange={(value) => setScript(value || 'none')}
+                disabled
+              />
+            )}
+
+            {/* Participant List Section */}
+            <Stack gap="xs" mt="md">
+              <Text size="sm" c="dimmed" fw={500}>
+                Participants
+              </Text>
+
+              {loading ? (
+                <Stack gap="sm">
+                  <Skeleton height={48} />
+                  <Skeleton height={48} />
+                  <Skeleton height={48} />
+                </Stack>
+              ) : (
+                <ParticipantList
+                  participants={participants}
+                  currentUserId={userId}
+                  showRole={true}
+                  isStoryteller={isStoryteller}
+                  onKick={isStoryteller ? handleKick : undefined}
+                  onEdit={isStoryteller ? handleEditOpen : undefined}
+                />
+              )}
+            </Stack>
+
+            {/* Storyteller: Start Game Button */}
+            {isStoryteller && (
+              <Button
+                size="lg"
+                fullWidth
+                color="crimson"
+                onClick={handleStartGame}
+                disabled={participants.length < 2}
+                mt="md"
+              >
+                Start Game
+              </Button>
+            )}
+
+            {/* Role-specific hints */}
+            {isStoryteller ? (
+              <Text size="sm" c="dimmed" ta="center" mt="xs">
+                {participants.length < 2
+                  ? 'Need at least 2 participants to start'
+                  : 'Ready to start the game'}
+              </Text>
+            ) : (
+              <Stack gap="xs" align="center" mt="md">
+                <Loader type="dots" size="sm" />
+                <Text size="sm" c="dimmed">
+                  The game will start soon
+                </Text>
+              </Stack>
+            )}
+          </>
+        ) : roomStatus === 'active' ? (
+          <>
+            {/* ACTIVE GAME VIEW - Placeholder for Phase 4 */}
+            <Text size="lg" ta="center" c="dimmed" py="xl">
+              Game is active - messaging coming in Phase 4
             </Text>
-          </Stack>
+            <Text size="sm" ta="center" c="dimmed">
+              {participants.length} participants in room
+            </Text>
+          </>
+        ) : (
+          <>
+            {/* ENDED GAME VIEW */}
+            <Text size="lg" ta="center" c="dimmed" py="xl">
+              Game has ended
+            </Text>
+          </>
         )}
 
         {/* Edit Name Modal */}

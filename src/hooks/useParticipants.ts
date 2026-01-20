@@ -8,6 +8,7 @@ type Participant = Database['public']['Tables']['participants']['Row']
 interface UseParticipantsReturn {
   participants: Participant[]
   loading: boolean
+  roomStatus: 'lobby' | 'active' | 'ended'
 }
 
 /**
@@ -23,28 +24,44 @@ interface UseParticipantsReturn {
 export function useParticipants(roomId: string): UseParticipantsReturn {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
+  const [roomStatus, setRoomStatus] = useState<'lobby' | 'active' | 'ended'>('lobby')
 
   useEffect(() => {
-    // Fetch initial participants
-    const fetchParticipants = async () => {
-      const { data, error } = await supabase
+    // Fetch initial participants and room status
+    const fetchData = async () => {
+      // Fetch participants
+      const { data: participantsData, error: participantsError } = await supabase
         .from('participants')
         .select('*')
         .eq('room_id', roomId)
         .eq('is_active', true)
         .order('sort_order')
 
-      if (error) {
-        console.error('Error fetching participants:', error)
+      if (participantsError) {
+        console.error('Error fetching participants:', participantsError)
         setLoading(false)
         return
       }
 
-      setParticipants(data || [])
+      setParticipants(participantsData || [])
+
+      // Fetch room status
+      const { data: roomData, error: roomError } = await supabase
+        .from('rooms')
+        .select('status')
+        .eq('id', roomId)
+        .single()
+
+      if (roomError) {
+        console.error('Error fetching room status:', roomError)
+      } else if (roomData) {
+        setRoomStatus(roomData.status as 'lobby' | 'active' | 'ended')
+      }
+
       setLoading(false)
     }
 
-    fetchParticipants()
+    fetchData()
 
     // Subscribe to real-time changes
     const channel = supabase
@@ -94,6 +111,21 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`,
+        },
+        (payload) => {
+          // Update room status when changed
+          if (payload.new.status) {
+            setRoomStatus(payload.new.status as 'lobby' | 'active' | 'ended')
+          }
+        }
+      )
       .subscribe()
 
     // Cleanup subscription on unmount
@@ -102,5 +134,5 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
     }
   }, [roomId])
 
-  return { participants, loading }
+  return { participants, loading, roomStatus }
 }
