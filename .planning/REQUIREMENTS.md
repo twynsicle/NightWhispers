@@ -9,9 +9,9 @@
 
 - [ ] **ROOM-01**: Storyteller can create a room and receive a 4-letter code
 - [ ] **ROOM-02**: Player can join a room by entering a 4-letter code
-- [ ] **ROOM-03**: Storyteller can generate QR code for room join URL
-- [ ] **ROOM-04**: Rooms auto-delete after 1 hour of inactivity
-- [ ] **ROOM-05**: Storyteller can kick a player from the room
+- [x] **ROOM-03**: Storyteller can generate QR code for room join URL
+- [x] **ROOM-04**: Rooms auto-delete after 1 hour of inactivity
+- [x] **ROOM-05**: Storyteller can kick a player from the room
 - [ ] **ROOM-06**: Participants can view room code for sharing/rejoining
 
 ### Session & Identity
@@ -40,7 +40,7 @@
 
 ### Game State
 
-- [ ] **GAME-01**: Storyteller can start game from lobby
+- [x] **GAME-01**: Storyteller can start game from lobby
 - [ ] **GAME-02**: Current phase displays to all participants (Night 1, Day 1, etc.)
 - [ ] **GAME-03**: Storyteller can advance phase manually
 - [ ] **GAME-04**: Storyteller can toggle player as dead (greys avatar)
@@ -72,10 +72,10 @@
 
 ### Lobby
 
-- [ ] **LOBBY-01**: Storyteller can select script (None only for v1)
-- [ ] **LOBBY-02**: Players see list of who has joined
-- [ ] **LOBBY-03**: Storyteller can edit player names
-- [ ] **LOBBY-04**: Players see waiting indicator until game starts
+- [x] **LOBBY-01**: Storyteller can select script (None only for v1)
+- [x] **LOBBY-02**: Players see list of who has joined
+- [x] **LOBBY-03**: Storyteller can edit player names
+- [x] **LOBBY-04**: Players see waiting indicator until game starts
 
 ## v2 Requirements
 
@@ -113,9 +113,9 @@
 |-------------|-------|--------|
 | ROOM-01 | Phase 2 | Pending |
 | ROOM-02 | Phase 2 | Pending |
-| ROOM-03 | Phase 3 | Pending |
-| ROOM-04 | Phase 3 | Pending |
-| ROOM-05 | Phase 3 | Pending |
+| ROOM-03 | Phase 3 | Complete |
+| ROOM-04 | Phase 3 | Complete |
+| ROOM-05 | Phase 3 | Complete |
 | ROOM-06 | Phase 2 | Pending |
 | SESS-01 | Phase 2 | Pending |
 | SESS-02 | Phase 2 | Pending |
@@ -132,7 +132,7 @@
 | PUSH-01 | Phase 6 | Pending |
 | PUSH-02 | Phase 6 | Pending |
 | PUSH-03 | Phase 6 | Pending |
-| GAME-01 | Phase 3 | Pending |
+| GAME-01 | Phase 3 | Complete |
 | GAME-02 | Phase 5 | Pending |
 | GAME-03 | Phase 5 | Pending |
 | GAME-04 | Phase 5 | Pending |
@@ -152,10 +152,10 @@
 | UX-03 | Phase 6 | Pending |
 | UX-04 | Phase 6 | Pending |
 | UX-05 | Phase 6 | Pending |
-| LOBBY-01 | Phase 3 | Pending |
-| LOBBY-02 | Phase 3 | Pending |
-| LOBBY-03 | Phase 3 | Pending |
-| LOBBY-04 | Phase 3 | Pending |
+| LOBBY-01 | Phase 3 | Complete |
+| LOBBY-02 | Phase 3 | Complete |
+| LOBBY-03 | Phase 3 | Complete |
+| LOBBY-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 43 total
