@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 4 of 6 (Core Messaging)
-**Plan:** 1 of 3 in phase
+**Plan:** 2 of 3 in phase
 **Status:** In progress
-**Last activity:** 2026-01-20 - Completed 04-01-PLAN.md (Message Infrastructure)
+**Last activity:** 2026-01-20 - Completed 04-02-PLAN.md (Message UI Components)
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
-Phase 4: Core Messaging     [███.......] 33%
+Phase 4: Core Messaging     [██████....] 67%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 9/14 plans complete (64% of planned work)
+Overall: 10/14 plans complete (71% of planned work)
 ```
 
 ---
@@ -40,8 +40,8 @@ Overall: 9/14 plans complete (64% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 9 |
-| Requirements Delivered | 18/43 |
+| Plans Completed | 10 |
+| Requirements Delivered | 26/43 |
 | Phases Completed | 3/6 |
 | Session Count | 5 |
 
@@ -84,6 +84,11 @@ Overall: 9/14 plans complete (64% of planned work)
 | self: false in Broadcast config | Prevents duplicate messages (sender sees optimistic UI, not own Broadcast) | 04-01 |
 | Initial load 50 messages | Per RESEARCH.md for mobile-first use case with short message bursts | 04-01 |
 | Channel stored in hook state | sendMessage needs channel reference for Broadcast delivery | 04-01 |
+| Auto-scroll to bottom on new messages | Standard chat UX pattern (Discord, Slack, iMessage) - users expect latest messages visible | 04-02 |
+| Textarea with Enter to send | Mobile-friendly keyboard UX, supports multiline messages with Shift+Enter | 04-02 |
+| Broadcast card first in Storyteller dashboard | Most common action for Storyteller (night phase announcements) | 04-02 |
+| Player view renders full-screen chat | Players only interact with Storyteller - no need for dashboard complexity | 04-02 |
+| Storyteller dashboard uses card grid | Mobile-first SimpleGrid (1 col mobile, 2 cols desktop) for player selection | 04-02 |
 
 ### Architecture Notes
 
@@ -111,6 +116,10 @@ Overall: 9/14 plans complete (64% of planned work)
 - **Kicked detection:** Real-time postgres_changes subscription on participant.is_active for immediate redirect
 - **Status transitions:** Room status (lobby/active/ended) drives UI via postgres_changes on rooms table
 - **Game start:** Start Game button disabled until 2+ participants, transitions all users to active view
+- **Messaging UI:** MessageList (auto-scroll) + MessageInput (Enter to send) shared across Player and Storyteller views
+- **Player view:** Full-screen chat with Storyteller, receives 1-to-1 and broadcast messages
+- **Storyteller view:** Player cards dashboard with broadcast option, tap card to open conversation
+- **Message bubbles:** Crimson for sent, dark.6 for received, broadcast badge for announcements
 
 ### Open TODOs
 
@@ -142,11 +151,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 04-01: Message Infrastructure. Created dual-write messaging foundation with Broadcast channels for real-time delivery and Postgres persistence. Implemented useMessages hook with Broadcast subscription (ack: true, self: false), sendMessage/sendBroadcastMessage helpers, and Message type exports. All verifications passed: Broadcast subscription pattern verified, dual-write pattern confirmed (DB insert + channel.send), channel cleanup present, conversation filters working (1-to-1 via .or(), broadcast via is_broadcast). No deviations from plan. 2/2 tasks complete in 5 minutes.
+Executed plan 04-02: Message UI Components. Created Player and Storyteller messaging views with real-time chat interface. Built 5 shared components: MessageList (auto-scroll, sent/received styling), MessageInput (Enter to send, Shift+Enter newline), PlayerChatView (full-screen chat with Storyteller), StorytellerDashboard (player cards grid with broadcast), ConversationView (reusable chat with back button). Integrated into RoomPage with status-driven rendering for active games. All verifications passed: components export correctly, useMessages hook integrated, state management working, RoomPage renders role-specific views. Delivered 8 requirements: MSG-01 (Storyteller to player), MSG-02 (player to Storyteller), MSG-03 (real-time), MSG-04 (broadcast), MSG-06 (persistence), PLAY-01 (player private chat), DASH-01 (player cards), DASH-03 (full chat view). No deviations from plan. 2/2 tasks complete in 4 minutes.
 
 ### Next Session Entry Point
 
-Continue Phase 4: Execute plan 04-02 (Message UI Components) or 04-03 (Player Chat View).
+Continue Phase 4: Execute plan 04-03 (Unread Counts & Typing Indicators) to complete messaging phase.
 
 ### Context to Preserve
 
@@ -180,11 +189,19 @@ Continue Phase 4: Execute plan 04-02 (Message UI Components) or 04-03 (Player Ch
 - Message filtering: 1-to-1 uses .or() with bidirectional sender/recipient, broadcast uses is_broadcast=true
 - Channel lifecycle: create on mount, store in state for sendMessage access, cleanup on unmount
 - Message type export: convenience type from Database definition for hook/helper type safety
+- MessageList auto-scroll: useEffect with messages.length dependency, scrollIntoView on bottomRef
+- MessageInput keyboard: Enter sends, Shift+Enter newlines, onKeyDown prevents default on Enter
+- Component composition: MessageList/MessageInput shared across PlayerChatView and ConversationView
+- PlayerChatView: full-screen chat, uses useMessages with recipientId=storytellerId
+- StorytellerDashboard: player cards grid, useState for selectedParticipant, broadcast card first
+- ConversationView: reusable chat with onBack prop, supports recipientId=null for broadcast
+- Active game views: RoomPage renders PlayerChatView (player) or StorytellerDashboard (Storyteller)
+- Storyteller lookup: participants.find(p => p.role === 'storyteller') for PlayerChatView props
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 04-01 complete 2026-01-20*
+*Last execution: 04-02 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
