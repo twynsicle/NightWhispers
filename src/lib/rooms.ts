@@ -208,3 +208,34 @@ export async function startGame(roomId: string): Promise<void> {
 
   if (error) throw error
 }
+
+/**
+ * Update participant sort order after drag-and-drop reorder.
+ *
+ * Takes array of participant IDs in desired order and updates
+ * sort_order column for each participant.
+ *
+ * Note: Uses parallel UPDATE queries for simplicity. For large games (15+ players),
+ * consider a single RPC call or transaction. For Night Whispers target (< 20 players),
+ * parallel updates are fast enough.
+ *
+ * @param orderedIds - Array of participant IDs in new order
+ * @throws {Error} If any update fails
+ */
+export async function updateParticipantOrder(
+  orderedIds: string[]
+): Promise<void> {
+  // Update each participant with their new sort_order
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('participants').update({ sort_order: index }).eq('id', id)
+  )
+
+  // Execute all updates in parallel
+  const results = await Promise.all(updates)
+
+  // Check for errors
+  const errors = results.filter(r => r.error)
+  if (errors.length > 0) {
+    throw new Error(`Failed to update ${errors.length} participants`)
+  }
+}

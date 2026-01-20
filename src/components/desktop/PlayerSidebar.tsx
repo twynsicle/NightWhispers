@@ -1,7 +1,26 @@
+import { useState, useEffect } from 'react'
 import { Stack, Text, Card, Group, Badge, ScrollArea, Box } from '@mantine/core'
 import { IconRefresh } from '@tabler/icons-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import type { Database } from '../../lib/supabase'
 import { useUnreadCount } from '../../hooks/useUnreadCount'
+import { updateParticipantOrder } from '../../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -21,7 +40,7 @@ interface PlayerSidebarProps {
  *
  * Shows:
  * - Broadcast option at top
- * - Player list with unread badges
+ * - Player list with unread badges (drag-and-drop reorderable)
  * - Selected state highlighting
  * - Reset game button at bottom
  */
@@ -35,7 +54,52 @@ export function PlayerSidebar({
   isBroadcastSelected,
   onResetGame,
 }: PlayerSidebarProps) {
-  const players = participants.filter(p => p.role !== 'storyteller')
+  // Local state for optimistic reordering
+  const [playerOrder, setPlayerOrder] = useState<string[]>([])
+
+  // Initialize order from participants (sorted by sort_order)
+  useEffect(() => {
+    const sortedPlayers = participants
+      .filter(p => p.role !== 'storyteller')
+      .sort((a, b) => a.sort_order - b.sort_order)
+    setPlayerOrder(sortedPlayers.map(p => p.id))
+  }, [participants])
+
+  // Configure sensors for drag-and-drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  /**
+   * Handle drag end - reorder players and persist to database.
+   */
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = playerOrder.indexOf(active.id as string)
+    const newIndex = playerOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(playerOrder, oldIndex, newIndex)
+
+    // Optimistic update
+    setPlayerOrder(newOrder)
+
+    // Persist to database
+    try {
+      await updateParticipantOrder(newOrder)
+    } catch (error) {
+      // Revert on error
+      setPlayerOrder(playerOrder)
+      console.error('Failed to persist order:', error)
+    }
+  }
 
   return (
     <Stack h="100%" gap={0}>
@@ -55,10 +119,10 @@ export function PlayerSidebar({
         </Text>
       </Box>
 
-      {/* Player list */}
+      {/* Player list with drag-and-drop */}
       <ScrollArea style={{ flex: 1 }}>
         <Stack gap={0} p="xs">
-          {/* Broadcast option */}
+          {/* Broadcast option (not draggable) */}
           <SidebarItem
             icon="broadcast"
             name="Broadcast to All"
@@ -70,22 +134,32 @@ export function PlayerSidebar({
             playerId={null}
           />
 
-          {/* Player items */}
-          {players.map(player => (
-            <SidebarItem
-              key={player.id}
-              icon={player.avatar_id || undefined}
-              name={player.display_name}
-              subtitle={player.status === 'dead' ? 'Dead' : undefined}
-              customStatus={player.custom_status || undefined}
-              selected={selectedPlayerId === player.id}
-              onClick={() => onSelectPlayer(player)}
-              isDead={player.status === 'dead'}
-              roomId={roomId}
-              participantId={participantId}
-              playerId={player.id}
-            />
-          ))}
+          {/* Sortable player items */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={playerOrder}
+              strategy={verticalListSortingStrategy}
+            >
+              {playerOrder.map(playerId => {
+                const player = participants.find(p => p.id === playerId)
+                if (!player) return null
+                return (
+                  <SortableSidebarItem
+                    key={player.id}
+                    player={player}
+                    selected={selectedPlayerId === player.id}
+                    onClick={() => onSelectPlayer(player)}
+                    roomId={roomId}
+                    participantId={participantId}
+                  />
+                )
+              })}
+            </SortableContext>
+          </DndContext>
         </Stack>
       </ScrollArea>
 
@@ -115,16 +189,14 @@ export function PlayerSidebar({
 }
 
 /**
- * Individual sidebar item (player or broadcast).
+ * Individual sidebar item (player or broadcast) - non-sortable version.
  */
 function SidebarItem({
   icon,
   name,
   subtitle,
-  customStatus,
   selected,
   onClick,
-  isDead,
   roomId,
   participantId,
   playerId,
@@ -132,10 +204,8 @@ function SidebarItem({
   icon?: string
   name: string
   subtitle?: string
-  customStatus?: string
   selected: boolean
   onClick: () => void
-  isDead?: boolean
   roomId: string
   participantId: string
   playerId: string | null
@@ -152,8 +222,96 @@ function SidebarItem({
         backgroundColor: selected
           ? 'var(--mantine-color-dark-5)'
           : 'transparent',
-        opacity: isDead ? 0.7 : 1,
       }}
+    >
+      <Group justify="space-between" gap="sm" wrap="nowrap">
+        <Group gap="sm" wrap="nowrap" style={{ overflow: 'hidden' }}>
+          <Text
+            size="lg"
+            style={{
+              flexShrink: 0,
+            }}
+          >
+            {icon === 'broadcast' ? '\u{1F4E2}' : icon || '\u{1F464}'}
+          </Text>
+          <Stack gap={2} style={{ overflow: 'hidden' }}>
+            <Text
+              size="sm"
+              fw={500}
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {name}
+            </Text>
+            {subtitle && (
+              <Text size="xs" c="dimmed">
+                {subtitle}
+              </Text>
+            )}
+          </Stack>
+        </Group>
+
+        {unreadCount > 0 && (
+          <Badge color="red" variant="filled" size="sm">
+            {unreadCount}
+          </Badge>
+        )}
+      </Group>
+    </Card>
+  )
+}
+
+/**
+ * Sortable sidebar item for player entries with drag-and-drop support.
+ */
+function SortableSidebarItem({
+  player,
+  selected,
+  onClick,
+  roomId,
+  participantId,
+}: {
+  player: Participant
+  selected: boolean
+  onClick: () => void
+  roomId: string
+  participantId: string
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: player.id })
+
+  const unreadCount = useUnreadCount(roomId, participantId, player.id)
+  const isDead = player.status === 'dead'
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: isDragging ? 'grabbing' : 'grab',
+    opacity: isDragging ? 0.8 : isDead ? 0.7 : 1,
+    backgroundColor: selected
+      ? 'var(--mantine-color-dark-5)'
+      : 'transparent',
+    touchAction: 'none', // Required for mobile drag
+  }
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      p="sm"
+      radius="md"
+      onClick={onClick}
     >
       <Group justify="space-between" gap="sm" wrap="nowrap">
         <Group gap="sm" wrap="nowrap" style={{ overflow: 'hidden' }}>
@@ -164,7 +322,7 @@ function SidebarItem({
               flexShrink: 0,
             }}
           >
-            {icon === 'broadcast' ? '\u{1F4E2}' : icon || '\u{1F464}'}
+            {player.avatar_id || '\u{1F464}'}
           </Text>
           <Stack gap={2} style={{ overflow: 'hidden' }}>
             <Group gap={4}>
@@ -177,7 +335,7 @@ function SidebarItem({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {name}
+                {player.display_name}
               </Text>
               {isDead && (
                 <Text size="sm" c="dimmed">
@@ -185,14 +343,14 @@ function SidebarItem({
                 </Text>
               )}
             </Group>
-            {subtitle && (
+            {player.status === 'dead' && (
               <Text size="xs" c="dimmed">
-                {subtitle}
+                Dead
               </Text>
             )}
-            {customStatus && (
+            {player.custom_status && (
               <Badge size="xs" variant="light" color="gray">
-                {customStatus}
+                {player.custom_status}
               </Badge>
             )}
           </Stack>

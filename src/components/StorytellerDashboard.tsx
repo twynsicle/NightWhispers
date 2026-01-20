@@ -10,6 +10,21 @@ import {
   Divider,
 } from '@mantine/core'
 import { IconRefresh } from '@tabler/icons-react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable'
 import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
 import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
@@ -18,6 +33,8 @@ import { useDesktopLayout } from '../hooks/useDesktopLayout'
 import { SplitPanelLayout } from './desktop/SplitPanelLayout'
 import { PlayerSidebar } from './desktop/PlayerSidebar'
 import { DesktopConversationPanel } from './desktop/DesktopConversationPanel'
+import { SortablePlayerCard } from './SortablePlayerCard'
+import { updateParticipantOrder } from '../lib/rooms'
 import styles from './StorytellerDashboard.module.css'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -55,6 +72,53 @@ export function StorytellerDashboard({
     useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
   const [resetModalOpened, setResetModalOpened] = useState(false)
+
+  // Local state for optimistic reordering
+  const [playerOrder, setPlayerOrder] = useState<string[]>([])
+
+  // Initialize order from participants (sorted by sort_order)
+  useEffect(() => {
+    const sortedPlayers = participants
+      .filter(p => p.role !== 'storyteller')
+      .sort((a, b) => a.sort_order - b.sort_order)
+    setPlayerOrder(sortedPlayers.map(p => p.id))
+  }, [participants])
+
+  // Configure sensors for drag-and-drop
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Require 8px movement before drag starts (prevents accidental drags)
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  /**
+   * Handle drag end - reorder players and persist to database.
+   */
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = playerOrder.indexOf(active.id as string)
+    const newIndex = playerOrder.indexOf(over.id as string)
+    const newOrder = arrayMove(playerOrder, oldIndex, newIndex)
+
+    // Optimistic update
+    setPlayerOrder(newOrder)
+
+    // Persist to database
+    try {
+      await updateParticipantOrder(newOrder)
+    } catch (error) {
+      // Revert on error
+      setPlayerOrder(playerOrder)
+      console.error('Failed to persist order:', error)
+    }
+  }
 
   // Mark conversation as read when opening
   useEffect(() => {
@@ -175,9 +239,7 @@ export function StorytellerDashboard({
     )
   }
 
-  // Mobile: Card-based dashboard
-  const players = participants.filter(p => p.role !== 'storyteller')
-
+  // Mobile: Card-based dashboard with drag-and-drop
   return (
     <Stack gap="md" p="md">
       {/* Header */}
@@ -186,33 +248,45 @@ export function StorytellerDashboard({
           Player Dashboard
         </Text>
         <Text size="sm" c="dimmed">
-          Tap a player to send private messages
+          Tap a player to chat, drag to reorder
         </Text>
       </Stack>
 
-      {/* Player Cards Grid */}
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-        {/* Broadcast Card - Always first */}
-        <BroadcastCard
-          roomId={roomId}
-          participantId={participantId}
-          onClick={() => setIsBroadcastMode(true)}
-        />
+      {/* Player Cards Grid with Drag-and-Drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={playerOrder} strategy={rectSortingStrategy}>
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+            {/* Broadcast Card - Always first, not draggable */}
+            <BroadcastCard
+              roomId={roomId}
+              participantId={participantId}
+              onClick={() => setIsBroadcastMode(true)}
+            />
 
-        {/* Player Cards */}
-        {players.map(player => (
-          <PlayerCard
-            key={player.id}
-            roomId={roomId}
-            participantId={participantId}
-            player={player}
-            onClick={() => setSelectedParticipant(player)}
-          />
-        ))}
-      </SimpleGrid>
+            {/* Sortable Player Cards */}
+            {playerOrder.map(playerId => {
+              const player = participants.find(p => p.id === playerId)
+              if (!player) return null
+              return (
+                <SortablePlayerCard
+                  key={player.id}
+                  roomId={roomId}
+                  participantId={participantId}
+                  player={player}
+                  onClick={() => setSelectedParticipant(player)}
+                />
+              )
+            })}
+          </SimpleGrid>
+        </SortableContext>
+      </DndContext>
 
       {/* Empty state if no players */}
-      {players.length === 0 && (
+      {playerOrder.length === 0 && (
         <Text size="sm" c="dimmed" ta="center" py="xl">
           No players in the room yet. Share the room code to invite players.
         </Text>
@@ -284,74 +358,3 @@ function BroadcastCard({
   )
 }
 
-/**
- * Player card with unread count badge, dead status styling, and custom status.
- */
-function PlayerCard({
-  roomId,
-  participantId,
-  player,
-  onClick,
-}: {
-  roomId: string
-  participantId: string
-  player: Participant
-  onClick: () => void
-}) {
-  const unreadCount = useUnreadCount(roomId, participantId, player.id)
-  const isDead = player.status === 'dead'
-
-  return (
-    <Card
-      shadow="sm"
-      padding="lg"
-      radius="md"
-      withBorder
-      className={styles.hoverCard}
-      style={{
-        opacity: isDead ? 0.7 : 1,
-      }}
-      onClick={onClick}
-    >
-      <Group justify="space-between" mb="xs">
-        <Group gap="sm">
-          {/* Avatar with greyscale for dead players */}
-          {player.avatar_id && (
-            <Text
-              size="xl"
-              style={{
-                filter: isDead ? 'grayscale(100%)' : 'none',
-              }}
-            >
-              {player.avatar_id}
-            </Text>
-          )}
-
-          {/* Name, Role, and Custom Status */}
-          <Stack gap={4}>
-            <Group gap="xs">
-              <Text fw={500}>{player.display_name}</Text>
-              {isDead && <Text c="dimmed">&#128128;</Text>}
-            </Group>
-            <Text size="xs" c="dimmed">
-              Player
-            </Text>
-            {/* Custom status badge */}
-            {player.custom_status && (
-              <Badge size="xs" variant="light" color="gray">
-                {player.custom_status}
-              </Badge>
-            )}
-          </Stack>
-        </Group>
-
-        {/* Unread count badge */}
-        {unreadCount > 0 && (
-          <Badge color="red" variant="filled" size="lg">
-            {unreadCount}
-          </Badge>
-        )}
-      </Group>
-    </Card>
-  )
-}
