@@ -1,15 +1,19 @@
 import { useRef, useEffect } from 'react'
 import { ScrollArea, Stack, Text, Group, Skeleton } from '@mantine/core'
-import type { Message, Database } from '../lib/supabase'
+import type { Message } from '../lib/supabase'
 
-type Participant = Database['public']['Tables']['participants']['Row']
+// Partial participant type for display name lookup
+type ParticipantInfo = {
+  id: string
+  display_name: string
+}
 
 interface MessageListProps {
   messages: Message[]
   currentParticipantId: string
   loading?: boolean
   typingUsers?: string[]
-  participants?: Participant[]
+  participants?: ParticipantInfo[]
 }
 
 /**

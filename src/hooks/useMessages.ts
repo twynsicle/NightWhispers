@@ -4,6 +4,9 @@ import type { Message } from '../lib/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { sendMessage as sendMessageHelper } from '../lib/message-helpers'
 
+// Message loading configuration
+const INITIAL_MESSAGE_LOAD_LIMIT = 50 // Initial message history load limit
+
 /**
  * Real-time messaging hook with Broadcast subscription.
  *
@@ -45,7 +48,7 @@ export function useMessages(
         .select('*')
         .eq('room_id', roomId)
         .order('created_at', { ascending: true })
-        .limit(50) // Initial load: 50 messages (per RESEARCH.md Open Questions)
+        .limit(INITIAL_MESSAGE_LOAD_LIMIT)
 
       // Filter by conversation type (Pattern 5: Conversation Filters)
       if (recipientId) {
@@ -89,11 +92,16 @@ export function useMessages(
         const newMessage = payload.payload as Message
 
         // Filter: only add if relevant to this conversation
+        // Must match database query logic to prevent race conditions
         const isRelevant = recipientId
-          ? newMessage.recipient_id === recipientId ||
-            newMessage.sender_id === recipientId ||
+          ? // 1-to-1: message between current participant and recipient, OR broadcast
+            ((newMessage.sender_id === participantId &&
+              newMessage.recipient_id === recipientId) ||
+              (newMessage.sender_id === recipientId &&
+                newMessage.recipient_id === participantId) ||
+              newMessage.is_broadcast)
+          : // Broadcast view: only broadcast messages
             newMessage.is_broadcast
-          : newMessage.is_broadcast
 
         if (isRelevant) {
           setMessages(prev => {

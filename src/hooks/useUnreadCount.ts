@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
+// Unread count polling interval
+const UNREAD_POLL_INTERVAL_MS = 10000 // Poll every 10 seconds (reduced from 5s to lower DB load)
+
 /**
  * Unread message count hook.
  *
@@ -51,10 +54,10 @@ export function useUnreadCount(
         // Filter by conversation type
         if (conversationParticipantId) {
           // 1-to-1 conversation: count messages FROM the other participant TO current user
-          // (Don't count messages current user sent to them)
-          query = query
-            .eq('sender_id', conversationParticipantId)
-            .eq('recipient_id', participantId)
+          // PLUS broadcast messages (broadcasts should appear in 1-to-1 conversations)
+          query = query.or(
+            `and(sender_id.eq.${conversationParticipantId},recipient_id.eq.${participantId}),is_broadcast.eq.true`
+          )
         } else {
           // Broadcast messages only
           query = query.eq('is_broadcast', true)
@@ -76,7 +79,7 @@ export function useUnreadCount(
     fetchUnreadCount()
 
     // Refetch on interval (optional - could subscribe to Broadcast for real-time updates)
-    const interval = setInterval(fetchUnreadCount, 5000) // Refetch every 5 seconds
+    const interval = setInterval(fetchUnreadCount, UNREAD_POLL_INTERVAL_MS)
 
     return () => clearInterval(interval)
   }, [roomId, participantId, conversationParticipantId])
@@ -88,18 +91,17 @@ export function useUnreadCount(
  * Mark conversation as read.
  *
  * Updates last_read_at to current database server timestamp.
- * Uses NOW() to prevent clock skew issues between client and server.
+ * Uses database function with NOW() to prevent clock skew issues between client and server.
  *
  * @param participantId - Current user's participant ID
  */
 export async function markConversationRead(
   participantId: string
 ): Promise<void> {
-  // Use database server timestamp (NOW()) not client timestamp
-  const { error } = await supabase
-    .from('participants')
-    .update({ last_read_at: new Date().toISOString() })
-    .eq('id', participantId)
+  // Use database function to ensure server timestamp (NOW()) is used
+  const { error } = await supabase.rpc('mark_conversation_read', {
+    p_participant_id: participantId,
+  })
 
   if (error) {
     console.error('Error marking conversation read:', error)
