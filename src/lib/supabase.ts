@@ -63,3 +63,6 @@ export type Database = {
     }
   }
 }
+
+// Convenience type exports
+export type Message = Database['public']['Tables']['messages']['Row']
