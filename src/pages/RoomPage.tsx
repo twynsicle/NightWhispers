@@ -22,6 +22,8 @@ import { useParticipants } from '../hooks/useParticipants'
 import { ParticipantList } from '../components/ParticipantList'
 import { PlayerChatView } from '../components/PlayerChatView'
 import { StorytellerDashboard } from '../components/StorytellerDashboard'
+import { PhaseHeader } from '../components/PhaseHeader'
+import { PhaseControls } from '../components/PhaseControls'
 import { kickParticipant, updateParticipantName, startGame } from '../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -332,14 +334,23 @@ export function RoomPage() {
           </>
         ) : roomStatus === 'active' ? (
           <>
-            {/* ACTIVE GAME VIEW - Messaging Interface */}
+            {/* ACTIVE GAME VIEW - Phase Header + Messaging Interface */}
+
+            {/* Phase Header - visible to all participants */}
+            <PhaseHeader roomId={roomId} />
+
             {isStoryteller ? (
-              // Storyteller view: Player cards dashboard
-              <StorytellerDashboard
-                roomId={roomId}
-                participantId={participantId}
-                participants={participants}
-              />
+              // Storyteller view: Phase controls + Player cards dashboard
+              <Stack gap="md">
+                {/* Phase Controls - Storyteller only */}
+                <PhaseControls roomId={roomId} />
+
+                <StorytellerDashboard
+                  roomId={roomId}
+                  participantId={participantId}
+                  participants={participants}
+                />
+              </Stack>
             ) : (
               // Player view: Full-screen chat with Storyteller
               (() => {
