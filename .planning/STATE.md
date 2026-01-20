@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 11
+**Session:** 12
 
 ---
 
@@ -18,9 +18,9 @@
 ## Current Position
 
 **Phase:** 6 of 6 (Polish & PWA)
-**Plan:** 2 of 5 in phase (06-02, 06-05 complete)
+**Plan:** 3 of 5 in phase (06-01, 06-02, 06-05 complete)
 **Status:** In progress
-**Last activity:** 2026-01-20 - Completed 06-02-PLAN.md (Desktop Split-Panel Layout)
+**Last activity:** 2026-01-20 - Completed 06-01-PLAN.md (PWA Installability)
 
 **Progress:**
 ```
@@ -29,9 +29,9 @@ Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [██████████] 100% (4/4 plans)
-Phase 6: Polish & PWA       [████......] 40% (2/5 plans)
+Phase 6: Polish & PWA       [██████....] 60% (3/5 plans)
 
-Overall: 18/21 plans complete (86% of planned work)
+Overall: 19/21 plans complete (90% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 18/21 plans complete (86% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 18 |
+| Plans Completed | 19 |
 | Requirements Delivered | 32/43 |
 | Phases Completed | 5/6 |
-| Session Count | 11 |
+| Session Count | 12 |
 
 ---
 
@@ -114,6 +114,9 @@ Overall: 18/21 plans complete (86% of planned work)
 | 1024px desktop breakpoint | Per UX-03, matches common laptop width | 06-02 |
 | DesktopConversationPanel for inline rendering | Mobile ConversationView uses fixed positioning, desktop needs inline | 06-02 |
 | Placeholder when no selection on desktop | Better UX than empty panel, guides user to action | 06-02 |
+| registerType: autoUpdate for VitePWA | Seamless SW updates without user prompt | 06-01 |
+| display: standalone in manifest | Required for iOS push notification support | 06-01 |
+| NetworkFirst caching for Supabase | API data should always attempt fresh fetch, fall back to cache | 06-01 |
 
 ### Architecture Notes
 
@@ -172,6 +175,7 @@ Overall: 18/21 plans complete (86% of planned work)
 - [x] Execute 05-04-PLAN.md (Player Settings Menu)
 - [x] Execute 06-05-PLAN.md (UI Animations)
 - [x] Execute 06-02-PLAN.md (Desktop Split-Panel Layout)
+- [x] Execute 06-01-PLAN.md (PWA Installability)
 
 ### Blockers
 
@@ -189,11 +193,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 06-02: Desktop Split-Panel Layout. Created useDesktopLayout hook with 1024px breakpoint using Mantine useMediaQuery (SSR-safe). Built SplitPanelLayout (container), PlayerSidebar (player list with unread badges), and DesktopConversationPanel (inline chat without fixed positioning). Updated StorytellerDashboard to conditionally render desktop split-panel or mobile card grid based on viewport width. Desktop shows sidebar + conversation side-by-side; mobile preserves existing full-screen overlay navigation. All 3 tasks committed individually. UX-03 and DASH-04 requirements delivered.
+Executed plan 06-01: PWA Installability. Configured VitePWA plugin with gothic theme colors, standalone display mode (required for iOS push), and Supabase runtime caching. Created PWA icons (192x192, 512x512, apple-touch-icon, favicon) with crimson crescent moon design using Node.js canvas script. Added PWA utility functions (isPWAInstalled, canSubscribeToPush, areNotificationsSupported, getNotificationPermission) for installation and push capability detection. Build now generates manifest.webmanifest and sw.js automatically. All 3 tasks committed individually. UX-04 requirement (PWA installable) delivered.
 
 ### Next Session Entry Point
 
-Phase 6 in progress. Continue with remaining plans (06-01, 06-03, 06-04).
+Phase 6 in progress. Continue with remaining plans (06-03, 06-04).
 
 ### Context to Preserve
 
@@ -266,14 +270,19 @@ Phase 6 in progress. Continue with remaining plans (06-01, 06-03, 06-04).
 - StorytellerDashboard renders SplitPanelLayout on desktop, existing card grid on mobile
 - DesktopConversationPanel renders inline (no fixed positioning), uses same MessageList/MessageInput
 - PlayerSidebar shows broadcast option, player list with unread badges, reset game button
+- **PWA:** VitePWA plugin configured, manifest.webmanifest and sw.js generated on build
+- PWA manifest: display: standalone, gothic theme colors (dark.7/dark.8), portrait orientation
+- PWA icons: crimson crescent moon design in public/ (192x192, 512x512, apple-touch-icon, favicon)
+- PWA utilities: src/lib/pwa.ts exports isPWAInstalled(), canSubscribeToPush(), etc.
+- Supabase runtime caching: NetworkFirst strategy with 1-hour max age
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 06-02 complete 2026-01-20*
+*Last execution: 06-01 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
 *Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
-*Phase 6 in progress: 06-02, 06-05 complete 2026-01-20*
+*Phase 6 in progress: 06-01, 06-02, 06-05 complete 2026-01-20*
