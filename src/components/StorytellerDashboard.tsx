@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SimpleGrid, Card, Text, Group, Badge, Stack } from '@mantine/core'
 import type { Database } from '../lib/supabase'
 import { ConversationView } from './ConversationView'
+import { useUnreadCount, markConversationRead } from '../hooks/useUnreadCount'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 
@@ -34,6 +35,13 @@ export function StorytellerDashboard({
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null)
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
 
+  // Mark conversation as read when opening
+  useEffect(() => {
+    if (selectedParticipant) {
+      markConversationRead(participantId)
+    }
+  }, [selectedParticipant, participantId])
+
   // If conversation is open, render ConversationView
   if (selectedParticipant) {
     return (
@@ -43,6 +51,7 @@ export function StorytellerDashboard({
         recipientId={selectedParticipant.id}
         recipientName={selectedParticipant.display_name}
         onBack={() => setSelectedParticipant(null)}
+        participants={participants}
       />
     )
   }
@@ -56,6 +65,7 @@ export function StorytellerDashboard({
         recipientId={null}
         recipientName="All Players"
         onBack={() => setIsBroadcastMode(false)}
+        participants={participants}
       />
     )
   }
@@ -78,63 +88,21 @@ export function StorytellerDashboard({
       {/* Player Cards Grid */}
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         {/* Broadcast Card - Always first */}
-        <Card
-          shadow="sm"
-          padding="lg"
-          radius="md"
-          withBorder
-          style={{ cursor: 'pointer' }}
+        <BroadcastCard
+          roomId={roomId}
+          participantId={participantId}
           onClick={() => setIsBroadcastMode(true)}
-        >
-          <Group justify="space-between" mb="xs">
-            <Group gap="sm">
-              <Text size="xl">📢</Text>
-              <Stack gap={4}>
-                <Text fw={500}>Broadcast to All</Text>
-                <Text size="xs" c="dimmed">
-                  Send message to all players
-                </Text>
-              </Stack>
-            </Group>
-            <Badge color="crimson" variant="filled">
-              0
-            </Badge>
-          </Group>
-        </Card>
+        />
 
         {/* Player Cards */}
         {players.map((player) => (
-          <Card
+          <PlayerCard
             key={player.id}
-            shadow="sm"
-            padding="lg"
-            radius="md"
-            withBorder
-            style={{ cursor: 'pointer' }}
+            roomId={roomId}
+            participantId={participantId}
+            player={player}
             onClick={() => setSelectedParticipant(player)}
-          >
-            <Group justify="space-between" mb="xs">
-              <Group gap="sm">
-                {/* Avatar */}
-                {player.avatar_id && (
-                  <Text size="xl">{player.avatar_id}</Text>
-                )}
-
-                {/* Name and Role */}
-                <Stack gap={4}>
-                  <Text fw={500}>{player.display_name}</Text>
-                  <Text size="xs" c="dimmed">
-                    Player
-                  </Text>
-                </Stack>
-              </Group>
-
-              {/* Unread count badge (placeholder - will be implemented in 04-03) */}
-              <Badge color="gray" variant="light">
-                0
-              </Badge>
-            </Group>
-          </Card>
+          />
         ))}
       </SimpleGrid>
 
@@ -145,5 +113,98 @@ export function StorytellerDashboard({
         </Text>
       )}
     </Stack>
+  )
+}
+
+/**
+ * Broadcast card with unread count badge.
+ */
+function BroadcastCard({
+  roomId,
+  participantId,
+  onClick,
+}: {
+  roomId: string
+  participantId: string
+  onClick: () => void
+}) {
+  const unreadCount = useUnreadCount(roomId, participantId, null)
+
+  return (
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      style={{ cursor: 'pointer' }}
+      onClick={onClick}
+    >
+      <Group justify="space-between" mb="xs">
+        <Group gap="sm">
+          <Text size="xl">📢</Text>
+          <Stack gap={4}>
+            <Text fw={500}>Broadcast to All</Text>
+            <Text size="xs" c="dimmed">
+              Send message to all players
+            </Text>
+          </Stack>
+        </Group>
+        {unreadCount > 0 && (
+          <Badge color="red" variant="filled" size="lg">
+            {unreadCount}
+          </Badge>
+        )}
+      </Group>
+    </Card>
+  )
+}
+
+/**
+ * Player card with unread count badge.
+ */
+function PlayerCard({
+  roomId,
+  participantId,
+  player,
+  onClick,
+}: {
+  roomId: string
+  participantId: string
+  player: Participant
+  onClick: () => void
+}) {
+  const unreadCount = useUnreadCount(roomId, participantId, player.id)
+
+  return (
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      style={{ cursor: 'pointer' }}
+      onClick={onClick}
+    >
+      <Group justify="space-between" mb="xs">
+        <Group gap="sm">
+          {/* Avatar */}
+          {player.avatar_id && <Text size="xl">{player.avatar_id}</Text>}
+
+          {/* Name and Role */}
+          <Stack gap={4}>
+            <Text fw={500}>{player.display_name}</Text>
+            <Text size="xs" c="dimmed">
+              Player
+            </Text>
+          </Stack>
+        </Group>
+
+        {/* Unread count badge */}
+        {unreadCount > 0 && (
+          <Badge color="red" variant="filled" size="lg">
+            {unreadCount}
+          </Badge>
+        )}
+      </Group>
+    </Card>
   )
 }

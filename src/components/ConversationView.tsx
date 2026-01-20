@@ -1,6 +1,9 @@
+import { useEffect } from 'react'
 import { Stack, Title, Text, ActionIcon, Group } from '@mantine/core'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useMessages } from '../hooks/useMessages'
+import { useTypingIndicator } from '../hooks/useTypingIndicator'
+import { markConversationRead } from '../hooks/useUnreadCount'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 
@@ -10,6 +13,7 @@ interface ConversationViewProps {
   recipientId: string | null
   recipientName: string
   onBack?: () => void
+  participants?: Array<{ id: string; display_name: string }>
 }
 
 /**
@@ -30,15 +34,29 @@ export function ConversationView({
   recipientId,
   recipientName,
   onBack,
+  participants = [],
 }: ConversationViewProps) {
-  const { messages, loading, sendMessage } = useMessages(
+  const { messages, loading, sendMessage, channel } = useMessages(
     roomId,
     participantId,
     recipientId
   )
 
+  // Typing indicator
+  const { setIsTyping, typingUsers } = useTypingIndicator(channel, participantId)
+
+  // Filter typing users to only show the recipient
+  const recipientTyping = recipientId
+    ? typingUsers.filter((id) => id === recipientId)
+    : []
+
   const isBroadcast = recipientId === null
   const headerTitle = isBroadcast ? 'Broadcast to All Players' : `Chat with ${recipientName}`
+
+  // Mark conversation as read when opened
+  useEffect(() => {
+    markConversationRead(participantId)
+  }, [participantId])
 
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
@@ -83,6 +101,8 @@ export function ConversationView({
         messages={messages}
         currentParticipantId={participantId}
         loading={loading}
+        typingUsers={recipientTyping}
+        participants={participants}
       />
 
       {/* Message Input */}
@@ -93,7 +113,10 @@ export function ConversationView({
           backgroundColor: 'var(--mantine-color-dark-7)',
         }}
       >
-        <MessageInput onSendMessage={handleSendMessage} />
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          typingHandler={{ setIsTyping }}
+        />
       </Stack>
     </Stack>
   )

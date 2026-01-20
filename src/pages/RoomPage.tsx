@@ -344,6 +344,7 @@ export function RoomPage() {
                     participantId={participantId}
                     storytellerId={storyteller.id}
                     storytellerName={storyteller.display_name}
+                    participants={participants}
                   />
                 )
               })()

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { Textarea, ActionIcon, Group, Stack } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
@@ -7,6 +7,9 @@ import { notifications } from '@mantine/notifications'
 interface MessageInputProps {
   onSendMessage: (content: string) => Promise<void>
   disabled?: boolean
+  typingHandler?: {
+    setIsTyping: (typing: boolean) => void
+  }
 }
 
 /**
@@ -21,9 +24,17 @@ interface MessageInputProps {
 export function MessageInput({
   onSendMessage,
   disabled = false,
+  typingHandler,
 }: MessageInputProps) {
   const [content, setContent] = useState('')
   const [sending, setSending] = useState(false)
+
+  // Clear typing state on unmount
+  useEffect(() => {
+    return () => {
+      typingHandler?.setIsTyping(false)
+    }
+  }, [typingHandler])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -32,6 +43,9 @@ export function MessageInput({
     if (!content.trim()) {
       return
     }
+
+    // Clear typing state when sending
+    typingHandler?.setIsTyping(false)
 
     // Disable input while sending
     setSending(true)
@@ -65,7 +79,11 @@ export function MessageInput({
         <Group gap="xs" align="flex-end">
           <Textarea
             value={content}
-            onChange={(e) => setContent(e.currentTarget.value)}
+            onChange={(e) => {
+              setContent(e.currentTarget.value)
+              // Emit typing indicator on change
+              typingHandler?.setIsTyping(true)
+            }}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
             disabled={disabled || sending}

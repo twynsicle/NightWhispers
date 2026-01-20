@@ -1,5 +1,6 @@
 import { Stack, Title, Text } from '@mantine/core'
 import { useMessages } from '../hooks/useMessages'
+import { useTypingIndicator } from '../hooks/useTypingIndicator'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 
@@ -8,6 +9,7 @@ interface PlayerChatViewProps {
   participantId: string
   storytellerId: string
   storytellerName: string
+  participants: Array<{ id: string; display_name: string }>
 }
 
 /**
@@ -31,15 +33,22 @@ export function PlayerChatView({
   participantId,
   storytellerId,
   storytellerName,
+  participants,
 }: PlayerChatViewProps) {
   // Load conversation with Storyteller
   // recipientId = storytellerId ensures 1-to-1 messages are filtered correctly
   // Broadcast messages (is_broadcast=true) are also included by the hook
-  const { messages, loading, sendMessage } = useMessages(
+  const { messages, loading, sendMessage, channel } = useMessages(
     roomId,
     participantId,
     storytellerId
   )
+
+  // Typing indicator for current user
+  const { setIsTyping, typingUsers } = useTypingIndicator(channel, participantId)
+
+  // Filter typing users to only show storyteller
+  const storytellerTyping = typingUsers.filter((id) => id === storytellerId)
 
   const handleSendMessage = async (content: string) => {
     await sendMessage(content)
@@ -69,6 +78,8 @@ export function PlayerChatView({
         messages={messages}
         currentParticipantId={participantId}
         loading={loading}
+        typingUsers={storytellerTyping}
+        participants={participants}
       />
 
       {/* Message Input */}
@@ -79,7 +90,10 @@ export function PlayerChatView({
           backgroundColor: 'var(--mantine-color-dark-7)',
         }}
       >
-        <MessageInput onSendMessage={handleSendMessage} />
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          typingHandler={{ setIsTyping }}
+        />
       </Stack>
     </Stack>
   )

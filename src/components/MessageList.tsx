@@ -1,11 +1,15 @@
 import { useRef, useEffect } from 'react'
 import { ScrollArea, Stack, Text, Group, Skeleton } from '@mantine/core'
-import type { Message } from '../lib/supabase'
+import type { Message, Database } from '../lib/supabase'
+
+type Participant = Database['public']['Tables']['participants']['Row']
 
 interface MessageListProps {
   messages: Message[]
   currentParticipantId: string
   loading?: boolean
+  typingUsers?: string[]
+  participants?: Participant[]
 }
 
 /**
@@ -24,6 +28,8 @@ export function MessageList({
   messages,
   currentParticipantId,
   loading = false,
+  typingUsers = [],
+  participants = [],
 }: MessageListProps) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -121,6 +127,22 @@ export function MessageList({
             </Group>
           )
         })}
+
+        {/* Typing indicator */}
+        {typingUsers.length > 0 && (
+          <Group justify="flex-start" gap="xs">
+            <Text size="sm" c="dimmed" fs="italic">
+              {typingUsers
+                .map(
+                  (userId) =>
+                    participants.find((p) => p.id === userId)?.display_name ||
+                    'Someone'
+                )
+                .join(', ')}{' '}
+              {typingUsers.length === 1 ? 'is' : 'are'} typing...
+            </Text>
+          </Group>
+        )}
 
         {/* Invisible element for auto-scroll target */}
         <div ref={bottomRef} />
