@@ -152,6 +152,14 @@ Plans:
 - DASH-02: Tapping player card expands to show recent messages + quick send
 - DASH-03: Storyteller can open full chat view with player
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md - Phase management (display and advance phase)
+- [ ] 05-02-PLAN.md - Player status management (death toggle and custom status)
+- [ ] 05-03-PLAN.md - Game reset functionality
+- [ ] 05-04-PLAN.md - Player settings menu (leave game and room code access)
+
 **Success Criteria:**
 1. Storyteller advances to "Night 2"; all players see phase update in header
 2. Storyteller marks player dead; player's avatar greys out for everyone
