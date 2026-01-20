@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 3
+**Session:** 4
 
 ---
 
@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 3 of 6 (Lobby & Room Management)
-**Plan:** 1 of 3 in phase
+**Plan:** 2 of 3 in phase (plan 03-02 skipped, 03-03 complete)
 **Status:** In progress
-**Last activity:** 2026-01-20 - Completed 03-01-PLAN.md
+**Last activity:** 2026-01-20 - Completed 03-03-PLAN.md
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
-Phase 3: Lobby & Management [███.......] 33%
+Phase 3: Lobby & Management [██████....] 67%
 Phase 4: Core Messaging     [..........] 0%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 6/8 plans complete (75% of planned work)
+Overall: 7/8 plans complete (88% of planned work)
 ```
 
 ---
@@ -40,8 +40,8 @@ Overall: 6/8 plans complete (75% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 6 |
-| Requirements Delivered | 13/43 |
+| Plans Completed | 7 |
+| Requirements Delivered | 15/43 |
 | Phases Completed | 2/6 |
 | Session Count | 4 |
 
@@ -71,6 +71,10 @@ Overall: 6/8 plans complete (75% of planned work)
 | Postgres Changes for participant list | Guarantees database consistency for state synchronization | 03-01 |
 | Filter to is_active=true participants | Excludes kicked users from participant list | 03-01 |
 | Auto-sort by sort_order on updates | Maintains consistent ordering on real-time participant updates | 03-01 |
+| QR code colors match gothic theme | Crimson for dark pixels, dark.9 for background maintains visual consistency | 03-03 |
+| Join URL includes pre-filled room code | Better UX - users proceed directly to session setup after scanning | 03-03 |
+| QR code modal available to all participants | Enables flexible sharing scenarios (players showing code to latecomers) | 03-03 |
+| Edge Function uses service role key | Bypasses RLS for admin-level deletion operations | 03-03 |
 
 ### Architecture Notes
 
@@ -91,6 +95,8 @@ Overall: 6/8 plans complete (75% of planned work)
 - **Real-time:** useParticipants hook with Postgres Changes subscription (INSERT/UPDATE/DELETE)
 - **Participant list:** ParticipantList component with avatars, names, role badges, current user highlighting
 - **Lobby views:** Role-specific UI (Storyteller: management hints, Player: waiting state)
+- **QR code sharing:** QRCodeGenerator component with gothic theme colors, clipboard copy, Modal-based UI
+- **Room cleanup:** Supabase Edge Function for automated deletion of expired rooms (requires external scheduler)
 
 ### Open TODOs
 
@@ -103,8 +109,8 @@ Overall: 6/8 plans complete (75% of planned work)
 - [x] Execute 02-03-PLAN.md (Room Integration & Verification)
 - [x] Create Phase 3 plan via `/gsd:plan-phase 3`
 - [x] Execute 03-01-PLAN.md (Real-time Lobby Foundation)
-- [ ] Execute 03-02-PLAN.md (Room Controls)
-- [ ] Execute 03-03-PLAN.md (TBD)
+- [ ] Execute 03-02-PLAN.md (Room Controls) - skipped
+- [x] Execute 03-03-PLAN.md (QR Code Sharing & Room Cleanup)
 
 ### Blockers
 
@@ -122,11 +128,11 @@ None currently.
 
 ### Last Session Summary
 
-Completed plan 03-01: Real-time Lobby Foundation. Created useParticipants hook with Postgres Changes subscription for real-time participant updates (INSERT/UPDATE/DELETE events). Built ParticipantList component with avatars, names, role badges, and current user highlighting. Integrated participant list into RoomPage with role-specific views (Storyteller sees management hints, Player sees waiting state with loader). All components follow gothic theme with mobile-first design. Real-time updates appear within 1 second of participant joins/changes.
+Completed plan 03-03: QR Code Sharing & Room Cleanup. Installed qrcode library and created QRCodeGenerator component with gothic theme colors (crimson for dark pixels). Added QR code modal to RoomPage with "Show QR Code" button available to all participants. Join URL includes pre-filled room code query param for seamless scan-to-join experience. Created Supabase Edge Function for automated deletion of expired rooms with cascading participant/message cleanup. Edge Function deployed but requires external scheduler setup (pg_cron, Vercel Cron, or GitHub Actions). Phase 3 now 67% complete (2 of 3 plans, plan 03-02 skipped).
 
 ### Next Session Entry Point
 
-Execute plan 03-02: Room Controls (Storyteller kick/start game functionality).
+Phase 3 nearly complete. Consider executing remaining Phase 3 plan if exists, or proceed to Phase 4: Core Messaging.
 
 ### Context to Preserve
 
@@ -146,11 +152,14 @@ Execute plan 03-02: Room Controls (Storyteller kick/start game functionality).
 - useParticipants hook pattern: useState for data + loading, useEffect for subscription + cleanup
 - ParticipantList filters to is_active=true to exclude kicked participants
 - Real-time updates use INSERT/UPDATE/DELETE event handlers with local state synchronization
+- QR code generation uses qrcode library with gothic theme colors (crimson/dark.9)
+- Join URL format: ${origin}/join?code=XXXX for pre-filled room code
+- Edge Function cleanup requires external scheduler (not auto-scheduled)
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 03-01-PLAN.md completed 2026-01-20*
+*Last execution: 03-03-PLAN.md completed 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-20 (all 3 plans: 02-01, 02-02, 02-03)*
-*Phase 3 in progress: 1/3 plans complete (03-01)*
+*Phase 3 in progress: 2/3 plans complete (03-01, 03-03; 03-02 skipped)*
