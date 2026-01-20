@@ -1,12 +1,14 @@
-import { useState } from 'react'
-import { useLoaderData, redirect } from 'react-router'
-import { Container, Stack, Title, Text, Badge, Code, Modal, Button, Skeleton, Loader } from '@mantine/core'
+import { useState, useEffect } from 'react'
+import { useLoaderData, redirect, useNavigate } from 'react-router'
+import { Container, Stack, Title, Text, Badge, Code, Modal, Button, Skeleton, Loader, Select, TextInput } from '@mantine/core'
 import { IconQrcode } from '@tabler/icons-react'
+import { notifications } from '@mantine/notifications'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/supabase'
 import { QRCodeGenerator } from '../components/QRCodeGenerator'
 import { useParticipants } from '../hooks/useParticipants'
 import { ParticipantList } from '../components/ParticipantList'
+import { kickParticipant, updateParticipantName, startGame } from '../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 type Room = Database['public']['Tables']['rooms']['Row']
@@ -74,11 +76,19 @@ export async function roomLoader({
  */
 export function RoomPage() {
   const { participant } = useLoaderData<RoomLoaderData>()
+  const navigate = useNavigate()
   const [qrModalOpen, setQrModalOpen] = useState(false)
+  const [script, setScript] = useState('none')
+  const [editingParticipant, setEditingParticipant] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const [editedName, setEditedName] = useState('')
 
   // Extract room and user IDs for hooks
   const roomId = participant.rooms.id
   const userId = participant.user_id
+  const participantId = participant.id
   const isStoryteller = participant.role === 'storyteller'
 
   // Subscribe to real-time participant updates
@@ -86,6 +96,109 @@ export function RoomPage() {
 
   // Construct join URL with pre-filled room code
   const joinUrl = `${window.location.origin}/join?code=${participant.rooms.code}`
+
+  // Real-time detection of being kicked
+  useEffect(() => {
+    const channel = supabase
+      .channel(`participant:${participantId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'participants',
+          filter: `id=eq.${participantId}`,
+        },
+        (payload) => {
+          if (payload.new.is_active === false) {
+            // User was kicked
+            notifications.show({
+              title: 'Removed from Room',
+              message: 'You were removed from the room by the Storyteller.',
+              color: 'red',
+            })
+            navigate('/?error=kicked')
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [participantId, navigate])
+
+  // Handler: Kick participant
+  const handleKick = async (participantId: string) => {
+    try {
+      await kickParticipant(participantId)
+      notifications.show({
+        title: 'Player Removed',
+        message: 'Player has been kicked from the room.',
+        color: 'green',
+      })
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to kick player. Please try again.',
+        color: 'red',
+      })
+    }
+  }
+
+  // Handler: Edit participant name
+  const handleEditOpen = (participantId: string, currentName: string) => {
+    setEditingParticipant({ id: participantId, name: currentName })
+    setEditedName(currentName)
+  }
+
+  const handleEditSave = async () => {
+    if (!editingParticipant) return
+
+    // Validate name length
+    if (editedName.length < 2 || editedName.length > 20) {
+      notifications.show({
+        title: 'Invalid Name',
+        message: 'Display name must be 2-20 characters.',
+        color: 'red',
+      })
+      return
+    }
+
+    try {
+      await updateParticipantName(editingParticipant.id, editedName)
+      notifications.show({
+        title: 'Name Updated',
+        message: 'Player name has been updated.',
+        color: 'green',
+      })
+      setEditingParticipant(null)
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to update name. Please try again.',
+        color: 'red',
+      })
+    }
+  }
+
+  // Handler: Start game
+  const handleStartGame = async () => {
+    try {
+      await startGame(roomId)
+      notifications.show({
+        title: 'Game Started!',
+        message: 'The game is now active.',
+        color: 'green',
+      })
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to start game. Please try again.',
+        color: 'red',
+      })
+    }
+  }
 
   return (
     <Container size="md" py="xl">
@@ -128,6 +241,18 @@ export function RoomPage() {
           <QRCodeGenerator url={joinUrl} />
         </Modal>
 
+        {/* Storyteller: Script Selector */}
+        {isStoryteller && (
+          <Select
+            label="Script"
+            description="Select game script (v1 supports None only)"
+            data={[{ value: 'none', label: 'None (No Roles)' }]}
+            value={script}
+            onChange={(value) => setScript(value || 'none')}
+            disabled
+          />
+        )}
+
         {/* Participant List Section */}
         <Stack gap="xs" mt="md">
           <Text size="sm" c="dimmed" fw={500}>
@@ -145,14 +270,33 @@ export function RoomPage() {
               participants={participants}
               currentUserId={userId}
               showRole={true}
+              isStoryteller={isStoryteller}
+              onKick={isStoryteller ? handleKick : undefined}
+              onEdit={isStoryteller ? handleEditOpen : undefined}
             />
           )}
         </Stack>
 
+        {/* Storyteller: Start Game Button */}
+        {isStoryteller && (
+          <Button
+            size="lg"
+            fullWidth
+            color="crimson"
+            onClick={handleStartGame}
+            disabled={participants.length < 2}
+            mt="md"
+          >
+            Start Game
+          </Button>
+        )}
+
         {/* Role-specific hints */}
         {isStoryteller ? (
-          <Text size="sm" c="dimmed" ta="center" mt="md">
-            Manage players and start the game
+          <Text size="sm" c="dimmed" ta="center" mt="xs">
+            {participants.length < 2
+              ? 'Need at least 2 participants to start'
+              : 'Ready to start the game'}
           </Text>
         ) : (
           <Stack gap="xs" align="center" mt="md">
@@ -162,6 +306,39 @@ export function RoomPage() {
             </Text>
           </Stack>
         )}
+
+        {/* Edit Name Modal */}
+        <Modal
+          opened={editingParticipant !== null}
+          onClose={() => setEditingParticipant(null)}
+          title="Edit Player Name"
+          centered
+        >
+          <Stack gap="md">
+            <TextInput
+              label="Display Name"
+              description="2-20 characters"
+              value={editedName}
+              onChange={(e) => setEditedName(e.currentTarget.value)}
+              maxLength={20}
+              error={
+                editedName.length < 2 || editedName.length > 20
+                  ? 'Name must be 2-20 characters'
+                  : undefined
+              }
+            />
+            <Button fullWidth onClick={handleEditSave}>
+              Save
+            </Button>
+            <Button
+              fullWidth
+              variant="light"
+              onClick={() => setEditingParticipant(null)}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        </Modal>
       </Stack>
     </Container>
   )
