@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { useLoaderData, redirect } from 'react-router'
-import { Container, Stack, Title, Text, Badge, Code } from '@mantine/core'
+import { Container, Stack, Title, Text, Badge, Code, Modal, Button, Skeleton, Loader } from '@mantine/core'
+import { IconQrcode } from '@tabler/icons-react'
 import { supabase } from '../lib/supabase'
 import type { Database } from '../lib/supabase'
+import { QRCodeGenerator } from '../components/QRCodeGenerator'
+import { useParticipants } from '../hooks/useParticipants'
+import { ParticipantList } from '../components/ParticipantList'
 
 type Participant = Database['public']['Tables']['participants']['Row']
 type Room = Database['public']['Tables']['rooms']['Row']
@@ -69,6 +74,18 @@ export async function roomLoader({
  */
 export function RoomPage() {
   const { participant } = useLoaderData<RoomLoaderData>()
+  const [qrModalOpen, setQrModalOpen] = useState(false)
+
+  // Extract room and user IDs for hooks
+  const roomId = participant.rooms.id
+  const userId = participant.user_id
+  const isStoryteller = participant.role === 'storyteller'
+
+  // Subscribe to real-time participant updates
+  const { participants, loading } = useParticipants(roomId)
+
+  // Construct join URL with pre-filled room code
+  const joinUrl = `${window.location.origin}/join?code=${participant.rooms.code}`
 
   return (
     <Container size="md" py="xl">
@@ -88,6 +105,24 @@ export function RoomPage() {
             Share this code for others to join
           </Text>
         </Stack>
+
+        <Button
+          variant="light"
+          leftSection={<IconQrcode size={20} />}
+          onClick={() => setQrModalOpen(true)}
+          fullWidth
+        >
+          Show QR Code
+        </Button>
+
+        <Modal
+          opened={qrModalOpen}
+          onClose={() => setQrModalOpen(false)}
+          title="Scan to Join Room"
+          centered
+        >
+          <QRCodeGenerator url={joinUrl} />
+        </Modal>
 
         <Stack gap="xs">
           <Text>
