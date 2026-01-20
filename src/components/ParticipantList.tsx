@@ -52,6 +52,7 @@ export function ParticipantList({
         const roleLabel =
           participant.role === 'storyteller' ? 'Storyteller' : 'Player'
         const showActions = isStoryteller && !isCurrentUser
+        const isDead = participant.status === 'dead'
 
         return (
           <Group
@@ -63,22 +64,32 @@ export function ParticipantList({
               backgroundColor: isCurrentUser
                 ? 'var(--mantine-color-dark-6)'
                 : 'transparent',
+              opacity: isDead ? 0.6 : 1,
             }}
             role="listitem"
-            aria-label={`${participant.avatar_id || ''} ${participant.display_name} - ${roleLabel}`}
+            aria-label={`${participant.avatar_id || ''} ${participant.display_name} - ${roleLabel}${isDead ? ' (Dead)' : ''}`}
             justify="space-between"
           >
             {/* Left side: Avatar and name */}
             <Group gap="sm">
               {/* Avatar emoji */}
               {participant.avatar_id && (
-                <Text size="xl" style={{ fontSize: '24px' }}>
+                <Text
+                  size="xl"
+                  style={{
+                    fontSize: '24px',
+                    filter: isDead ? 'grayscale(100%)' : 'none',
+                  }}
+                >
                   {participant.avatar_id}
                 </Text>
               )}
 
-              {/* Display name */}
-              <Text>{participant.display_name}</Text>
+              {/* Display name with skull indicator for dead players */}
+              <Group gap="xs">
+                <Text>{participant.display_name}</Text>
+                {isDead && <Text c="dimmed">&#128128;</Text>}
+              </Group>
             </Group>
 
             {/* Right side: Role badge and action buttons */}
