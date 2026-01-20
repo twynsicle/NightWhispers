@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 6
+**Session:** 7
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 4 - Core Messaging (in progress)
+**Current Focus:** Phase 5 - Game State & Views (in progress)
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,10 +17,10 @@
 
 ## Current Position
 
-**Phase:** 4 of 6 (Core Messaging)
-**Plan:** 4 of 4 in phase
-**Status:** Phase complete
-**Last activity:** 2026-01-20 - Completed Phase 4 (Core Messaging) with gap closure and verification
+**Phase:** 5 of 6 (Game State & Views)
+**Plan:** 3 of 4 in phase
+**Status:** In progress
+**Last activity:** 2026-01-20 - Completed 05-03-PLAN.md (Game Reset)
 
 **Progress:**
 ```
@@ -28,10 +28,10 @@ Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100% (verified)
-Phase 5: Game State & Views [..........] 0%
+Phase 5: Game State & Views [███████...] 75% (3/4 plans)
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 12/14 plans complete (86% of planned work)
+Overall: 15/18 plans complete (83% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 12/14 plans complete (86% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 12 |
-| Requirements Delivered | 25/43 |
+| Plans Completed | 15 |
+| Requirements Delivered | 28/43 |
 | Phases Completed | 4/6 |
-| Session Count | 6 |
+| Session Count | 7 |
 
 ---
 
@@ -98,6 +98,9 @@ Overall: 12/14 plans complete (86% of planned work)
 | Mark conversation read on open | Not on every message - prevents constant writes | 04-03 |
 | Only show badges when count > 0 | Clean UI, red color for visibility | 04-03 |
 | OR pattern for broadcast filtering | Players need both 1-to-1 AND broadcast messages in conversation view | 04-04 |
+| Reset button uses subtle red styling | Destructive action should be visible but not prominent | 05-03 |
+| Sequential database operations for reset | Delete messages, update room phase, update participants - each can fail independently | 05-03 |
+| Reset placed at bottom of dashboard | Less prominent placement for rarely-used destructive action | 05-03 |
 
 ### Architecture Notes
 
@@ -129,6 +132,8 @@ Overall: 12/14 plans complete (86% of planned work)
 - **Player view:** Full-screen chat with Storyteller, receives 1-to-1 and broadcast messages
 - **Storyteller view:** Player cards dashboard with broadcast option, tap card to open conversation
 - **Message bubbles:** Crimson for sent, dark.6 for received, broadcast badge for announcements
+- **Game reset:** resetGame function clears messages, resets phase to Night 1, sets all participants to alive
+- **Confirmation modal:** GameResetModal with warning text, cancel/confirm buttons, loading state
 
 ### Open TODOs
 
@@ -160,11 +165,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 04-04: Broadcast Filtering Bug Fix. Fixed critical bug in useMessages hook where broadcast messages were excluded from player conversations due to XOR (exclusive OR) filtering logic. Changed database query to include `is_broadcast.eq.true` in OR clause when recipientId is set (lines 51-61). Updated Broadcast subscription filter to accept `newMessage.is_broadcast` in addition to sender/recipient match (lines 92-96). Players now receive both 1-to-1 messages with Storyteller AND broadcast announcements in their chat view. MSG-04 requirement now verified. TypeScript compiles without errors. 1-to-1 message isolation still preserved. Gap closure plan executed in 3 minutes. Phase 4 complete with full verification (7/7 requirements met).
+Executed plan 05-03: Game Reset. Created resetGame function in src/lib/game-reset.ts that performs three sequential database operations: (1) delete all messages in room, (2) reset room phase to "Night 1", (3) reset all participants to alive status with cleared custom_status. Created GameResetModal component with warning text listing reset effects, cancel/confirm buttons, loading state during reset, and success/error notifications. Integrated reset button into StorytellerDashboard with subtle red styling, placed at bottom below player cards with divider separator. Real-time propagation works via existing postgres_changes subscriptions. GAME-06 requirement delivered. TypeScript compiles without errors. 3 commits, 4 minutes.
 
 ### Next Session Entry Point
 
-Phase 4 complete and verified. Ready for Phase 5 (Game State & Views) - plan and execute next phase.
+Phase 5 plan 3 of 4 complete. Continue with 05-04-PLAN.md (End Game) or check if phase is complete.
 
 ### Context to Preserve
 
@@ -217,12 +222,16 @@ Phase 4 complete and verified. Ready for Phase 5 (Game State & Views) - plan and
 - Broadcast filtering uses OR pattern: Players receive both 1-to-1 messages AND broadcasts in conversation
 - useMessages query includes is_broadcast.eq.true when recipientId is set (lines 51-61)
 - useMessages subscription filter checks newMessage.is_broadcast in isRelevant logic (lines 92-96)
+- Game reset: resetGame(roomId) deletes messages, resets phase to Night 1, sets participants to alive
+- Confirmation modal: GameResetModal prevents accidental resets with warning text
+- Reset button placement: subtle red button at bottom of StorytellerDashboard, below player cards
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 04-04 complete 2026-01-20*
+*Last execution: 05-03 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
+*Phase 5 in progress: 2026-01-20 (3/4 plans: 05-01, 05-02, 05-03)*
