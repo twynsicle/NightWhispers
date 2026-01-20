@@ -152,7 +152,7 @@ export function RoomPage() {
         message: 'Player has been kicked from the room.',
         color: 'green',
       })
-    } catch (_error) {
+    } catch {
       notifications.show({
         title: 'Error',
         message: 'Failed to kick player. Please try again.',
@@ -188,7 +188,7 @@ export function RoomPage() {
         color: 'green',
       })
       setEditingParticipant(null)
-    } catch (_error) {
+    } catch {
       notifications.show({
         title: 'Error',
         message: 'Failed to update name. Please try again.',
@@ -206,7 +206,7 @@ export function RoomPage() {
         message: 'The game is now active.',
         color: 'green',
       })
-    } catch (_error) {
+    } catch {
       notifications.show({
         title: 'Error',
         message: 'Failed to start game. Please try again.',

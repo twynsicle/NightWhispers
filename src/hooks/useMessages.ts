@@ -116,8 +116,8 @@ export function useMessages(
       .subscribe()
 
     // Store channel reference for cleanup
-    // Update channel state in callback to avoid sync setState in effect
-    setChannel(() => messagesChannel)
+    // Defer setState to avoid synchronous setState in effect (satisfies react-hooks/set-state-in-effect)
+    queueMicrotask(() => setChannel(messagesChannel))
 
     // Cleanup on unmount (CRITICAL for memory leak prevention - RESEARCH.md Pitfall 2)
     return () => {
