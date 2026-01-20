@@ -18,20 +18,20 @@
 ## Current Position
 
 **Phase:** 3 of 6 (Lobby & Room Management)
-**Plan:** 2 of 3 in phase (plan 03-02 skipped, 03-03 complete)
-**Status:** In progress
-**Last activity:** 2026-01-20 - Completed 03-03-PLAN.md
+**Plan:** 3 of 3 in phase - COMPLETE
+**Status:** Phase complete
+**Last activity:** 2026-01-20 - Completed 03-02-PLAN.md
 
 **Progress:**
 ```
 Phase 1: Foundation         [██████████] 100%
 Phase 2: Session & Room     [██████████] 100%
-Phase 3: Lobby & Management [██████....] 67%
+Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [..........] 0%
 Phase 5: Game State & Views [..........] 0%
 Phase 6: Polish & PWA       [..........] 0%
 
-Overall: 7/8 plans complete (88% of planned work)
+Overall: 8/8 plans complete (100% of planned work)
 ```
 
 ---
@@ -40,9 +40,9 @@ Overall: 7/8 plans complete (88% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 7 |
-| Requirements Delivered | 15/43 |
-| Phases Completed | 2/6 |
+| Plans Completed | 8 |
+| Requirements Delivered | 21/43 |
+| Phases Completed | 3/6 |
 | Session Count | 4 |
 
 ---
@@ -75,6 +75,10 @@ Overall: 7/8 plans complete (88% of planned work)
 | Join URL includes pre-filled room code | Better UX - users proceed directly to session setup after scanning | 03-03 |
 | QR code modal available to all participants | Enables flexible sharing scenarios (players showing code to latecomers) | 03-03 |
 | Edge Function uses service role key | Bypasses RLS for admin-level deletion operations | 03-03 |
+| Soft delete for kicked participants | is_active=false preserves audit trail and enables reconnection detection | 03-02 |
+| Real-time kick detection via postgres_changes | Kicked players need immediate notification, not just on next page load | 03-02 |
+| Room status in useParticipants hook | Efficient single hook for participants + status (rare status changes) | 03-02 |
+| Script selector disabled for v1 | Only "None" option, ready for v2 Trouble Brewing expansion | 03-02 |
 
 ### Architecture Notes
 
@@ -97,6 +101,10 @@ Overall: 7/8 plans complete (88% of planned work)
 - **Lobby views:** Role-specific UI (Storyteller: management hints, Player: waiting state)
 - **QR code sharing:** QRCodeGenerator component with gothic theme colors, clipboard copy, Modal-based UI
 - **Room cleanup:** Supabase Edge Function for automated deletion of expired rooms (requires external scheduler)
+- **Room controls:** Storyteller can kick players, edit names, select script (None only), and start game
+- **Kicked detection:** Real-time postgres_changes subscription on participant.is_active for immediate redirect
+- **Status transitions:** Room status (lobby/active/ended) drives UI via postgres_changes on rooms table
+- **Game start:** Start Game button disabled until 2+ participants, transitions all users to active view
 
 ### Open TODOs
 
@@ -109,7 +117,7 @@ Overall: 7/8 plans complete (88% of planned work)
 - [x] Execute 02-03-PLAN.md (Room Integration & Verification)
 - [x] Create Phase 3 plan via `/gsd:plan-phase 3`
 - [x] Execute 03-01-PLAN.md (Real-time Lobby Foundation)
-- [ ] Execute 03-02-PLAN.md (Room Controls) - skipped
+- [x] Execute 03-02-PLAN.md (Room Controls)
 - [x] Execute 03-03-PLAN.md (QR Code Sharing & Room Cleanup)
 
 ### Blockers
@@ -128,11 +136,11 @@ None currently.
 
 ### Last Session Summary
 
-Completed plan 03-03: QR Code Sharing & Room Cleanup. Installed qrcode library and created QRCodeGenerator component with gothic theme colors (crimson for dark pixels). Added QR code modal to RoomPage with "Show QR Code" button available to all participants. Join URL includes pre-filled room code query param for seamless scan-to-join experience. Created Supabase Edge Function for automated deletion of expired rooms with cascading participant/message cleanup. Edge Function deployed but requires external scheduler setup (pg_cron, Vercel Cron, or GitHub Actions). Phase 3 now 67% complete (2 of 3 plans, plan 03-02 skipped).
+Completed plan 03-02: Room Controls. Added Storyteller lobby management controls: kick players (soft delete via is_active=false), edit names (modal with validation), select script (None only for v1), and start game (disabled until 2+ participants). Implemented real-time kicked player detection via postgres_changes subscription on participant.is_active field - kicked players immediately receive notification and redirect to home. Added room status tracking to useParticipants hook via postgres_changes on rooms table. RoomPage now conditionally renders lobby/active/ended views based on roomStatus. When Storyteller clicks Start Game, all participants transition from lobby to active game view (placeholder for Phase 4 messaging). Player waiting indicator replaced with game status text. Phase 3 now 100% complete (all 3 plans executed).
 
 ### Next Session Entry Point
 
-Phase 3 nearly complete. Consider executing remaining Phase 3 plan if exists, or proceed to Phase 4: Core Messaging.
+Phase 3 complete. Proceed to Phase 4: Core Messaging to implement actual game messaging interface.
 
 ### Context to Preserve
 
@@ -155,11 +163,16 @@ Phase 3 nearly complete. Consider executing remaining Phase 3 plan if exists, or
 - QR code generation uses qrcode library with gothic theme colors (crimson/dark.9)
 - Join URL format: ${origin}/join?code=XXXX for pre-filled room code
 - Edge Function cleanup requires external scheduler (not auto-scheduled)
+- Kicked participants: soft delete (is_active=false), real-time detection via postgres_changes
+- Room status tracking: useParticipants hook subscribes to rooms table for status updates
+- Status-driven UI: RoomPage conditionally renders lobby/active/ended views based on roomStatus
+- Start Game validation: button disabled until 2+ participants (Storyteller + at least 1 player)
+- Edit modal pattern: local state → validation (2-20 chars) → update → notification → close
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 03-03-PLAN.md completed 2026-01-20*
+*Last execution: 03-02-PLAN.md completed 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-20 (all 3 plans: 02-01, 02-02, 02-03)*
-*Phase 3 in progress: 2/3 plans complete (03-01, 03-03; 03-02 skipped)*
+*Phase 3 complete: 2026-01-20 (all 3 plans: 03-01, 03-02, 03-03)*
