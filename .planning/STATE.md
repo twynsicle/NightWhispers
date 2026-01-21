@@ -18,9 +18,9 @@
 ## Current Position
 
 **Phase:** 6 of 6 (Polish & PWA) - COMPLETE
-**Plan:** 5 of 5 in phase (all complete)
+**Plan:** 6 of 6 in phase (all complete, including gap closure)
 **Status:** Complete
-**Last activity:** 2026-01-20 - Completed 06-04-PLAN.md (Push Notifications)
+**Last activity:** 2026-01-20 - Completed 06-06-PLAN.md (Push Notification Sending Gap Closure)
 
 **Progress:**
 ```
@@ -29,9 +29,9 @@ Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [██████████] 100% (4/4 plans)
-Phase 6: Polish & PWA       [██████████] 100% (5/5 plans)
+Phase 6: Polish & PWA       [██████████] 100% (6/6 plans, +1 gap closure)
 
-Overall: 21/21 plans complete (100% of planned work)
+Overall: 22/22 plans complete (100% of planned work + gap closure)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 21/21 plans complete (100% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 21 |
+| Plans Completed | 22 (21 + 1 gap closure) |
 | Requirements Delivered | 37/43 |
 | Phases Completed | 6/6 |
-| Session Count | 14 |
+| Session Count | 15 |
 
 ---
 
@@ -125,6 +125,8 @@ Overall: 21/21 plans complete (100% of planned work)
 | injectManifest strategy for VitePWA | Required for custom service worker with push event handling | 06-04 |
 | Per-participant push subscriptions | Subscription tied to participant_id for room-scoped notifications | 06-04 |
 | iOS PWA detection for push guidance | Show "Add to Home Screen" instructions when push unavailable | 06-04 |
+| Server-side subscription lookup for push | Edge Function queries subscriptions with service_role (bypasses RLS) | 06-06 |
+| Fire-and-forget push delivery | Push is async, does not block message return for instant UX | 06-06 |
 
 ### Architecture Notes
 
@@ -186,6 +188,7 @@ Overall: 21/21 plans complete (100% of planned work)
 - [x] Execute 06-01-PLAN.md (PWA Installability)
 - [x] Execute 06-03-PLAN.md (Player Card Drag-and-Drop)
 - [x] Execute 06-04-PLAN.md (Push Notifications)
+- [x] Execute 06-06-PLAN.md (Push Notification Sending Gap Closure)
 
 ### Blockers
 
@@ -203,11 +206,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 06-04: Push Notifications. Created push_subscriptions database table with RLS policies. Implemented send-push Edge Function using @negrel/webpush library for VAPID-signed push delivery. Created usePushNotifications hook for subscription state management (unsupported/prompt/subscribed/denied/pwa-required). Built PushNotificationPrompt component with iOS PWA installation guidance. Custom service worker (src/sw.ts) handles push events and notification clicks. Integrated with RoomPage to show notification prompt on game start. User verified push notifications working after VAPID key configuration and Edge Function deployment.
+Executed plan 06-06: Push Notification Sending Gap Closure. Enhanced send-push Edge Function with server-side subscription lookup using service_role key to bypass RLS (recipientId for 1-to-1, roomId for broadcast). Added sendPushToRecipient and sendPushToRoom client wrappers. Wired push delivery into sendMessage function with fire-and-forget pattern. This closes the gap identified in 06-VERIFICATION.md where push infrastructure existed but was never called.
 
 ### Next Session Entry Point
 
-PROJECT COMPLETE. All 6 phases delivered. Ready for production deployment and testing.
+PROJECT COMPLETE. All 6 phases delivered plus gap closure. Ready for production deployment and testing. Edge Function needs redeployment: `npx supabase functions deploy send-push --no-verify-jwt`
 
 ### Context to Preserve
 
@@ -299,6 +302,10 @@ PROJECT COMPLETE. All 6 phases delivered. Ready for production deployment and te
 - Custom service worker (src/sw.ts): push event -> showNotification, notificationclick -> openWindow
 - Edge Function (send-push): @negrel/webpush for VAPID-signed push delivery
 - Push payload: { title, body, tag, url, roomId } for notification content and click handling
+- **Push sending:** sendPushToRecipient (1-to-1) and sendPushToRoom (broadcast) in message-helpers.ts
+- Server-side subscription lookup: Edge Function uses service_role to bypass RLS, queries push_subscriptions
+- Fire-and-forget pattern: Push delivery async with .catch(), does not block message return
+- Content truncation: Push body limited to 100 chars for mobile lockscreen readability
 
 ---
 
@@ -309,5 +316,6 @@ PROJECT COMPLETE. All 6 phases delivered. Ready for production deployment and te
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
 *Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
-*Phase 6 complete: 2026-01-20 (all 5 plans: 06-01, 06-02, 06-03, 06-04, 06-05)*
-*PROJECT COMPLETE: 2026-01-20 - All 21 plans across 6 phases delivered*
+*Phase 6 complete: 2026-01-20 (all 6 plans: 06-01, 06-02, 06-03, 06-04, 06-05, 06-06-gap-closure)*
+*Last execution: 06-06 complete 2026-01-20*
+*PROJECT COMPLETE: 2026-01-20 - All 22 plans across 6 phases delivered (including gap closure)*
