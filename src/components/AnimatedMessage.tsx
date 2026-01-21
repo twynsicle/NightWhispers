@@ -43,7 +43,10 @@ export function AnimatedMessage({
       transition="slide-up"
       duration={ANIMATION_DURATION_MS}
       timingFunction="ease-out"
-      enterDelay={Math.min(index * ANIMATION_STAGGER_MS, ANIMATION_MAX_DELAY_MS)}
+      enterDelay={Math.min(
+        index * ANIMATION_STAGGER_MS,
+        ANIMATION_MAX_DELAY_MS
+      )}
     >
       {styles => <div style={styles}>{children}</div>}
     </Transition>
