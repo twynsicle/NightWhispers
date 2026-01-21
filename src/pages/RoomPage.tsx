@@ -338,8 +338,8 @@ export function RoomPage() {
           <>
             {/* ACTIVE GAME VIEW - Phase Header + Messaging Interface */}
 
-            {/* Push Notification Prompt - shown on game start */}
-            {showPushPrompt && (
+            {/* Push Notification Prompt - shown on game start (Storyteller only - Player gets it inside PlayerChatView) */}
+            {showPushPrompt && isStoryteller && (
               <PushNotificationPrompt
                 participantId={participantId}
                 onDismiss={() => setShowPushPrompt(false)}
@@ -382,6 +382,8 @@ export function RoomPage() {
                     storytellerName={storyteller.display_name}
                     participants={participants}
                     roomCode={participant.rooms.code}
+                    showPushPrompt={showPushPrompt}
+                    onDismissPushPrompt={() => setShowPushPrompt(false)}
                   />
                 )
               })()

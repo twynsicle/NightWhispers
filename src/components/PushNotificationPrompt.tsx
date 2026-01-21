@@ -90,6 +90,23 @@ export function PushNotificationPrompt({
     )
   }
 
+  if (state === 'sw-unavailable') {
+    return (
+      <Alert
+        icon={<IconBellOff size={16} />}
+        color="yellow"
+        variant="light"
+        withCloseButton
+        onClose={onDismiss}
+      >
+        <Text size="sm">
+          Push notifications are not available in development mode. Build and
+          serve the production app to enable notifications.
+        </Text>
+      </Alert>
+    )
+  }
+
   // state === 'prompt'
   return (
     <Alert icon={<IconBell size={16} />} color="crimson" variant="light">

@@ -16,6 +16,27 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 /**
+ * Wait for service worker with timeout.
+ * Returns registration or null if timeout/not available.
+ */
+async function waitForServiceWorker(
+  timeoutMs: number = 5000
+): Promise<ServiceWorkerRegistration | null> {
+  // Check if any service worker is registered
+  const registrations = await navigator.serviceWorker.getRegistrations()
+  if (registrations.length === 0) {
+    console.log('No service worker registered')
+    return null
+  }
+
+  // Race against timeout
+  return Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise<null>(resolve => setTimeout(() => resolve(null), timeoutMs)),
+  ])
+}
+
+/**
  * Subscribe to push notifications.
  * Returns the subscription or null if failed.
  */
@@ -35,8 +56,12 @@ export async function subscribeToPush(
     return null
   }
 
-  // Get service worker registration
-  const registration = await navigator.serviceWorker.ready
+  // Get service worker registration with timeout
+  const registration = await waitForServiceWorker()
+  if (!registration) {
+    console.log('Service worker not ready (may not be registered in dev mode)')
+    return null
+  }
 
   // Subscribe to push
   const subscription = await registration.pushManager.subscribe({

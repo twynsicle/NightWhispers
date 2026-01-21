@@ -19,6 +19,7 @@ export type PushState =
   | 'subscribed' // Subscribed to push
   | 'denied' // User denied permission
   | 'pwa-required' // iOS: need to install PWA first
+  | 'sw-unavailable' // Service worker not registered (dev mode)
 
 interface UsePushNotificationsResult {
   state: PushState
@@ -70,12 +71,31 @@ export function usePushNotifications(
         return
       }
 
+      // Check if service worker is registered (may not be in dev mode)
+      const registrations = await navigator.serviceWorker.getRegistrations()
+      if (registrations.length === 0) {
+        setState('sw-unavailable')
+        setIsLoading(false)
+        return
+      }
+
       // Check if already subscribed
       if (permission === 'granted') {
-        const registration = await navigator.serviceWorker.ready
-        const subscription = await registration.pushManager.getSubscription()
-        if (subscription) {
-          setState('subscribed')
+        // Use timeout to avoid hanging if SW isn't ready
+        const registration = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
+        ])
+
+        if (registration) {
+          const subscription = await registration.pushManager.getSubscription()
+          if (subscription) {
+            setState('subscribed')
+            setIsLoading(false)
+            return
+          }
+        } else {
+          setState('sw-unavailable')
           setIsLoading(false)
           return
         }
@@ -100,8 +120,14 @@ export function usePushNotifications(
     try {
       const subscription = await subscribeToPush(VAPID_PUBLIC_KEY)
       if (!subscription) {
-        // Permission was denied
-        setState('denied')
+        // Check if permission was denied or SW unavailable
+        const permission = getNotificationPermission()
+        if (permission === 'denied') {
+          setState('denied')
+        } else {
+          // Permission granted but SW not available (dev mode)
+          setState('sw-unavailable')
+        }
         return false
       }
 

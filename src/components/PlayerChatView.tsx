@@ -6,6 +6,7 @@ import { useTypingIndicator } from '../hooks/useTypingIndicator'
 import { MessageList } from './MessageList'
 import { MessageInput } from './MessageInput'
 import { PlayerSettingsMenu } from './PlayerSettingsMenu'
+import { PushNotificationPrompt } from './PushNotificationPrompt'
 
 interface PlayerChatViewProps {
   roomId: string
@@ -14,6 +15,8 @@ interface PlayerChatViewProps {
   storytellerName: string
   participants: Array<{ id: string; display_name: string }>
   roomCode: string
+  showPushPrompt: boolean
+  onDismissPushPrompt: () => void
 }
 
 /**
@@ -45,6 +48,8 @@ export function PlayerChatView({
   storytellerName,
   participants,
   roomCode,
+  showPushPrompt,
+  onDismissPushPrompt,
 }: PlayerChatViewProps) {
   const [settingsOpened, setSettingsOpened] = useState(false)
 
@@ -114,6 +119,16 @@ export function PlayerChatView({
           <IconSettings size={22} />
         </ActionIcon>
       </Group>
+
+      {/* Push Notification Prompt */}
+      {showPushPrompt && (
+        <Box px="md" pt="sm">
+          <PushNotificationPrompt
+            participantId={participantId}
+            onDismiss={onDismissPushPrompt}
+          />
+        </Box>
+      )}
 
       {/* Message List */}
       <Box style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
