@@ -1,30 +1,26 @@
-# Roadmap: Night Whispers
+# Milestone v1: MVP
 
-**Created:** 2026-01-19
-**Depth:** Standard (6 phases)
-**Coverage:** 43/43 v1 requirements mapped
-
----
+**Status:** SHIPPED 2026-01-20
+**Phases:** 1-6
+**Total Plans:** 22
 
 ## Overview
 
 Night Whispers delivers asymmetric real-time messaging for social deduction games. The roadmap builds from infrastructure through core messaging to polish, with each phase delivering a verifiable capability. Foundation and session management enable room participation, messaging delivers the core value, and polish adds push notifications and desktop optimization.
 
----
+## Phases
 
-## Phase 1: Foundation
+### Phase 1: Foundation
 
 **Goal:** Project infrastructure exists and Supabase backend is ready for development.
-
-**Dependencies:** None
-
-**Requirements:** None (infrastructure phase)
-
+**Depends on:** None
 **Plans:** 2 plans
 
 Plans:
 - [x] 01-01-PLAN.md - Initialize React 19 + Vite 7 + TypeScript project with Mantine and dependencies
 - [x] 01-02-PLAN.md - Create Supabase schema, RLS policies, and verify client connectivity
+
+**Requirements:** None (infrastructure phase)
 
 **Success Criteria:**
 1. Developer can run `npm run dev` and see the app at localhost
@@ -34,11 +30,16 @@ Plans:
 
 ---
 
-## Phase 2: Session & Room Entry
+### Phase 2: Session & Room Entry
 
 **Goal:** Users can create/join rooms with display names and avatars, persisting across browser refreshes.
+**Depends on:** Phase 1 (Foundation)
+**Plans:** 3 plans
 
-**Dependencies:** Phase 1 (Foundation)
+Plans:
+- [x] 02-01-PLAN.md - Session management infrastructure (auth hook, room utilities)
+- [x] 02-02-PLAN.md - User interface and routing (pages, components, React Router)
+- [x] 02-03-PLAN.md - Room integration and verification (auto-rejoin, error handling)
 
 **Requirements:**
 - SESS-01: User can set display name before joining game
@@ -52,13 +53,6 @@ Plans:
 - UX-01: Gothic visual theme (dark background, crimson/gold accents)
 - UX-02: Mobile-first responsive design
 
-**Plans:** 3 plans
-
-Plans:
-- [x] 02-01-PLAN.md - Session management infrastructure (auth hook, room utilities)
-- [x] 02-02-PLAN.md - User interface and routing (pages, components, React Router)
-- [x] 02-03-PLAN.md - Room integration and verification (auto-rejoin, error handling)
-
 **Success Criteria:**
 1. Storyteller can create room, see 4-letter code, and share it verbally
 2. Player can enter code, set name/avatar, and appear in room
@@ -68,11 +62,16 @@ Plans:
 
 ---
 
-## Phase 3: Lobby & Room Management
+### Phase 3: Lobby & Room Management
 
 **Goal:** Storyteller can manage the lobby and start the game when ready.
+**Depends on:** Phase 2 (Session & Room Entry)
+**Plans:** 3 plans
 
-**Dependencies:** Phase 2 (Session & Room Entry)
+Plans:
+- [x] 03-01-PLAN.md - Real-time lobby foundation (participant list with Postgres Changes)
+- [x] 03-02-PLAN.md - Storyteller controls (kick, edit, start game)
+- [x] 03-03-PLAN.md - QR code & room cleanup (sharing and auto-deletion)
 
 **Requirements:**
 - LOBBY-01: Storyteller can select script (None only for v1)
@@ -84,13 +83,6 @@ Plans:
 - ROOM-05: Storyteller can kick a player from the room
 - GAME-01: Storyteller can start game from lobby
 
-**Plans:** 3 plans
-
-Plans:
-- [x] 03-01-PLAN.md - Real-time lobby foundation (participant list with Postgres Changes)
-- [x] 03-02-PLAN.md - Storyteller controls (kick, edit, start game)
-- [x] 03-03-PLAN.md - QR code & room cleanup (sharing and auto-deletion)
-
 **Success Criteria:**
 1. Player in lobby sees other players who have joined (real-time updates)
 2. Storyteller can kick a player, who immediately sees removal and returns to home
@@ -100,11 +92,17 @@ Plans:
 
 ---
 
-## Phase 4: Core Messaging
+### Phase 4: Core Messaging
 
 **Goal:** Storyteller and players can exchange private messages in real-time.
+**Depends on:** Phase 3 (Lobby & Room Management)
+**Plans:** 4 plans
 
-**Dependencies:** Phase 3 (Lobby & Room Management)
+Plans:
+- [x] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
+- [x] 04-02-PLAN.md - Player and Storyteller messaging views
+- [x] 04-03-PLAN.md - Typing indicators and unread tracking
+- [x] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
 
 **Requirements:**
 - MSG-01: Storyteller can send message to individual player
@@ -115,14 +113,6 @@ Plans:
 - MSG-06: Messages persist across reconnection (not lost on refresh)
 - MSG-07: Typing indicator shows when other party is typing
 
-**Plans:** 4 plans
-
-Plans:
-- [x] 04-01-PLAN.md - Message infrastructure (Broadcast + persistence, useMessages hook)
-- [x] 04-02-PLAN.md - Player and Storyteller messaging views
-- [x] 04-03-PLAN.md - Typing indicators and unread tracking
-- [x] 04-04-PLAN.md - Fix broadcast message filtering bug (gap closure)
-
 **Success Criteria:**
 1. Storyteller sends message to player; player sees it within 1 second
 2. Player replies to Storyteller; Storyteller sees it within 1 second
@@ -132,11 +122,17 @@ Plans:
 
 ---
 
-## Phase 5: Game State & Views
+### Phase 5: Game State & Views
 
 **Goal:** Storyteller can manage game state while players see their private view with phase info.
+**Depends on:** Phase 4 (Core Messaging)
+**Plans:** 4 plans
 
-**Dependencies:** Phase 4 (Core Messaging)
+Plans:
+- [x] 05-01-PLAN.md - Phase management (display and advance phase)
+- [x] 05-02-PLAN.md - Player status management (death toggle and custom status)
+- [x] 05-03-PLAN.md - Game reset functionality
+- [x] 05-04-PLAN.md - Player settings menu (leave game and room code access)
 
 **Requirements:**
 - GAME-02: Current phase displays to all participants (Night 1, Day 1, etc.)
@@ -152,14 +148,6 @@ Plans:
 - DASH-02: Tapping player card expands to show recent messages + quick send
 - DASH-03: Storyteller can open full chat view with player
 
-**Plans:** 4 plans
-
-Plans:
-- [x] 05-01-PLAN.md - Phase management (display and advance phase)
-- [x] 05-02-PLAN.md - Player status management (death toggle and custom status)
-- [x] 05-03-PLAN.md - Game reset functionality
-- [x] 05-04-PLAN.md - Player settings menu (leave game and room code access)
-
 **Success Criteria:**
 1. Storyteller advances to "Night 2"; all players see phase update in header
 2. Storyteller marks player dead; player's avatar greys out for everyone
@@ -169,11 +157,19 @@ Plans:
 
 ---
 
-## Phase 6: Polish & PWA
+### Phase 6: Polish & PWA
 
 **Goal:** App is installable as PWA, desktop-optimized for Storyteller, with push notifications.
+**Depends on:** Phase 5 (Game State & Views)
+**Plans:** 6 plans
 
-**Dependencies:** Phase 5 (Game State & Views)
+Plans:
+- [x] 06-01-PLAN.md - PWA configuration (manifest, icons, service worker)
+- [x] 06-02-PLAN.md - Desktop split-panel layout for Storyteller
+- [x] 06-03-PLAN.md - Drag-and-drop player card reordering
+- [x] 06-04-PLAN.md - Push notifications infrastructure and UI
+- [x] 06-05-PLAN.md - Smooth animations (messages, phase, cards)
+- [x] 06-06-PLAN.md - Wire push notification sending (gap closure)
 
 **Requirements:**
 - DASH-04: Desktop shows split-panel (player list + chat)
@@ -185,16 +181,6 @@ Plans:
 - PUSH-02: User receives push notification when new message arrives (app backgrounded)
 - PUSH-03: Notification tap opens app to relevant chat
 
-**Plans:** 6 plans
-
-Plans:
-- [x] 06-01-PLAN.md - PWA configuration (manifest, icons, service worker)
-- [x] 06-02-PLAN.md - Desktop split-panel layout for Storyteller
-- [x] 06-03-PLAN.md - Drag-and-drop player card reordering
-- [x] 06-04-PLAN.md - Push notifications infrastructure and UI
-- [x] 06-05-PLAN.md - Smooth animations (messages, phase, cards)
-- [x] 06-06-PLAN.md - Wire push notification sending (gap closure)
-
 **Success Criteria:**
 1. User on mobile can install app to home screen via browser prompt
 2. User with app backgrounded receives push notification for new message
@@ -204,33 +190,31 @@ Plans:
 
 ---
 
-## Progress
+## Milestone Summary
 
-| Phase | Status | Requirements | Completion |
-|-------|--------|--------------|------------|
-| 1 - Foundation | Complete | 0 | 100% |
-| 2 - Session & Room Entry | Complete | 10 | 100% |
-| 3 - Lobby & Room Management | Complete | 8 | 100% |
-| 4 - Core Messaging | Complete | 7 | 100% |
-| 5 - Game State & Views | Complete | 12 | 100% |
-| 6 - Polish & PWA | Complete | 8 | 100% |
+**Key Decisions:**
+- Supabase for backend (Realtime built-in, Edge Functions, no server management)
+- Session tokens over accounts (ephemeral games don't need persistent identity)
+- No player-to-player chat (core mechanic requires Storyteller as sole hub)
+- Mantine UI (good defaults, customizable for gothic theme)
+- 4-letter room codes (easy verbal sharing, low collision risk)
+- Anonymous auth (zero friction for game night)
+- Dual-write messaging pattern (DB persistence + Broadcast for speed)
+- VAPID push notifications via Edge Functions
 
-**Overall:** 43/43 requirements complete (100%)
+**Issues Resolved:**
+- Broadcast message filtering bug (04-04 gap closure)
+- Push notification wiring (06-06 gap closure)
 
----
+**Issues Deferred:**
+- Role assignment UI (v2)
+- Message templates (v2)
+- Trouble Brewing script support (v2)
 
-## Research Flags
-
-| Phase | Research Needed | Reason |
-|-------|-----------------|--------|
-| Phase 1 | SKIP | Standard Supabase setup patterns |
-| Phase 2 | MAYBE | Mobile reconnection edge cases |
-| Phase 3 | SKIP | Standard CRUD patterns |
-| Phase 4 | YES | Race conditions, message ordering, broadcast patterns |
-| Phase 5 | SKIP | RLS patterns from Phase 1 apply |
-| Phase 6 | YES (complete) | iOS PWA push notifications, caching strategies |
+**Technical Debt:**
+- Missing formal VERIFICATION.md for phases 2 and 5 (summaries confirm completion)
 
 ---
 
-*Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 6 complete, milestone complete)*
+*For current project status, see .planning/ROADMAP.md*
+*Archived: 2026-01-20*

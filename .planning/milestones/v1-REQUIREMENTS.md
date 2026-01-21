@@ -1,4 +1,14 @@
-# Requirements: Night Whispers
+# Requirements Archive: v1 MVP
+
+**Archived:** 2026-01-20
+**Status:** SHIPPED
+
+This is the archived requirements specification for v1.
+For current requirements, see `.planning/REQUIREMENTS.md` (created for next milestone).
+
+---
+
+# Requirements: Night Whispers v1
 
 **Defined:** 2026-01-19
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller—no player-to-player communication
@@ -77,24 +87,6 @@
 - [x] **LOBBY-03**: Storyteller can edit player names
 - [x] **LOBBY-04**: Players see waiting indicator until game starts
 
-## v2 Requirements
-
-### Role Assignment
-
-- **ROLE-01**: Storyteller can assign role to player (private reference)
-- **ROLE-02**: Role displays on player card (Storyteller-only)
-- **ROLE-03**: Role dropdown shows roles from selected script
-
-### Message Templates
-
-- **TMPL-01**: Storyteller can access message templates for selected script
-- **TMPL-02**: Templates grouped by role/situation
-- **TMPL-03**: Tap template to insert into message field (editable before send)
-
-### Scripts
-
-- **SCRIPT-01**: Trouble Brewing script with full role list and templates
-
 ## Out of Scope
 
 | Feature | Reason |
@@ -157,11 +149,13 @@
 | LOBBY-03 | Phase 3 | Complete |
 | LOBBY-04 | Phase 3 | Complete |
 
-**Coverage:**
-- v1 requirements: 43 total
-- Mapped to phases: 43
-- Unmapped: 0
+---
+
+## Milestone Summary
+
+**Shipped:** 43 of 43 v1 requirements (100%)
+**Adjusted:** None
+**Dropped:** None
 
 ---
-*Requirements defined: 2026-01-19*
-*Last updated: 2026-01-20 (all 43 v1 requirements complete)*
+*Archived: 2026-01-20 as part of v1 milestone completion*
