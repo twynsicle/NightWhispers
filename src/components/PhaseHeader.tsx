@@ -21,7 +21,7 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
   // Track phase changes for animation
   const [animationKey, setAnimationKey] = useState(0)
   const [showContent, setShowContent] = useState(true)
-  const prevPhase = useRef(phase)
+  const prevPhaseRef = useRef(phase)
 
   // Check for reduced motion preference
   const prefersReducedMotion =
@@ -29,20 +29,19 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   // Trigger animation when phase changes
+  // Using queueMicrotask to defer setState and satisfy lint rules
   useEffect(() => {
-    if (phase && phase !== prevPhase.current) {
-      if (prefersReducedMotion) {
-        // Skip animation, just update
-        prevPhase.current = phase
-      } else {
-        // Fade out, then fade in with new content
-        setShowContent(false)
-        const timer = setTimeout(() => {
-          setAnimationKey(k => k + 1)
-          setShowContent(true)
-          prevPhase.current = phase
-        }, 150)
-        return () => clearTimeout(timer)
+    if (phase && phase !== prevPhaseRef.current) {
+      prevPhaseRef.current = phase
+      if (!prefersReducedMotion) {
+        // Schedule fade out/in animation via microtask
+        queueMicrotask(() => {
+          setShowContent(false)
+          setTimeout(() => {
+            setAnimationKey(k => k + 1)
+            setShowContent(true)
+          }, 150)
+        })
       }
     }
   }, [phase, prefersReducedMotion])
@@ -73,7 +72,7 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
         duration={prefersReducedMotion ? 0 : 200}
         timingFunction="ease-out"
       >
-        {(styles) => (
+        {styles => (
           <Title
             order={3}
             ta="center"

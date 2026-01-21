@@ -70,9 +70,8 @@ export async function sendMessage(
 
   // 3. Send push notification to recipient(s)
   // Fire-and-forget - don't block message return on push delivery
-  const truncatedContent = content.length > 100
-    ? content.substring(0, 97) + '...'
-    : content
+  const truncatedContent =
+    content.length > 100 ? content.substring(0, 97) + '...' : content
 
   if (recipientId) {
     // 1-to-1 message: send to specific recipient

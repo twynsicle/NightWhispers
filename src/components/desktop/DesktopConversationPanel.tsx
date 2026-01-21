@@ -45,7 +45,10 @@ export function DesktopConversationPanel({
   )
 
   // Typing indicator
-  const { setIsTyping, typingUsers } = useTypingIndicator(channel, participantId)
+  const { setIsTyping, typingUsers } = useTypingIndicator(
+    channel,
+    participantId
+  )
 
   // Filter typing users to only show the recipient
   const recipientTyping = recipientId

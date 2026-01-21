@@ -1,5 +1,4 @@
 import { Transition } from '@mantine/core'
-import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 interface AnimatedMessageProps {
@@ -22,32 +21,26 @@ export function AnimatedMessage({
   index,
   isNew = false,
 }: AnimatedMessageProps) {
-  const [mounted, setMounted] = useState(false)
-
   // Check for reduced motion preference
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-  // Trigger mount animation on initial render
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Skip animation if not new or reduced motion preferred
   if (!isNew || prefersReducedMotion) {
     return <>{children}</>
   }
 
+  // Mantine Transition handles enter animation automatically when mounted=true
   return (
     <Transition
-      mounted={mounted}
+      mounted={true}
       transition="slide-up"
       duration={200}
       timingFunction="ease-out"
       enterDelay={Math.min(index * 30, 150)} // Stagger with max delay
     >
-      {(styles) => <div style={styles}>{children}</div>}
+      {styles => <div style={styles}>{children}</div>}
     </Transition>
   )
 }

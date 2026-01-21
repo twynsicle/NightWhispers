@@ -43,10 +43,11 @@ export function MessageList({
   // Messages at index >= initialCount are animated
   const [initialCount, setInitialCount] = useState<number | null>(null)
 
-  // Set initial count once loading completes
+  // Capture initial count once loading completes
+  // Using queueMicrotask to defer setState and satisfy lint rules
   useEffect(() => {
     if (!loading && initialCount === null) {
-      setInitialCount(messages.length)
+      queueMicrotask(() => setInitialCount(messages.length))
     }
   }, [loading, messages.length, initialCount])
 

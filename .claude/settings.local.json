@@ -37,7 +37,8 @@
       "Bash(npm install:*)",
       "Bash(npm run type-check:*)",
       "Bash(npm run format:check:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Skill(gsd:complete-milestone)"
     ]
   },
   "hooks": {

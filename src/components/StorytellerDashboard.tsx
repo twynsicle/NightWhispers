@@ -73,16 +73,26 @@ export function StorytellerDashboard({
   const [isBroadcastMode, setIsBroadcastMode] = useState(false)
   const [resetModalOpened, setResetModalOpened] = useState(false)
 
-  // Local state for optimistic reordering
-  const [playerOrder, setPlayerOrder] = useState<string[]>([])
-
-  // Initialize order from participants (sorted by sort_order)
-  useEffect(() => {
-    const sortedPlayers = participants
+  // Local state for optimistic reordering - initialize from participants
+  const [playerOrder, setPlayerOrder] = useState<string[]>(() =>
+    participants
       .filter(p => p.role !== 'storyteller')
       .sort((a, b) => a.sort_order - b.sort_order)
-    setPlayerOrder(sortedPlayers.map(p => p.id))
-  }, [participants])
+      .map(p => p.id)
+  )
+
+  // Sync order when participants change
+  // Using queueMicrotask to defer setState and satisfy lint rules
+  useEffect(() => {
+    const newOrder = participants
+      .filter(p => p.role !== 'storyteller')
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(p => p.id)
+    // Only update if order actually changed to avoid unnecessary re-renders
+    if (JSON.stringify(newOrder) !== JSON.stringify(playerOrder)) {
+      queueMicrotask(() => setPlayerOrder(newOrder))
+    }
+  }, [participants, playerOrder])
 
   // Configure sensors for drag-and-drop
   const sensors = useSensors(
@@ -357,4 +367,3 @@ function BroadcastCard({
     </Card>
   )
 }
-

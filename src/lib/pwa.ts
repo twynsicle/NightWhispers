@@ -47,7 +47,9 @@ export function areNotificationsSupported(): boolean {
 /**
  * Get current notification permission state.
  */
-export function getNotificationPermission(): NotificationPermission | 'unsupported' {
+export function getNotificationPermission():
+  | NotificationPermission
+  | 'unsupported' {
   if (!areNotificationsSupported()) {
     return 'unsupported'
   }
