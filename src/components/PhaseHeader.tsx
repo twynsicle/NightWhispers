@@ -1,6 +1,10 @@
 import { Box, Skeleton, Text, Title, Transition } from '@mantine/core'
 import { usePhase } from '../hooks/usePhase'
 import { useState, useEffect, useRef } from 'react'
+import {
+  ANIMATION_DURATION_MS,
+  PHASE_TRANSITION_DELAY_MS,
+} from '../lib/constants'
 
 interface PhaseHeaderProps {
   roomId: string
@@ -40,7 +44,7 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
           setTimeout(() => {
             setAnimationKey(k => k + 1)
             setShowContent(true)
-          }, 150)
+          }, PHASE_TRANSITION_DELAY_MS)
         })
       }
     }
@@ -69,7 +73,7 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
         key={animationKey}
         mounted={showContent && !loading}
         transition="fade"
-        duration={prefersReducedMotion ? 0 : 200}
+        duration={prefersReducedMotion ? 0 : ANIMATION_DURATION_MS}
         timingFunction="ease-out"
       >
         {styles => (

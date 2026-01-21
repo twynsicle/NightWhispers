@@ -9,6 +9,7 @@ import {
   savePushSubscription,
   removePushSubscription,
 } from '../lib/push-subscription'
+import { SERVICE_WORKER_CHECK_TIMEOUT_MS } from '../lib/constants'
 
 // VAPID public key - this is safe to expose client-side
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || ''
@@ -50,6 +51,13 @@ export function usePushNotifications(
     async function checkState() {
       setIsLoading(true)
 
+      // Check if VAPID key is configured
+      if (!VAPID_PUBLIC_KEY) {
+        setState('unsupported')
+        setIsLoading(false)
+        return
+      }
+
       // Check if push is available
       if (!canSubscribeToPush()) {
         // On iOS, check if PWA installation is needed
@@ -84,7 +92,9 @@ export function usePushNotifications(
         // Use timeout to avoid hanging if SW isn't ready
         const registration = await Promise.race([
           navigator.serviceWorker.ready,
-          new Promise<null>(resolve => setTimeout(() => resolve(null), 3000)),
+          new Promise<null>(resolve =>
+            setTimeout(() => resolve(null), SERVICE_WORKER_CHECK_TIMEOUT_MS)
+          ),
         ])
 
         if (registration) {
@@ -106,7 +116,7 @@ export function usePushNotifications(
     }
 
     checkState()
-  }, [isPWA])
+  }, [isPWA, participantId])
 
   // Subscribe to push notifications
   const subscribe = useCallback(async (): Promise<boolean> => {

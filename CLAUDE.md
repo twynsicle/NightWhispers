@@ -121,7 +121,8 @@ Always use context7 when you need code generation, setup or configuration steps,
 ## Code Quality Guidelines
 
 ### React Hooks & Effects
-- **useEffect Dependencies:** Only include values that should trigger re-runs. Avoid including state variables that are updated inside the effect callback (causes race conditions).
+- **useEffect Dependencies:** Include ALL values that should trigger re-runs, especially props like `participantId` that could change without component unmount. If the effect needs to re-check state when an ID changes, that ID must be in the dependency array.
+- **Avoid Stale Closures:** When performing operations that may fail and need rollback, capture state values BEFORE making optimistic updates. The state variable in the catch block will reference the closure value, not the current state.
 - **Memory Leak Prevention:** For async operations in useEffect, always use a cleanup flag (`isMounted`) to prevent state updates after unmount.
 - **Subscription Management:** When creating Supabase channels/subscriptions in useEffect, ensure cleanup runs `supabase.removeChannel(channel)`.
 
@@ -130,11 +131,40 @@ Always use context7 when you need code generation, setup or configuration steps,
 - **Regenerate Supabase Types:** If relations/joins return unexpected types, regenerate types instead of forcing casts.
 
 ### Constants & Magic Values
-- **Extract Constants:** Never hardcode the same value in multiple places. Create constants in `src/lib/constants.ts` for:
+- **Extract ALL Magic Numbers:** Never hardcode numeric values directly in components or functions. Create constants in `src/lib/constants.ts` for:
   - Validation limits (max lengths, min lengths)
   - Initial/default values (initial phase, default status)
   - Regex patterns used in multiple places
+  - **Animation durations and delays** (e.g., `ANIMATION_DURATION_MS`, `ANIMATION_STAGGER_MS`)
+  - **Timeouts** (e.g., `SERVICE_WORKER_READY_TIMEOUT_MS`)
+  - **UI thresholds** (e.g., drag activation distance, debounce delays)
 - **Use Constants Consistently:** Import and use constants everywhere they apply.
+- **Prefer Emoji Literals:** Use emoji characters directly (`💬`, `📢`, `💀`) instead of Unicode escape sequences (`'\u{1F4AC}'`). Emoji literals are more readable and the project already uses them for gothic emoji avatars.
+
+### Optimistic UI Updates
+- **Capture State Before Updates:** When implementing optimistic updates with rollback, ALWAYS capture the current state before applying the optimistic change:
+  ```typescript
+  // CORRECT: Capture before optimistic update
+  const oldOrder = playerOrder
+  setPlayerOrder(newOrder)
+  try {
+    await persistChange(newOrder)
+  } catch {
+    setPlayerOrder(oldOrder) // Rollback works
+  }
+
+  // WRONG: State reference is stale in catch block
+  setPlayerOrder(newOrder)
+  try {
+    await persistChange(newOrder)
+  } catch {
+    setPlayerOrder(playerOrder) // BUG: playerOrder is the NEW value due to closure
+  }
+  ```
+
+### Environment Variables
+- **Validate Early:** Check for required environment variables at the top of functions/hooks that need them. Don't let operations proceed with missing config.
+- **Set Appropriate State:** If a feature requires config that's missing (e.g., VAPID key for push), set state to 'unsupported' early rather than failing later.
 
 ### Error Handling
 - **Single Source of Truth:** Error notifications should be shown in ONE place (either hook or component, not both).
@@ -166,4 +196,4 @@ Always use context7 when you need code generation, setup or configuration steps,
 - Persistent game history (rooms expire after 1 hour)
 
 ---
-*Last updated: 2026-01-19 - Phase 2 complete*
+*Last updated: 2026-01-21 - Added optimistic UI, env var validation, and magic number guidelines*

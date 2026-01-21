@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { SERVICE_WORKER_READY_TIMEOUT_MS } from './constants'
 
 /**
  * Convert VAPID public key from base64 URL to Uint8Array.
@@ -20,7 +21,7 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
  * Returns registration or null if timeout/not available.
  */
 async function waitForServiceWorker(
-  timeoutMs: number = 5000
+  timeoutMs: number = SERVICE_WORKER_READY_TIMEOUT_MS
 ): Promise<ServiceWorkerRegistration | null> {
   // Check if any service worker is registered
   const registrations = await navigator.serviceWorker.getRegistrations()

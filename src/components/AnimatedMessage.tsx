@@ -1,5 +1,10 @@
 import { Transition } from '@mantine/core'
 import type { ReactNode } from 'react'
+import {
+  ANIMATION_DURATION_MS,
+  ANIMATION_STAGGER_MS,
+  ANIMATION_MAX_DELAY_MS,
+} from '../lib/constants'
 
 interface AnimatedMessageProps {
   children: ReactNode
@@ -36,9 +41,9 @@ export function AnimatedMessage({
     <Transition
       mounted={true}
       transition="slide-up"
-      duration={200}
+      duration={ANIMATION_DURATION_MS}
       timingFunction="ease-out"
-      enterDelay={Math.min(index * 30, 150)} // Stagger with max delay
+      enterDelay={Math.min(index * ANIMATION_STAGGER_MS, ANIMATION_MAX_DELAY_MS)}
     >
       {styles => <div style={styles}>{children}</div>}
     </Transition>

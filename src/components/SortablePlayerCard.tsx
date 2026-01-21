@@ -84,7 +84,7 @@ export function SortablePlayerCard({
           <Stack gap={4}>
             <Group gap="xs">
               <Text fw={500}>{player.display_name}</Text>
-              {isDead && <Text c="dimmed">{'\u{1F480}'}</Text>}
+              {isDead && <Text c="dimmed">💀</Text>}
             </Group>
             <Text size="xs" c="dimmed">
               Player

@@ -117,6 +117,9 @@ export function StorytellerDashboard({
     const newIndex = playerOrder.indexOf(over.id as string)
     const newOrder = arrayMove(playerOrder, oldIndex, newIndex)
 
+    // Capture old order before optimistic update for rollback
+    const oldOrder = playerOrder
+
     // Optimistic update
     setPlayerOrder(newOrder)
 
@@ -124,8 +127,8 @@ export function StorytellerDashboard({
     try {
       await updateParticipantOrder(newOrder)
     } catch (error) {
-      // Revert on error
-      setPlayerOrder(playerOrder)
+      // Revert to captured old order on error
+      setPlayerOrder(oldOrder)
       console.error('Failed to persist order:', error)
     }
   }
@@ -181,7 +184,7 @@ export function StorytellerDashboard({
       return (
         <Stack h="100%" justify="center" align="center" gap="md">
           <Text size="xl" c="dimmed">
-            {'\u{1F4AC}'}
+            💬
           </Text>
           <Text size="lg" c="dimmed" ta="center">
             Select a player to start chatting

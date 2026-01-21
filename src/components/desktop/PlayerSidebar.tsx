@@ -98,6 +98,9 @@ export function PlayerSidebar({
     const newIndex = playerOrder.indexOf(over.id as string)
     const newOrder = arrayMove(playerOrder, oldIndex, newIndex)
 
+    // Capture old order before optimistic update for rollback
+    const oldOrder = playerOrder
+
     // Optimistic update
     setPlayerOrder(newOrder)
 
@@ -105,8 +108,8 @@ export function PlayerSidebar({
     try {
       await updateParticipantOrder(newOrder)
     } catch (error) {
-      // Revert on error
-      setPlayerOrder(playerOrder)
+      // Revert to captured old order on error
+      setPlayerOrder(oldOrder)
       console.error('Failed to persist order:', error)
     }
   }
@@ -242,7 +245,7 @@ function SidebarItem({
               flexShrink: 0,
             }}
           >
-            {icon === 'broadcast' ? '\u{1F4E2}' : icon || '\u{1F464}'}
+            {icon === 'broadcast' ? '📢' : icon || '👤'}
           </Text>
           <Stack gap={2} style={{ overflow: 'hidden' }}>
             <Text
@@ -330,7 +333,7 @@ function SortableSidebarItem({
               flexShrink: 0,
             }}
           >
-            {player.avatar_id || '\u{1F464}'}
+            {player.avatar_id || '👤'}
           </Text>
           <Stack gap={2} style={{ overflow: 'hidden' }}>
             <Group gap={4}>
@@ -347,7 +350,7 @@ function SortableSidebarItem({
               </Text>
               {isDead && (
                 <Text size="sm" c="dimmed">
-                  {'\u{1F480}'}
+                  💀
                 </Text>
               )}
             </Group>
