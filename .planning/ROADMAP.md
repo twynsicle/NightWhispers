@@ -185,14 +185,15 @@ Plans:
 - PUSH-02: User receives push notification when new message arrives (app backgrounded)
 - PUSH-03: Notification tap opens app to relevant chat
 
-**Plans:** 5 plans
+**Plans:** 6 plans
 
 Plans:
-- [ ] 06-01-PLAN.md - PWA configuration (manifest, icons, service worker)
-- [ ] 06-02-PLAN.md - Desktop split-panel layout for Storyteller
-- [ ] 06-03-PLAN.md - Drag-and-drop player card reordering
-- [ ] 06-04-PLAN.md - Push notifications infrastructure and UI
-- [ ] 06-05-PLAN.md - Smooth animations (messages, phase, cards)
+- [x] 06-01-PLAN.md - PWA configuration (manifest, icons, service worker)
+- [x] 06-02-PLAN.md - Desktop split-panel layout for Storyteller
+- [x] 06-03-PLAN.md - Drag-and-drop player card reordering
+- [x] 06-04-PLAN.md - Push notifications infrastructure and UI
+- [x] 06-05-PLAN.md - Smooth animations (messages, phase, cards)
+- [ ] 06-06-PLAN.md - Wire push notification sending (gap closure)
 
 **Success Criteria:**
 1. User on mobile can install app to home screen via browser prompt
@@ -212,7 +213,7 @@ Plans:
 | 3 - Lobby & Room Management | Complete | 8 | 100% |
 | 4 - Core Messaging | Complete | 7 | 100% |
 | 5 - Game State & Views | Complete | 12 | 100% |
-| 6 - Polish & PWA | Planned | 8 | 0% |
+| 6 - Polish & PWA | In Progress | 8 | 83% |
 
 **Overall:** 37/43 requirements complete (86%)
 
@@ -232,4 +233,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-01-19*
-*Last updated: 2026-01-20 (Phase 6 planned)*
+*Last updated: 2026-01-20 (Phase 6 gap closure plan added)*
