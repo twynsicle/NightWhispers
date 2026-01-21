@@ -142,3 +142,66 @@ export async function sendPushNotification(
 
   return data
 }
+
+/**
+ * Send push notification to a specific recipient.
+ * Subscription lookup happens server-side (bypasses RLS).
+ *
+ * @param recipientId - Participant ID to send notification to
+ * @param payload - Notification content
+ * @returns Result with sent count (0 if recipient not subscribed)
+ */
+export async function sendPushToRecipient(
+  recipientId: string,
+  payload: {
+    title: string
+    body: string
+    tag?: string
+    url?: string
+    roomId?: string
+  }
+): Promise<{ success: boolean; sent: number; reason?: string }> {
+  const { data, error } = await supabase.functions.invoke('send-push', {
+    body: { recipientId, payload },
+  })
+
+  if (error) {
+    console.error('Failed to send push to recipient:', error)
+    return { success: false, sent: 0 }
+  }
+
+  return data
+}
+
+/**
+ * Send push notification to all subscribed participants in a room.
+ * Subscription lookup happens server-side (bypasses RLS).
+ * Automatically excludes the sender from receiving their own notification.
+ *
+ * @param roomId - Room to broadcast to
+ * @param excludeSenderId - Participant ID to exclude (the sender)
+ * @param payload - Notification content
+ * @returns Result with sent/failed counts
+ */
+export async function sendPushToRoom(
+  roomId: string,
+  excludeSenderId: string,
+  payload: {
+    title: string
+    body: string
+    tag?: string
+    url?: string
+    roomId?: string
+  }
+): Promise<{ success: boolean; sent: number; failed?: number }> {
+  const { data, error } = await supabase.functions.invoke('send-push', {
+    body: { roomId, excludeSenderId, payload },
+  })
+
+  if (error) {
+    console.error('Failed to send push to room:', error)
+    return { success: false, sent: 0 }
+  }
+
+  return data
+}
