@@ -1,0 +1,27 @@
+.hoverCard {
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.hoverCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.hoverCard:active {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hoverCard {
+    transition: none;
+  }
+  .hoverCard:hover {
+    transform: none;
+  }
+  .hoverCard:active {
+    transform: none;
+  }
+}

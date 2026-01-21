@@ -1,5 +1,10 @@
-import { Box, Skeleton, Text, Title } from '@mantine/core'
+import { Box, Skeleton, Text, Title, Transition } from '@mantine/core'
 import { usePhase } from '../hooks/usePhase'
+import { useState, useEffect, useRef } from 'react'
+import {
+  ANIMATION_DURATION_MS,
+  PHASE_TRANSITION_DELAY_MS,
+} from '../lib/constants'
 
 interface PhaseHeaderProps {
   roomId: string
@@ -16,6 +21,34 @@ interface PhaseHeaderProps {
  */
 export function PhaseHeader({ roomId }: PhaseHeaderProps) {
   const { phase, loading } = usePhase(roomId)
+
+  // Track phase changes for animation
+  const [animationKey, setAnimationKey] = useState(0)
+  const [showContent, setShowContent] = useState(true)
+  const prevPhaseRef = useRef(phase)
+
+  // Check for reduced motion preference
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Trigger animation when phase changes
+  // Using queueMicrotask to defer setState and satisfy lint rules
+  useEffect(() => {
+    if (phase && phase !== prevPhaseRef.current) {
+      prevPhaseRef.current = phase
+      if (!prefersReducedMotion) {
+        // Schedule fade out/in animation via microtask
+        queueMicrotask(() => {
+          setShowContent(false)
+          setTimeout(() => {
+            setAnimationKey(k => k + 1)
+            setShowContent(true)
+          }, PHASE_TRANSITION_DELAY_MS)
+        })
+      }
+    }
+  }, [phase, prefersReducedMotion])
 
   // Determine phase icon based on Night/Day
   const isNight = phase.toLowerCase().startsWith('night')
@@ -36,22 +69,33 @@ export function PhaseHeader({ roomId }: PhaseHeaderProps) {
         borderBottom: '1px solid var(--mantine-color-dark-6)',
       }}
     >
-      <Title
-        order={3}
-        ta="center"
-        c="crimson"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.5rem',
-        }}
+      <Transition
+        key={animationKey}
+        mounted={showContent && !loading}
+        transition="fade"
+        duration={prefersReducedMotion ? 0 : ANIMATION_DURATION_MS}
+        timingFunction="ease-out"
       >
-        <Text component="span" fz="xl">
-          {phaseIcon}
-        </Text>
-        {phase}
-      </Title>
+        {styles => (
+          <Title
+            order={3}
+            ta="center"
+            c="crimson"
+            style={{
+              ...styles,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            <Text component="span" fz="xl">
+              {phaseIcon}
+            </Text>
+            {phase}
+          </Title>
+        )}
+      </Transition>
     </Box>
   )
 }

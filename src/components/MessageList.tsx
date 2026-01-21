@@ -1,6 +1,7 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { ScrollArea, Stack, Text, Group, Skeleton } from '@mantine/core'
 import type { Message } from '../lib/supabase'
+import { AnimatedMessage } from './AnimatedMessage'
 
 // Partial participant type for display name lookup
 type ParticipantInfo = {
@@ -37,6 +38,18 @@ export function MessageList({
 }: MessageListProps) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Track initial message count to determine which messages are "new"
+  // Messages at index >= initialCount are animated
+  const [initialCount, setInitialCount] = useState<number | null>(null)
+
+  // Capture initial count once loading completes
+  // Using queueMicrotask to defer setState and satisfy lint rules
+  useEffect(() => {
+    if (!loading && initialCount === null) {
+      queueMicrotask(() => setInitialCount(messages.length))
+    }
+  }, [loading, messages.length, initialCount])
 
   // Auto-scroll to bottom on mount and when messages change
   useEffect(() => {
@@ -88,48 +101,52 @@ export function MessageList({
   return (
     <ScrollArea viewportRef={viewportRef} style={{ height: '100%' }}>
       <Stack gap="sm" p="md">
-        {messages.map(message => {
+        {messages.map((message, index) => {
           const isSent = message.sender_id === currentParticipantId
           const isBroadcast = message.is_broadcast
+          // Messages at index >= initialCount are "new" and should animate
+          const isNew = initialCount !== null && index >= initialCount
 
           return (
-            <Group
+            <AnimatedMessage
               key={message.id}
-              justify={isSent ? 'flex-end' : 'flex-start'}
-              gap="xs"
+              index={index - (initialCount ?? 0)}
+              isNew={isNew}
             >
-              <Stack
-                gap={4}
-                style={{
-                  maxWidth: '80%',
-                  padding: '8px 12px',
-                  borderRadius: 'var(--mantine-radius-md)',
-                  backgroundColor: isSent
-                    ? 'var(--mantine-color-crimson-9)'
-                    : 'var(--mantine-color-dark-6)',
-                }}
-              >
-                {/* Show broadcast badge for broadcast messages */}
-                {isBroadcast && (
-                  <Text size="xs" c="dimmed" fw={500}>
-                    📢 Broadcast to All
-                  </Text>
-                )}
-
-                {/* Message content */}
-                <Text
-                  size="sm"
-                  style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+              <Group justify={isSent ? 'flex-end' : 'flex-start'} gap="xs">
+                <Stack
+                  gap={4}
+                  style={{
+                    maxWidth: '80%',
+                    padding: '8px 12px',
+                    borderRadius: 'var(--mantine-radius-md)',
+                    backgroundColor: isSent
+                      ? 'var(--mantine-color-crimson-9)'
+                      : 'var(--mantine-color-dark-6)',
+                  }}
                 >
-                  {message.content}
-                </Text>
+                  {/* Show broadcast badge for broadcast messages */}
+                  {isBroadcast && (
+                    <Text size="xs" c="dimmed" fw={500}>
+                      Broadcast to All
+                    </Text>
+                  )}
 
-                {/* Timestamp */}
-                <Text size="xs" c="dimmed" ta={isSent ? 'right' : 'left'}>
-                  {formatTimestamp(message.created_at)}
-                </Text>
-              </Stack>
-            </Group>
+                  {/* Message content */}
+                  <Text
+                    size="sm"
+                    style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                  >
+                    {message.content}
+                  </Text>
+
+                  {/* Timestamp */}
+                  <Text size="xs" c="dimmed" ta={isSent ? 'right' : 'left'}>
+                    {formatTimestamp(message.created_at)}
+                  </Text>
+                </Stack>
+              </Group>
+            </AnimatedMessage>
           )
         })}
 

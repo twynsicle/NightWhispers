@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import type { Message } from './supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import { sendPushToRecipient, sendPushToRoom } from './push-subscription'
 
 /**
  * Send a message with dual-write pattern (database + Broadcast).
@@ -65,6 +66,35 @@ export async function sendMessage(
         'Broadcast acknowledgment failed, message persisted but not delivered'
       )
     }
+  }
+
+  // 3. Send push notification to recipient(s)
+  // Fire-and-forget - don't block message return on push delivery
+  const truncatedContent =
+    content.length > 100 ? content.substring(0, 97) + '...' : content
+
+  if (recipientId) {
+    // 1-to-1 message: send to specific recipient
+    sendPushToRecipient(recipientId, {
+      title: 'New Message',
+      body: truncatedContent,
+      tag: `message-${roomId}-${recipientId}`,
+      url: `/room/${roomId}`,
+      roomId,
+    }).catch(err => {
+      console.error('Failed to send push notification:', err)
+    })
+  } else {
+    // Broadcast message: send to all subscribed participants except sender
+    sendPushToRoom(roomId, senderId, {
+      title: 'Broadcast',
+      body: truncatedContent,
+      tag: `broadcast-${roomId}`,
+      url: `/room/${roomId}`,
+      roomId,
+    }).catch(err => {
+      console.error('Failed to send broadcast push:', err)
+    })
   }
 
   return message

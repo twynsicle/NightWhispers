@@ -24,6 +24,7 @@ import { PlayerChatView } from '../components/PlayerChatView'
 import { StorytellerDashboard } from '../components/StorytellerDashboard'
 import { PhaseHeader } from '../components/PhaseHeader'
 import { PhaseControls } from '../components/PhaseControls'
+import { PushNotificationPrompt } from '../components/PushNotificationPrompt'
 import { kickParticipant, updateParticipantName, startGame } from '../lib/rooms'
 
 type Participant = Database['public']['Tables']['participants']['Row']
@@ -101,6 +102,7 @@ export function RoomPage() {
     name: string
   } | null>(null)
   const [editedName, setEditedName] = useState('')
+  const [showPushPrompt, setShowPushPrompt] = useState(true)
 
   // Extract room and user IDs for hooks
   const roomId = participant.rooms.id
@@ -336,6 +338,14 @@ export function RoomPage() {
           <>
             {/* ACTIVE GAME VIEW - Phase Header + Messaging Interface */}
 
+            {/* Push Notification Prompt - shown on game start (Storyteller only - Player gets it inside PlayerChatView) */}
+            {showPushPrompt && isStoryteller && (
+              <PushNotificationPrompt
+                participantId={participantId}
+                onDismiss={() => setShowPushPrompt(false)}
+              />
+            )}
+
             {/* Phase Header - visible to all participants */}
             <PhaseHeader roomId={roomId} />
 
@@ -372,6 +382,8 @@ export function RoomPage() {
                     storytellerName={storyteller.display_name}
                     participants={participants}
                     roomCode={participant.rooms.code}
+                    showPushPrompt={showPushPrompt}
+                    onDismissPushPrompt={() => setShowPushPrompt(false)}
                   />
                 )
               })()
