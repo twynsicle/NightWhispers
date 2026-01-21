@@ -1,7 +1,7 @@
 # Project State: Night Whispers
 
 **Last Updated:** 2026-01-20
-**Session:** 13
+**Session:** 14
 
 ---
 
@@ -9,7 +9,7 @@
 
 **Core Value:** Storyteller can privately message any player, players can only respond to Storyteller - no player-to-player communication. Zero friction (no accounts, no downloads, just a room code).
 
-**Current Focus:** Phase 6 - Polish & PWA (in progress)
+**Current Focus:** PROJECT COMPLETE - All 6 phases delivered
 
 **Tech Stack:** React 19 + Vite 7 + Mantine 8 + Supabase + TypeScript
 
@@ -17,10 +17,10 @@
 
 ## Current Position
 
-**Phase:** 6 of 6 (Polish & PWA)
-**Plan:** 4 of 5 in phase (06-01, 06-02, 06-03, 06-05 complete)
-**Status:** In progress
-**Last activity:** 2026-01-20 - Completed 06-03-PLAN.md (Player Card Drag-and-Drop)
+**Phase:** 6 of 6 (Polish & PWA) - COMPLETE
+**Plan:** 5 of 5 in phase (all complete)
+**Status:** Complete
+**Last activity:** 2026-01-20 - Completed 06-04-PLAN.md (Push Notifications)
 
 **Progress:**
 ```
@@ -29,9 +29,9 @@ Phase 2: Session & Room     [██████████] 100%
 Phase 3: Lobby & Management [██████████] 100%
 Phase 4: Core Messaging     [██████████] 100%
 Phase 5: Game State & Views [██████████] 100% (4/4 plans)
-Phase 6: Polish & PWA       [████████..] 80% (4/5 plans)
+Phase 6: Polish & PWA       [██████████] 100% (5/5 plans)
 
-Overall: 20/21 plans complete (95% of planned work)
+Overall: 21/21 plans complete (100% of planned work)
 ```
 
 ---
@@ -40,10 +40,10 @@ Overall: 20/21 plans complete (95% of planned work)
 
 | Metric | Value |
 |--------|-------|
-| Plans Completed | 20 |
-| Requirements Delivered | 33/43 |
-| Phases Completed | 5/6 |
-| Session Count | 13 |
+| Plans Completed | 21 |
+| Requirements Delivered | 37/43 |
+| Phases Completed | 6/6 |
+| Session Count | 14 |
 
 ---
 
@@ -120,6 +120,11 @@ Overall: 20/21 plans complete (95% of planned work)
 | 8px activation constraint for dnd-kit | Prevents accidental drags when tapping to open conversation | 06-03 |
 | Parallel database updates for sort order | Simple implementation, fast enough for <20 players | 06-03 |
 | Optimistic UI for drag-and-drop | Update local state immediately, revert on error for instant feedback | 06-03 |
+| VAPID keys via environment variables | Security best practice, client uses public key only | 06-04 |
+| @negrel/webpush for Deno Edge Functions | Deno-compatible Web Push library for server-side push delivery | 06-04 |
+| injectManifest strategy for VitePWA | Required for custom service worker with push event handling | 06-04 |
+| Per-participant push subscriptions | Subscription tied to participant_id for room-scoped notifications | 06-04 |
+| iOS PWA detection for push guidance | Show "Add to Home Screen" instructions when push unavailable | 06-04 |
 
 ### Architecture Notes
 
@@ -180,6 +185,7 @@ Overall: 20/21 plans complete (95% of planned work)
 - [x] Execute 06-02-PLAN.md (Desktop Split-Panel Layout)
 - [x] Execute 06-01-PLAN.md (PWA Installability)
 - [x] Execute 06-03-PLAN.md (Player Card Drag-and-Drop)
+- [x] Execute 06-04-PLAN.md (Push Notifications)
 
 ### Blockers
 
@@ -197,11 +203,11 @@ None currently.
 
 ### Last Session Summary
 
-Executed plan 06-03: Player Card Drag-and-Drop. Installed dnd-kit packages (@dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities) for drag-and-drop functionality. Created SortablePlayerCard component with useSortable hook for draggable cards. Updated StorytellerDashboard (mobile) and PlayerSidebar (desktop) with DndContext for reordering. Added updateParticipantOrder function to persist sort_order to database. Support for PointerSensor (8px activation constraint), KeyboardSensor, and touch drag. Optimistic UI updates with error rollback. Created database migration for sort_order index. All 3 tasks committed individually. DASH-05 requirement (drag-and-drop reordering) delivered.
+Executed plan 06-04: Push Notifications. Created push_subscriptions database table with RLS policies. Implemented send-push Edge Function using @negrel/webpush library for VAPID-signed push delivery. Created usePushNotifications hook for subscription state management (unsupported/prompt/subscribed/denied/pwa-required). Built PushNotificationPrompt component with iOS PWA installation guidance. Custom service worker (src/sw.ts) handles push events and notification clicks. Integrated with RoomPage to show notification prompt on game start. User verified push notifications working after VAPID key configuration and Edge Function deployment.
 
 ### Next Session Entry Point
 
-Phase 6 in progress. Continue with remaining plan (06-04 Push Notifications).
+PROJECT COMPLETE. All 6 phases delivered. Ready for production deployment and testing.
 
 ### Context to Preserve
 
@@ -286,14 +292,22 @@ Phase 6 in progress. Continue with remaining plan (06-04 Push Notifications).
 - updateParticipantOrder: parallel Promise.all updates to sort_order column
 - Broadcast card excluded from sorting (always first)
 - Database index on (room_id, sort_order) for efficient ordering queries
+- **Push notifications:** Web Push with VAPID authentication via Edge Function
+- Push subscriptions: push_subscriptions table with participant_id foreign key
+- usePushNotifications hook: state machine (unsupported/prompt/subscribed/denied/pwa-required)
+- PushNotificationPrompt: conditional UI based on push state, iOS PWA guidance
+- Custom service worker (src/sw.ts): push event -> showNotification, notificationclick -> openWindow
+- Edge Function (send-push): @negrel/webpush for VAPID-signed push delivery
+- Push payload: { title, body, tag, url, roomId } for notification content and click handling
 
 ---
 
 *State initialized: 2026-01-19*
-*Last execution: 06-03 complete 2026-01-20*
+*Last execution: 06-04 complete 2026-01-20*
 *Phase 1 complete: 2026-01-19*
 *Phase 2 complete: 2026-01-19 (all 3 plans: 02-01, 02-02, 02-03)*
 *Phase 3 complete: 2026-01-19 (all 3 plans: 03-01, 03-02, 03-03)*
 *Phase 4 complete: 2026-01-20 (all 4 plans: 04-01, 04-02, 04-03, 04-04-gap-closure)*
 *Phase 5 complete: 2026-01-20 (all 4 plans: 05-01, 05-02, 05-03, 05-04)*
-*Phase 6 in progress: 06-01, 06-02, 06-03, 06-05 complete 2026-01-20*
+*Phase 6 complete: 2026-01-20 (all 5 plans: 06-01, 06-02, 06-03, 06-04, 06-05)*
+*PROJECT COMPLETE: 2026-01-20 - All 21 plans across 6 phases delivered*
