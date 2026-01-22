@@ -18,81 +18,6 @@
 - **Testing:** Vitest + Playwright
 - **Auth:** Anonymous auth with localStorage session persistence
 
-## Project Structure
-
-```
-src/
-  components/       # Reusable UI components (AvatarSelector, etc.)
-  hooks/           # React hooks (useAuth for session management)
-  lib/             # Utilities (supabase client, room helpers, room codes)
-  pages/           # Route components (HomePage, RoomPage, etc.)
-  theme.ts         # Mantine theme config (gothic dark theme)
-  main.tsx         # App entry point
-supabase/
-  migrations/      # Database schema and RLS policies
-.planning/         # GSD project documentation (PROJECT.md, ROADMAP.md, etc.)
-```
-
-## Key Architecture Patterns
-
-### Authentication & Sessions
-- Anonymous auth via Supabase (`supabase.auth.signInAnonymously()`)
-- Session persists in localStorage for reconnection across refreshes
-- `useAuth` hook handles session recovery on mount
-- iOS WebKit 7-day localStorage cap requires validation on every mount
-
-### Room Management
-- 4-letter room codes via nanoid (1M combinations, 32-char safe alphabet)
-- Recursive collision retry on duplicate codes (< 1% chance at < 1K rooms)
-- Upsert pattern for participant joining (prevents duplicates on reconnection)
-
-### Database & RLS
-- Tables: `rooms`, `participants`, `messages`
-- RLS policies enforce room isolation and role-based access
-- Storyteller sees all messages in room; players see only their own chat
-- Helper functions use `SECURITY DEFINER` for RLS context queries
-
-### Messaging (Planned)
-- Supabase Broadcast for real-time message delivery
-- PostgreSQL for message persistence
-- Postgres Changes for room/participant state sync
-- Supabase Presence for typing indicators
-
-### Routing
-- React Router 7 with `createBrowserRouter` + loaders
-- Loader-based route protection prevents FOUC (flash of unauthenticated content)
-- Protected routes: `/room/:roomId` requires valid session + participant
-
-## Important Files
-
-- `src/lib/supabase.ts` - Supabase client instance and type definitions
-- `src/hooks/useAuth.ts` - Session management hook
-- `src/lib/rooms.ts` - Room creation/joining utilities
-- `src/lib/room-codes.ts` - Room code generation
-- `supabase/migrations/001_initial_schema.sql` - Database schema
-- `supabase/migrations/002_rls_policies.sql` - Row-level security policies
-- `.planning/PROJECT.md` - Project vision and requirements
-- `.planning/ROADMAP.md` - 6-phase development roadmap
-- `.planning/STATE.md` - Current project state and progress
-
-## Current State
-
-**Phase:** 2 of 6 (Session & Room Entry) - COMPLETE
-**Next:** Phase 3 - Lobby & Room Management
-
-**Completed:**
-- Phase 1: Foundation (Vite + Supabase setup)
-- Phase 2: Session & Room Entry (auth, room creation/joining, UI pages)
-
-**Available Routes:**
-- `/` - Landing page (create/join choice)
-- `/setup` - Session setup (display name + avatar)
-- `/create` - Room creation (Storyteller)
-- `/join` - Room joining (Player)
-- `/room/:roomId` - Protected game interface
-
-**Database Ready:** Schema deployed with RLS policies
-
 ## Development Workflow
 
 ### Use Context7 by Default
@@ -104,15 +29,9 @@ Always use context7 when you need code generation, setup or configuration steps,
 - Use `/frontend-design` command when creating UI.
 - Avoid running lint checks and applying prettier directly – formatting and linting are handled via PostToolUse hook.
 
-### GSD Commands
-- `/gsd:progress` - Check project progress and next steps
-- `/gsd:plan-phase N` - Create plan for phase N
-- `/gsd:execute-phase N` - Execute all plans in phase N
-
 ## Key Design Decisions
 
 - **Anonymous auth:** Ephemeral games don't need persistent accounts
-- **Gothic emoji avatars:** Zero assets, accessible, mobile-friendly (🧙‍♂️🧛‍♀️🧟‍♂️👻🎭🕵️🦇🌙⚰️🔮🗡️🛡️)
 - **Mobile-first:** Primary use case is in-person game night on phones
 - **System fonts:** Faster mobile loading, no font download latency
 - **Mantine 8 split CSS imports:** v8 architecture requires 4 CSS files for optimal tree-shaking
@@ -171,6 +90,11 @@ Always use context7 when you need code generation, setup or configuration steps,
 - **Consistent Error Messages:** Include helpful context in error messages.
 - **Document Consistency Trade-offs:** If eventual consistency is acceptable (e.g., multi-step operations without transactions), document this in JSDoc comments.
 
+### Styling
+- **No Inline Styles:** Never use inline `style={}` props in React components. All styles must be defined in CSS module files (`.module.css`). This ensures consistency, better maintainability, and proper separation of concerns.
+- **CSS Modules:** Each component should have a corresponding `.module.css` file for its styles. Import styles as `import styles from './Component.module.css'` and apply with `className={styles.className}`.
+- **Exception:** Dynamic styles from animation libraries (e.g., react-spring) that must be computed at runtime are acceptable.
+
 ### Accessibility
 - **ARIA Labels:** All interactive elements without text content need `aria-label` attributes.
 - **Proper Layout:** Use semantic layout components instead of margin/padding hacks for positioning.
@@ -185,15 +109,3 @@ Always use context7 when you need code generation, setup or configuration steps,
 - **Single Responsibility:** Hooks should handle one concern (data fetching, subscriptions, mutations).
 - **Prop Drilling vs Re-fetching:** Prefer passing data through props over re-fetching in child components.
 - **Notification Logic:** Keep success/error notifications close to the operation (prefer hooks over components for data operations).
-
-## Out of Scope (v1)
-
-- OAuth/social login
-- Player-to-player chat (deliberately excluded)
-- Video/audio chat
-- Custom script creation UI (v2)
-- Multiple concurrent games per user
-- Persistent game history (rooms expire after 1 hour)
-
----
-*Last updated: 2026-01-21 - Added optimistic UI, env var validation, and magic number guidelines*

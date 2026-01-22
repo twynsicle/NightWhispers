@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react'
 import { ScrollArea, Stack, Text, Group, Skeleton } from '@mantine/core'
 import type { Message } from '../lib/supabase'
 import { AnimatedMessage } from './AnimatedMessage'
+import styles from './MessageList.module.css'
 
 // Partial participant type for display name lookup
 type ParticipantInfo = {
@@ -61,7 +62,7 @@ export function MessageList({
   // Loading state: show skeleton
   if (loading) {
     return (
-      <Stack gap="sm" p="md" style={{ height: '100%' }}>
+      <Stack gap="sm" p="md" className={styles.loadingContainer}>
         <Skeleton height={60} radius="md" />
         <Skeleton height={60} radius="md" />
         <Skeleton height={60} radius="md" />
@@ -72,7 +73,7 @@ export function MessageList({
   // Empty state
   if (messages.length === 0) {
     return (
-      <Stack style={{ height: '100%' }} justify="center" align="center">
+      <Stack className={styles.emptyContainer} justify="center" align="center">
         <Text size="sm" c="dimmed" ta="center">
           No messages yet. Start the conversation!
         </Text>
@@ -99,7 +100,7 @@ export function MessageList({
   }
 
   return (
-    <ScrollArea viewportRef={viewportRef} style={{ height: '100%' }}>
+    <ScrollArea viewportRef={viewportRef} className={styles.scrollArea}>
       <Stack gap="sm" p="md">
         {messages.map((message, index) => {
           const isSent = message.sender_id === currentParticipantId
@@ -116,14 +117,7 @@ export function MessageList({
               <Group justify={isSent ? 'flex-end' : 'flex-start'} gap="xs">
                 <Stack
                   gap={4}
-                  style={{
-                    maxWidth: '80%',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--mantine-radius-md)',
-                    backgroundColor: isSent
-                      ? 'var(--mantine-color-crimson-9)'
-                      : 'var(--mantine-color-dark-6)',
-                  }}
+                  className={`${styles.messageBubble} ${isSent ? styles.messageBubbleSent : styles.messageBubbleReceived}`}
                 >
                   {/* Show broadcast badge for broadcast messages */}
                   {isBroadcast && (
@@ -133,10 +127,7 @@ export function MessageList({
                   )}
 
                   {/* Message content */}
-                  <Text
-                    size="sm"
-                    style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-                  >
+                  <Text size="sm" className={styles.messageContent}>
                     {message.content}
                   </Text>
 

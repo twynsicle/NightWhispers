@@ -1,11 +1,13 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Center, Loader } from '@mantine/core'
 import { useAuth } from './hooks/useAuth'
-import { HomePage } from './pages/HomePage'
-import { SessionSetupPage } from './pages/SessionSetupPage'
-import { CreateRoomPage } from './pages/CreateRoomPage'
-import { JoinRoomPage } from './pages/JoinRoomPage'
-import { RoomPage, roomLoader } from './pages/RoomPage'
+import { HomePage } from './pages/HomePage/HomePage'
+import { SessionSetupPage } from './pages/SessionSetupPage/SessionSetupPage'
+import { CreateRoomPage } from './pages/CreateRoomPage/CreateRoomPage'
+import { JoinRoomPage } from './pages/JoinRoomPage/JoinRoomPage'
+import { RoomLayout, roomLoader } from './pages/RoomLayout/RoomLayout'
+import { LobbyPage } from './pages/LobbyPage/LobbyPage'
+import { GamePage } from './pages/GamePage/GamePage'
 
 /**
  * React Router 7 configuration for Night Whispers.
@@ -18,7 +20,9 @@ import { RoomPage, roomLoader } from './pages/RoomPage'
  * - /setup : Session setup (display name + avatar)
  * - /create : Room creation (Storyteller)
  * - /join : Room joining (Player)
- * - /room/:roomId : Protected game interface (requires session + participant)
+ * - /room/:roomId : Parent layout (loader + shared state)
+ *   - /room/:roomId/lobby : Lobby view (waiting for game start)
+ *   - /room/:roomId/game : Active game view (messaging interface)
  */
 const router = createBrowserRouter([
   {
@@ -39,8 +43,14 @@ const router = createBrowserRouter([
   },
   {
     path: '/room/:roomId',
-    element: <RoomPage />,
+    element: <RoomLayout />,
     loader: roomLoader,
+    children: [
+      // Index route - parent redirects based on room status
+      { index: true, element: null },
+      { path: 'lobby', element: <LobbyPage /> },
+      { path: 'game', element: <GamePage /> },
+    ],
   },
 ])
 

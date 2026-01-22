@@ -1,0 +1,10 @@
+.container {
+  border-bottom: 1px solid var(--mantine-color-dark-6);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}

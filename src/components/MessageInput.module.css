@@ -1,0 +1,8 @@
+.textarea {
+  flex-grow: 1;
+}
+
+.helperText {
+  font-size: 11px;
+  color: var(--mantine-color-dimmed);
+}
