@@ -1,0 +1,47 @@
+.sidebarHeader {
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+  background-color: var(--mantine-color-dark-7);
+}
+
+.scrollArea {
+  flex: 1;
+}
+
+.footer {
+  border-top: 1px solid var(--mantine-color-dark-4);
+}
+
+.resetButton {
+  cursor: pointer;
+}
+
+.resetIcon {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.card {
+  cursor: pointer;
+}
+
+.cardSelected {
+  background-color: var(--mantine-color-dark-5);
+}
+
+.groupOverflow {
+  overflow: hidden;
+}
+
+.avatarFlexShrink {
+  flex-shrink: 0;
+}
+
+.avatarDead {
+  filter: grayscale(100%);
+}
+
+.textEllipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -3,6 +3,7 @@ import type { FormEvent, KeyboardEvent } from 'react'
 import { Textarea, ActionIcon, Group, Stack } from '@mantine/core'
 import { IconSend } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
+import styles from './MessageInput.module.css'
 
 interface MessageInputProps {
   onSendMessage: (content: string) => Promise<void>
@@ -90,7 +91,7 @@ export function MessageInput({
             autosize
             minRows={1}
             maxRows={4}
-            style={{ flexGrow: 1 }}
+            className={styles.textarea}
           />
           <ActionIcon
             type="submit"
@@ -107,21 +108,9 @@ export function MessageInput({
         <Group justify="space-between">
           <span />
           <Group gap={4}>
-            <span
-              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
-            >
-              Enter to send
-            </span>
-            <span
-              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
-            >
-              •
-            </span>
-            <span
-              style={{ fontSize: '11px', color: 'var(--mantine-color-dimmed)' }}
-            >
-              Shift+Enter for newline
-            </span>
+            <span className={styles.helperText}>Enter to send</span>
+            <span className={styles.helperText}>•</span>
+            <span className={styles.helperText}>Shift+Enter for newline</span>
           </Group>
         </Group>
       </Stack>

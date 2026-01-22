@@ -1,11 +1,11 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Center, Loader } from '@mantine/core'
 import { useAuth } from './hooks/useAuth'
-import { HomePage } from './pages/HomePage'
-import { SessionSetupPage } from './pages/SessionSetupPage'
-import { CreateRoomPage } from './pages/CreateRoomPage'
-import { JoinRoomPage } from './pages/JoinRoomPage'
-import { RoomPage, roomLoader } from './pages/RoomPage'
+import { HomePage } from './pages/HomePage/HomePage'
+import { SessionSetupPage } from './pages/SessionSetupPage/SessionSetupPage'
+import { CreateRoomPage } from './pages/CreateRoomPage/CreateRoomPage'
+import { JoinRoomPage } from './pages/JoinRoomPage/JoinRoomPage'
+import { RoomPage, roomLoader } from './pages/RoomPage/RoomPage'
 
 /**
  * React Router 7 configuration for Night Whispers.

@@ -1,0 +1,30 @@
+.loadingContainer {
+  height: 100%;
+}
+
+.emptyContainer {
+  height: 100%;
+}
+
+.scrollArea {
+  height: 100%;
+}
+
+.messageBubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.messageBubbleSent {
+  background-color: var(--mantine-color-crimson-9);
+}
+
+.messageBubbleReceived {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.messageContent {
+  white-space: pre-wrap;
+  word-break: break-word;
+}

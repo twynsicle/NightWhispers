@@ -1,0 +1,19 @@
+.participantRow {
+  border-radius: var(--mantine-radius-sm);
+}
+
+.participantRowCurrent {
+  background-color: var(--mantine-color-dark-6);
+}
+
+.participantRowDead {
+  opacity: 0.6;
+}
+
+.avatar {
+  font-size: 24px;
+}
+
+.avatarDead {
+  filter: grayscale(100%);
+}
