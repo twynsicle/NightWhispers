@@ -1,6 +1,6 @@
 import { Stack, Group, Text, Badge, ActionIcon } from '@mantine/core'
 import { IconEdit, IconX } from '@tabler/icons-react'
-import type { Database } from '../../../lib/supabase'
+import type { Database } from '../../lib/supabase'
 import styles from './ParticipantList.module.css'
 
 type Participant = Database['public']['Tables']['participants']['Row']
