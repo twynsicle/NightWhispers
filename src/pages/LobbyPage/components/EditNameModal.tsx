@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Modal, Stack, TextInput, Button } from '@mantine/core'
 
 interface EditingParticipant {
@@ -27,15 +27,9 @@ export function EditNameModal({
   onClose,
   onSave,
 }: EditNameModalProps) {
-  const [editedName, setEditedName] = useState('')
+  // Initialize form state from participant, reset via key when participant changes
+  const [editedName, setEditedName] = useState(editingParticipant?.name ?? '')
   const [isSaving, setIsSaving] = useState(false)
-
-  // Reset edited name when modal opens with new participant
-  useEffect(() => {
-    if (editingParticipant) {
-      setEditedName(editingParticipant.name)
-    }
-  }, [editingParticipant])
 
   const handleSave = async () => {
     if (!editingParticipant) return
@@ -53,6 +47,7 @@ export function EditNameModal({
 
   return (
     <Modal
+      key={editingParticipant?.id}
       opened={editingParticipant !== null}
       onClose={onClose}
       title="Edit Player Name"

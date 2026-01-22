@@ -22,12 +22,7 @@ export function SplitPanelLayout({
   sidebarWidth = 320,
 }: SplitPanelLayoutProps) {
   return (
-    <Group
-      align="stretch"
-      gap={0}
-      wrap="nowrap"
-      className={styles.container}
-    >
+    <Group align="stretch" gap={0} wrap="nowrap" className={styles.container}>
       {/* Sidebar */}
       <Box w={sidebarWidth} className={styles.sidebar}>
         {sidebar}

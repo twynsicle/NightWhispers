@@ -103,7 +103,10 @@ export function RoomLayout() {
 
     if (roomStatus === 'lobby' && !location.pathname.endsWith('/lobby')) {
       navigate(`${basePath}/lobby`, { replace: true })
-    } else if (roomStatus === 'active' && !location.pathname.endsWith('/game')) {
+    } else if (
+      roomStatus === 'active' &&
+      !location.pathname.endsWith('/game')
+    ) {
       navigate(`${basePath}/game`, { replace: true })
     } else if (roomStatus === 'ended') {
       navigate('/', { replace: true })
