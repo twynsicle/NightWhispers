@@ -126,12 +126,17 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
         },
         payload => {
           // Update room status when changed
-          if (payload.new.status) {
-            setRoomStatus(payload.new.status as 'lobby' | 'active' | 'ended')
+          const newStatus = payload.new as { status?: string }
+          if (newStatus.status) {
+            setRoomStatus(newStatus.status as 'lobby' | 'active' | 'ended')
           }
         }
       )
-      .subscribe()
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR') {
+          console.error('Realtime subscription error for room:', roomId)
+        }
+      })
 
     // Cleanup subscription on unmount
     return () => {

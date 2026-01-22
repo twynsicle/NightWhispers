@@ -149,7 +149,7 @@ export function LobbyPage() {
           fullWidth
           color="crimson"
           onClick={() => handleStartGame(roomId)}
-          disabled={participants.length < 2}
+          disabled={participants.length < 1}
           mt="md"
         >
           Start Game
@@ -159,9 +159,7 @@ export function LobbyPage() {
       {/* Role-specific hints */}
       {isStoryteller ? (
         <Text size="sm" c="dimmed" ta="center" mt="xs">
-          {participants.length < 2
-            ? 'Need at least 2 participants to start'
-            : 'Ready to start the game'}
+          Ready to start the game
         </Text>
       ) : (
         <Stack gap="xs" align="center" mt="md">
