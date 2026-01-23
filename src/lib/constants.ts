@@ -6,6 +6,20 @@
  */
 
 // ============================================================================
+// Room Status
+// ============================================================================
+
+/**
+ * Valid room status values for runtime validation.
+ */
+export const VALID_ROOM_STATUSES = ['lobby', 'active', 'ended'] as const
+
+/**
+ * Type derived from valid room statuses.
+ */
+export type RoomStatus = (typeof VALID_ROOM_STATUSES)[number]
+
+// ============================================================================
 // Phase Management
 // ============================================================================
 
@@ -75,6 +89,22 @@ export const SERVICE_WORKER_READY_TIMEOUT_MS = 5000
  * Shorter timeout for checking subscription state (ms).
  */
 export const SERVICE_WORKER_CHECK_TIMEOUT_MS = 3000
+
+// ============================================================================
+// Room Codes
+// ============================================================================
+
+/**
+ * Length of room codes (e.g., "ABCD").
+ */
+export const ROOM_CODE_LENGTH = 4
+
+/**
+ * Pattern for validating room codes.
+ * Case-insensitive (accepts uppercase or lowercase letters).
+ * The code will be normalized to uppercase before use.
+ */
+export const ROOM_CODE_PATTERN = /^[A-Za-z]{4}$/
 
 // ============================================================================
 // Lobby

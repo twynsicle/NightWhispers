@@ -13,6 +13,8 @@ import {
 import { useForm, matches } from '@mantine/form'
 import { useAuth } from '../../hooks/useAuth'
 import { joinRoom } from '../../lib/rooms'
+import { ROOM_CODE_LENGTH, ROOM_CODE_PATTERN } from '../../lib/constants'
+import styles from './JoinRoomPage.module.css'
 
 /**
  * Room joining page for Players.
@@ -39,7 +41,7 @@ export function JoinRoomPage() {
 
   // Get room code from URL if present
   const urlRoomCode = searchParams.get('code')?.toUpperCase() || null
-  const isValidUrlCode = urlRoomCode && /^[A-Z]{4}$/.test(urlRoomCode)
+  const isValidUrlCode = urlRoomCode && ROOM_CODE_PATTERN.test(urlRoomCode)
 
   // Auto-join when room code is in URL
   useEffect(() => {
@@ -111,7 +113,10 @@ export function JoinRoomPage() {
       roomCode: '',
     },
     validate: {
-      roomCode: matches(/^[A-Za-z]{4}$/, 'Room code must be exactly 4 letters'),
+      roomCode: matches(
+        ROOM_CODE_PATTERN,
+        `Room code must be exactly ${ROOM_CODE_LENGTH} letters`
+      ),
     },
   })
 
@@ -208,21 +213,13 @@ export function JoinRoomPage() {
             placeholder="ABCD"
             key={form.key('roomCode')}
             {...form.getInputProps('roomCode')}
-            maxLength={4}
+            maxLength={ROOM_CODE_LENGTH}
             size="lg"
-            styles={{
-              input: {
-                textTransform: 'uppercase',
-                textAlign: 'center',
-                fontSize: '2rem',
-                letterSpacing: '0.5rem',
-                fontFamily: 'monospace',
-              },
-            }}
+            classNames={{ input: styles.roomCodeInput }}
           />
 
           <Text size="sm" c="dimmed" ta="center">
-            Enter the 4-letter room code from your Storyteller
+            Enter the {ROOM_CODE_LENGTH}-letter room code from your Storyteller
           </Text>
 
           <Button

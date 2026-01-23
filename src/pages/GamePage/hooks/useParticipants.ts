@@ -2,13 +2,24 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import type { Database } from '../../../lib/supabase'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import { VALID_ROOM_STATUSES, type RoomStatus } from '../../../lib/constants'
 
 type Participant = Database['public']['Tables']['participants']['Row']
+
+/**
+ * Type guard to validate room status at runtime.
+ */
+function isValidRoomStatus(status: unknown): status is RoomStatus {
+  return (
+    typeof status === 'string' &&
+    VALID_ROOM_STATUSES.includes(status as RoomStatus)
+  )
+}
 
 interface UseParticipantsReturn {
   participants: Participant[]
   loading: boolean
-  roomStatus: 'lobby' | 'active' | 'ended'
+  roomStatus: RoomStatus
 }
 
 /**
@@ -24,9 +35,7 @@ interface UseParticipantsReturn {
 export function useParticipants(roomId: string): UseParticipantsReturn {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
-  const [roomStatus, setRoomStatus] = useState<'lobby' | 'active' | 'ended'>(
-    'lobby'
-  )
+  const [roomStatus, setRoomStatus] = useState<RoomStatus>('lobby')
 
   useEffect(() => {
     // Fetch initial participants and room status
@@ -57,8 +66,8 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
 
       if (roomError) {
         console.error('Error fetching room status:', roomError)
-      } else if (roomData) {
-        setRoomStatus(roomData.status as 'lobby' | 'active' | 'ended')
+      } else if (roomData && isValidRoomStatus(roomData.status)) {
+        setRoomStatus(roomData.status)
       }
 
       setLoading(false)
@@ -134,9 +143,9 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
         },
         payload => {
           // Update room status when changed
-          const newStatus = payload.new as { status?: string }
-          if (newStatus.status) {
-            setRoomStatus(newStatus.status as 'lobby' | 'active' | 'ended')
+          const newStatus = payload.new as { status?: unknown }
+          if (isValidRoomStatus(newStatus.status)) {
+            setRoomStatus(newStatus.status)
           }
         }
       )
