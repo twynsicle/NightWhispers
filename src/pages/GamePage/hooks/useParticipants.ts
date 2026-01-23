@@ -93,14 +93,22 @@ export function useParticipants(roomId: string): UseParticipantsReturn {
               })
             }
           } else if (payload.eventType === 'UPDATE') {
-            // Update existing participant or remove if inactive
+            // Update existing participant, add if rejoining, or remove if inactive
             const updatedParticipant = payload.new as Participant
             setParticipants(prev => {
               if (!updatedParticipant.is_active) {
                 // Remove inactive participant (kicked or left)
                 return prev.filter(p => p.id !== updatedParticipant.id)
               }
-              // Update participant
+              // Check if participant exists in list
+              const exists = prev.some(p => p.id === updatedParticipant.id)
+              if (!exists) {
+                // Add participant (handles upsert/rejoin case)
+                return [...prev, updatedParticipant].sort(
+                  (a, b) => a.sort_order - b.sort_order
+                )
+              }
+              // Update existing participant
               return prev
                 .map(p =>
                   p.id === updatedParticipant.id ? updatedParticipant : p

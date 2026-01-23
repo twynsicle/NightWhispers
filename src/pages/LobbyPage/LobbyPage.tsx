@@ -1,31 +1,23 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router'
-import {
-  Stack,
-  Title,
-  Text,
-  Code,
-  Modal,
-  Button,
-  Skeleton,
-  Select,
-  Loader,
-} from '@mantine/core'
-import { IconQrcode } from '@tabler/icons-react'
+import { Modal, Button, Skeleton, Stack, Text } from '@mantine/core'
 import type { RoomOutletContext } from '../RoomLayout/types'
 import { QRCodeGenerator } from './components/QRCodeGenerator'
 import { EditNameModal } from './components/EditNameModal'
+import { LobbyHeader } from './components/LobbyHeader'
+import { GameSetupSection } from './components/GameSetupSection'
 import { ParticipantList } from '../../components/ParticipantList/ParticipantList'
 import { useLobbyActions } from './hooks/useLobbyActions'
+import { MIN_PLAYERS_TO_START } from '../../lib/constants'
+import styles from './LobbyPage.module.css'
 
 /**
  * Lobby page for room setup before game starts.
  *
- * Displays:
- * - Room code and QR code for sharing
- * - Script selector (Storyteller only, disabled in v1)
- * - Participant list with real-time updates
- * - Start game button (Storyteller only)
+ * Fixed full-screen layout with:
+ * - Header: App icon, room code, QR button
+ * - Content: Game setup (Storyteller), participant list
+ * - Footer: Start game button (Storyteller only)
  *
  * Uses shared context from RoomLayout via useOutletContext.
  */
@@ -64,37 +56,85 @@ export function LobbyPage() {
     return success
   }
 
+  // Count players (non-storyteller participants)
+  const playerCount = participants.filter(p => p.role === 'player').length
+
   return (
-    <>
-      {/* Title with role-specific messaging */}
-      <Title order={2} c="crimson">
-        {isStoryteller
-          ? `Lobby - Room ${roomCode}`
-          : 'Waiting for Storyteller...'}
-      </Title>
+    <div className={styles.container}>
+      {/* Fixed Header */}
+      <div className={styles.header}>
+        <LobbyHeader roomCode={roomCode} onQrClick={() => setQrModalOpen(true)} />
+      </div>
 
-      {/* Room Code Display */}
-      <Stack gap="xs">
-        <Text size="sm" c="dimmed">
-          Room Code:
-        </Text>
-        <Code block fz="xl" ta="center">
-          {roomCode}
-        </Code>
-        <Text size="xs" c="dimmed" ta="center">
-          Share this code for others to join
-        </Text>
-      </Stack>
+      {/* Scrollable Content */}
+      <div className={styles.content}>
+        {isStoryteller ? (
+          <>
+            {/* Game Setup Section (Storyteller only) */}
+            <GameSetupSection script={script} onScriptChange={setScript} />
 
-      {/* QR Code Button */}
-      <Button
-        variant="light"
-        leftSection={<IconQrcode size={20} />}
-        onClick={() => setQrModalOpen(true)}
-        fullWidth
-      >
-        Show QR Code
-      </Button>
+            {/* Player Count Header */}
+            <div className={styles.playersHeader}>Players ({playerCount})</div>
+
+            {/* Participant List */}
+            {loading ? (
+              <Stack gap="sm">
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+              </Stack>
+            ) : (
+              <ParticipantList
+                participants={participants}
+                currentUserId={userId}
+                showRole={true}
+                isStoryteller={isStoryteller}
+                onKick={handleKick}
+                onEdit={handleEditOpen}
+              />
+            )}
+          </>
+        ) : (
+          /* Non-Storyteller View */
+          <>
+            <div className={styles.playersHeader}>Players ({playerCount})</div>
+
+            {loading ? (
+              <Stack gap="sm">
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+              </Stack>
+            ) : (
+              <ParticipantList
+                participants={participants}
+                currentUserId={userId}
+                showRole={true}
+                isStoryteller={false}
+              />
+            )}
+
+            <Text className={styles.waitingMessage}>
+              Waiting for Storyteller to start the game...
+            </Text>
+          </>
+        )}
+      </div>
+
+      {/* Fixed Footer (Storyteller only) */}
+      {isStoryteller && (
+        <div className={styles.footer}>
+          <Button
+            size="lg"
+            fullWidth
+            color="crimson"
+            onClick={() => handleStartGame(roomId)}
+            disabled={participants.length < MIN_PLAYERS_TO_START}
+          >
+            Start Game
+          </Button>
+        </div>
+      )}
 
       {/* QR Code Modal */}
       <Modal
@@ -106,76 +146,12 @@ export function LobbyPage() {
         <QRCodeGenerator url={joinUrl} />
       </Modal>
 
-      {/* Storyteller: Script Selector */}
-      {isStoryteller && (
-        <Select
-          label="Script"
-          description="Select game script (v1 supports None only)"
-          data={[{ value: 'none', label: 'None (No Roles)' }]}
-          value={script}
-          onChange={value => setScript(value || 'none')}
-          disabled
-        />
-      )}
-
-      {/* Participant List Section */}
-      <Stack gap="xs" mt="md">
-        <Text size="sm" c="dimmed" fw={500}>
-          Participants
-        </Text>
-
-        {loading ? (
-          <Stack gap="sm">
-            <Skeleton height={48} />
-            <Skeleton height={48} />
-            <Skeleton height={48} />
-          </Stack>
-        ) : (
-          <ParticipantList
-            participants={participants}
-            currentUserId={userId}
-            showRole={true}
-            isStoryteller={isStoryteller}
-            onKick={isStoryteller ? handleKick : undefined}
-            onEdit={isStoryteller ? handleEditOpen : undefined}
-          />
-        )}
-      </Stack>
-
-      {/* Storyteller: Start Game Button */}
-      {isStoryteller && (
-        <Button
-          size="lg"
-          fullWidth
-          color="crimson"
-          onClick={() => handleStartGame(roomId)}
-          disabled={participants.length < 1}
-          mt="md"
-        >
-          Start Game
-        </Button>
-      )}
-
-      {/* Role-specific hints */}
-      {isStoryteller ? (
-        <Text size="sm" c="dimmed" ta="center" mt="xs">
-          Ready to start the game
-        </Text>
-      ) : (
-        <Stack gap="xs" align="center" mt="md">
-          <Loader type="dots" size="sm" />
-          <Text size="sm" c="dimmed">
-            The game will start soon
-          </Text>
-        </Stack>
-      )}
-
       {/* Edit Name Modal */}
       <EditNameModal
         editingParticipant={editingParticipant}
         onClose={() => setEditingParticipant(null)}
         onSave={onEditSave}
       />
-    </>
+    </div>
   )
 }

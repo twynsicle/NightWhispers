@@ -75,3 +75,17 @@ export const SERVICE_WORKER_READY_TIMEOUT_MS = 5000
  * Shorter timeout for checking subscription state (ms).
  */
 export const SERVICE_WORKER_CHECK_TIMEOUT_MS = 3000
+
+// ============================================================================
+// Lobby
+// ============================================================================
+
+/**
+ * Header height for lobby page layout.
+ */
+export const LOBBY_HEADER_HEIGHT_PX = 56
+
+/**
+ * Minimum number of players required to start the game.
+ */
+export const MIN_PLAYERS_TO_START = 1

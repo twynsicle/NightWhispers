@@ -1,0 +1,31 @@
+.container {
+  margin-bottom: var(--mantine-spacing-md);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mantine-spacing-xs) 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.title {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  color: var(--mantine-color-dimmed);
+}
+
+.chevron {
+  color: var(--mantine-color-dimmed);
+  transition: transform 200ms ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.content {
+  padding-top: var(--mantine-spacing-xs);
+}

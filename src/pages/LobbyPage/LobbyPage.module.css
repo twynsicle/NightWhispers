@@ -1,0 +1,44 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  background-color: var(--mantine-color-dark-8);
+}
+
+.header {
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+  background-color: var(--mantine-color-dark-7);
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--mantine-spacing-md);
+}
+
+.footer {
+  border-top: 1px solid var(--mantine-color-dark-4);
+  background-color: var(--mantine-color-dark-7);
+  flex-shrink: 0;
+  padding: var(--mantine-spacing-md);
+}
+
+.playersHeader {
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
+  font-size: var(--mantine-font-size-sm);
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+.waitingMessage {
+  text-align: center;
+  color: var(--mantine-color-dimmed);
+  padding: var(--mantine-spacing-xl) 0;
+}
