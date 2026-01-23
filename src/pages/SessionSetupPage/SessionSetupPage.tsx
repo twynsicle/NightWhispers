@@ -33,12 +33,21 @@ export function SessionSetupPage() {
   const nextAction = searchParams.get('next') || 'create'
   const pageTitle = nextAction === 'create' ? 'Create a Room' : 'Join the Night'
 
+  // Get saved values from localStorage
+  const getSavedValue = (key: string) => {
+    try {
+      return localStorage.getItem(key) || ''
+    } catch {
+      return ''
+    }
+  }
+
   // Form setup with validators
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
-      displayName: '',
-      avatar: '',
+      displayName: getSavedValue('displayName'),
+      avatar: getSavedValue('avatar'),
     },
     validate: {
       displayName: hasLength(

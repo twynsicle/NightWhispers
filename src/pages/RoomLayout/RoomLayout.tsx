@@ -127,6 +127,13 @@ export function RoomLayout() {
     joinUrl,
   }
 
+  // Lobby page uses its own fixed full-screen layout
+  const isLobby = location.pathname.endsWith('/lobby')
+
+  if (isLobby) {
+    return <Outlet context={context} />
+  }
+
   return (
     <Container size="md" py="xl">
       <Stack gap="md">

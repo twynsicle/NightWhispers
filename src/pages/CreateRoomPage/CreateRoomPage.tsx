@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Container, Stack, Title, Text, Skeleton, Button } from '@mantine/core'
+import { Container, Stack, Title, Skeleton, Button, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useAuth } from '../../hooks/useAuth'
 import { createRoom } from '../../lib/rooms'
-import styles from './CreateRoomPage.module.css'
 
 /**
  * Room creation page for Storyteller.
@@ -17,8 +16,7 @@ import styles from './CreateRoomPage.module.css'
  * 1. Verify session exists (redirect to /setup if not)
  * 2. Retrieve displayName and avatar from localStorage
  * 3. Create room with collision retry
- * 4. Display 4-letter room code
- * 5. Auto-navigate to /room/:roomId after 2 seconds
+ * 4. Navigate directly to /room/:roomId
  *
  * Note: Storyteller profile update happens in room creation (createRoom adds
  * participant record with displayName/avatar from localStorage).
@@ -26,10 +24,7 @@ import styles from './CreateRoomPage.module.css'
 export function CreateRoomPage() {
   const navigate = useNavigate()
   const { session, loading: authLoading } = useAuth()
-  const [roomCode, setRoomCode] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [roomId, setRoomId] = useState<string | null>(null)
 
   useEffect(() => {
     async function initialize() {
@@ -62,7 +57,7 @@ export function CreateRoomPage() {
         return
       }
 
-      // Create room
+      // Create room and navigate directly to lobby
       try {
         const { room } = await createRoom(
           session.user.id,
@@ -70,8 +65,7 @@ export function CreateRoomPage() {
           displayName,
           avatar
         )
-        setRoomCode(room.code)
-        setRoomId(room.id)
+        navigate(`/room/${room.id}`, { replace: true })
       } catch (err) {
         console.error('Room creation failed:', err)
         setError(err instanceof Error ? err.message : 'Failed to create room')
@@ -80,37 +74,11 @@ export function CreateRoomPage() {
           message: 'Could not create room. Please try again.',
           color: 'red',
         })
-      } finally {
-        setIsLoading(false)
       }
     }
 
     initialize()
   }, [session, authLoading, navigate])
-
-  // Auto-navigate after 2 seconds with cleanup
-  useEffect(() => {
-    if (!roomId) return
-
-    const timeoutId = setTimeout(() => {
-      navigate(`/room/${roomId}`)
-    }, 2000)
-
-    return () => clearTimeout(timeoutId)
-  }, [roomId, navigate])
-
-  if (isLoading) {
-    return (
-      <Container size="xs" py="xl">
-        <Stack gap="lg" align="center">
-          <Title order={2} c="crimson">
-            Creating Room...
-          </Title>
-          <Skeleton height={120} width="100%" />
-        </Stack>
-      </Container>
-    )
-  }
 
   if (error) {
     return (
@@ -128,42 +96,14 @@ export function CreateRoomPage() {
     )
   }
 
+  // Show loading state while creating room
   return (
     <Container size="xs" py="xl">
       <Stack gap="lg" align="center">
         <Title order={2} c="crimson">
-          Room Created
+          Creating Room...
         </Title>
-
-        <Text size="lg">Share this code with your players:</Text>
-
-        <Text
-          size="3rem"
-          fw={700}
-          ta="center"
-          ff="monospace"
-          c="crimson"
-          className={styles.roomCode}
-        >
-          {roomCode}
-        </Text>
-
-        <Text size="sm" c="dimmed">
-          Players can enter this code to join
-        </Text>
-
-        <Stack gap="xs" mt="md">
-          <Text size="xs" c="dimmed" ta="center">
-            Redirecting to room...
-          </Text>
-          <Button
-            variant="subtle"
-            color="crimson"
-            onClick={() => navigate(`/room/${roomId}`)}
-          >
-            Continue Now
-          </Button>
-        </Stack>
+        <Skeleton height={120} width="100%" />
       </Stack>
     </Container>
   )
