@@ -41,17 +41,19 @@
       "Skill(gsd:complete-milestone)",
       "Bash(git mv:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run typecheck:*)"
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:*)",
+      "WebFetch(domain:docs.claude.com)"
     ]
   },
   "hooks": {
-    "PostToolUse": [
+    "Stop": [
       {
-        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/post_tool_use.sh"
+            "command": "node .claude/hooks/stop_hook.js"
           }
         ]
       }

@@ -29,6 +29,24 @@ Always use context7 when you need code generation, setup or configuration steps,
 - Use `/frontend-design` command when creating UI.
 - Avoid running lint checks and applying prettier directly – formatting and linting are handled via PostToolUse hook.
 
+### Stop Hook Behavior
+A stop hook runs when Claude attempts to stop/complete a task. It checks for TypeScript and ESLint errors.
+
+**When the stop hook blocks you with errors, you MUST:**
+1. Log your decision-making to `.claude/tmp/claude_response.log` with timestamp, explaining what errors you saw and how you plan to fix them
+2. Actually fix the errors in the files (don't just delete test files unless that's appropriate)
+3. Only then attempt to stop again
+
+**Logging format for `.claude/tmp/claude_response.log`:**
+```
+[TIMESTAMP] Stop hook blocked with errors:
+- Error 1: [description]
+- Error 2: [description]
+Decision: [what you will do to fix]
+```
+
+The stop hook logs its own activity to `.claude/tmp/stop_hook.log` for debugging.
+
 ## Key Design Decisions
 
 - **Anonymous auth:** Ephemeral games don't need persistent accounts
