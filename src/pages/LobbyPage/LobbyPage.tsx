@@ -63,7 +63,10 @@ export function LobbyPage() {
     <div className={styles.container}>
       {/* Fixed Header */}
       <div className={styles.header}>
-        <LobbyHeader roomCode={roomCode} onQrClick={() => setQrModalOpen(true)} />
+        <LobbyHeader
+          roomCode={roomCode}
+          onQrClick={() => setQrModalOpen(true)}
+        />
       </div>
 
       {/* Scrollable Content */}

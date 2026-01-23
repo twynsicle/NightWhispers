@@ -111,10 +111,7 @@ export function JoinRoomPage() {
       roomCode: '',
     },
     validate: {
-      roomCode: matches(
-        /^[A-Za-z]{4}$/,
-        'Room code must be exactly 4 letters'
-      ),
+      roomCode: matches(/^[A-Za-z]{4}$/, 'Room code must be exactly 4 letters'),
     },
   })
 
